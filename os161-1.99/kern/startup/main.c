@@ -51,6 +51,7 @@
 #include <version.h>
 #include "autoconf.h"  // for pseudoconfig
 #include "opt-A0.h"
+#include "opt-A1.h"
 
 /*
  * These two pieces of data are maintained by the makefiles and build system.
