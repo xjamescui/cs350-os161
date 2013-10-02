@@ -212,7 +212,7 @@ void lock_acquire(struct lock *lock) {
 		//go to bed
 		wchan_sleep(lock->lk_wchan);
 
-		//make sure to pick up lock upon wake-up
+		//make sure to pick up spinlock upon wake-up
 		spinlock_acquire(&lock->lk_spinlock);
 	}
 
