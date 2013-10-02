@@ -1,0 +1,26 @@
+# Wed Sep 25 10:50:38 EDT 2013
+# Format commandsfile configfiles
+
+# This list runs one test at a time from the commands file (.cmds)
+# on all specified configurations before moving on to the command/test
+# in the .cmds file.
+# This may be preferred when marking because and/or debugging
+# because you see a command/test run across multiple configurations
+# and each configuration should give approximately similar results.
+
+# Run each test in uw1.cmds on all configurations
+# before moving to the next.
+
+uw1.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+
+locks.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+
+condvars.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+
+catmouse.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+
+semaphores.cmds sys161-512K-1P.conf sys161-512K-8P.conf
+
+threads.cmds sys161-512K-1P.conf sys161-512K-8P.conf
+
+

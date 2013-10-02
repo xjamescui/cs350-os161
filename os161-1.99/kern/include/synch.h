@@ -78,7 +78,9 @@ struct lock {
         char *lk_name;
         // add what you need here
 #if OPT_A1
+
         struct wchan *lk_wchan;
+        struct spinlock lk_spinlock;
         volatile struct thread *lk_holder;
 
 #endif /*OPT_A1*/
@@ -121,6 +123,12 @@ void lock_destroy(struct lock *);
 struct cv {
         char *cv_name;
         // add what you need here
+#if OPT_A1
+
+        struct wchan *cv_wchan;
+
+
+#endif /* OPT_A1 */
         // (don't forget to mark things volatile as needed)
 };
 

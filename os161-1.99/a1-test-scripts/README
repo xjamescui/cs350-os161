@@ -1,0 +1,54 @@
+# Wed Sep 25 17:40:06 EDT 2013
+# Tim Brecht
+
+# NOTE: These scripts use the csh.
+# NOTE: They require the PATH in your .cshrc
+# NOTE: to be set correctly so that commands like
+# NOTE: sys161 will be found.
+
+# First run to set things up
+make
+
+# Then run
+make runtest
+
+# Note that this may take some time (~30 minutes on my laptop)
+# Also note that this displays all output to the screen but does
+# not capture it to a file. You can use a pipe and the "tee" command 
+# to print output to the screen and capture it in a file
+# (in this case named OUT).
+# Assuming you are using the csh or tcsh.
+make runtest |& tee OUT
+
+# The | "pipes" the output to the "tee" command to split the output
+# to stdout and the specified file "OUT".
+# The & (ampersand) redirects stdout and stderr to the pipe.
+
+# If you are using sh or bash use
+make runtest 2>&1 | tee OUT
+
+# The 2>&1 | redirects stderr and stdout to the pipe
+
+# ---------------------------------------------------------------------- 
+# make runtests calls ./run-batch
+# ./run-batch currently calls
+#     ./run-by-config test-list-by-config1
+#     ./run-by-config calls
+#        ./run-on-config commandfile [configfiles]
+
+# Each .cmds file contains a list of commands
+# that are to be run by the kernel
+# E.g., a command is uw1, sy1, tt1, tt2, etc.
+
+# The test below runs each of tests in catmouse.cmds one at a time
+# across all the configuration files specified.
+# E.g.,
+# 1st test in catmouse.cmds on specified configurations
+# 2nd test in catmouse.cmds on specified configurations
+# ...
+./run-on-configs catmouse.cmds sys161-512K-1P.conf sys161-512K-4P.conf
+
+# The default configuration file (sys161.conf)
+# will be used if no configuration files are specified. E.g.,:
+./run-on-configs catmouse.cmds
+

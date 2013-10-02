@@ -1,0 +1,3918 @@
+Starting ./run-by-config Version Created Fall 13: v1.0 at: Tue  1 Oct 2013 21:48:07 EDT
+######################################################################
+./run-on-configs uw1.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+========================== Using parameters "uw1;q" =================================
+Started runs at: Tue  1 Oct 2013 21:48:07 EDT
+sys161 -c sys161-512K-1P.conf kernel "uw1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: uw1
+Starting uwlocktest1...
+value of test_value = 0 should be 0
+TEST SUCCEEDED
+cleanitems: Destroying sems and locks
+uwlocktest1 done.
+Operation took 23.226118800 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 585138855 cycles (585138855 run, 0 global-idle)
+sys161:   cpu0: 585138855 kern, 0 user, 0 idle)
+sys161: 233736 irqs 0 exns 0r/0w disk 0r/755w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 14.659207 seconds (39.9161 mhz)
+sys161: Elapsed virtual time: 23.405554200 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "uw1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: uw1
+Starting uwlocktest1...
+value of test_value = 0 should be 0
+TEST SUCCEEDED
+cleanitems: Destroying sems and locks
+uwlocktest1 done.
+Operation took 9.750266640 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+cpu2: offline.
+The system is halted.
+cpu3: offline.
+sys161: 248458705 cycles (248458705 run, 0 global-idle)
+sys161:   cpu0: 185652529 kern, 0 user, 62806176 idle)
+sys161:   cpu1: 167205221 kern, 0 user, 81253484 idle)
+sys161:   cpu2: 146030937 kern, 0 user, 102427768 idle)
+sys161:   cpu3: 125382604 kern, 0 user, 123076101 idle)
+sys161: 291609 irqs 0 exns 0r/0w disk 0r/850w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 17.383147 seconds (14.2931 mhz)
+sys161: Elapsed virtual time: 9.938348200 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "uw1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: uw1
+Starting uwlocktest1...
+value of test_value = 0 should be 0
+TEST SUCCEEDED
+cleanitems: Destroying sems and locks
+uwlocktest1 done.
+Operation took 9.138706280 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+cpu4: offline.
+cpu5: offline.
+cpu6: offline.
+The system is halted.
+cpu2: offline.
+cpu7: offline.
+cpu3: offline.
+sys161: 233725945 cycles (233725945 run, 0 global-idle)
+sys161:   cpu0: 154582205 kern, 0 user, 79143740 idle)
+sys161:   cpu1: 136294183 kern, 0 user, 97431762 idle)
+sys161:   cpu2: 118971724 kern, 0 user, 114754221 idle)
+sys161:   cpu3: 89692036 kern, 0 user, 144033909 idle)
+sys161:   cpu4: 86033462 kern, 0 user, 147692483 idle)
+sys161:   cpu5: 84444833 kern, 0 user, 149281112 idle)
+sys161:   cpu6: 299367 kern, 0 user, 233426578 idle)
+sys161:   cpu7: 297946 kern, 0 user, 233427999 idle)
+sys161: 320226 irqs 0 exns 0r/0w disk 0r/978w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 20.649254 seconds (11.3189 mhz)
+sys161: Elapsed virtual time: 9.349037800 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:49:00 EDT
+
+========================== Using parameters "uw1;q" =================================
+Started runs at: Tue  1 Oct 2013 21:49:00 EDT
+sys161 -c sys161-512K-1P.conf kernel "uw1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: uw1
+Starting uwlocktest1...
+value of test_value = 0 should be 0
+TEST SUCCEEDED
+cleanitems: Destroying sems and locks
+uwlocktest1 done.
+Operation took 23.186699520 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 584116452 cycles (584116452 run, 0 global-idle)
+sys161:   cpu0: 584116452 kern, 0 user, 0 idle)
+sys161: 233330 irqs 0 exns 0r/0w disk 0r/755w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 14.652602 seconds (39.8643 mhz)
+sys161: Elapsed virtual time: 23.364658080 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "uw1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: uw1
+Starting uwlocktest1...
+value of test_value = 0 should be 0
+TEST SUCCEEDED
+cleanitems: Destroying sems and locks
+uwlocktest1 done.
+Operation took 9.703790840 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+The system is halted.
+cpu2: offline.
+cpu3: offline.
+sys161: 247395684 cycles (247395684 run, 0 global-idle)
+sys161:   cpu0: 182068179 kern, 0 user, 65327505 idle)
+sys161:   cpu1: 168042967 kern, 0 user, 79352717 idle)
+sys161:   cpu2: 150834324 kern, 0 user, 96561360 idle)
+sys161:   cpu3: 120456081 kern, 0 user, 126939603 idle)
+sys161: 289976 irqs 0 exns 0r/0w disk 0r/850w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 17.254490 seconds (14.338 mhz)
+sys161: Elapsed virtual time: 9.895827360 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "uw1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: uw1
+Starting uwlocktest1...
+value of test_value = 0 should be 0
+TEST SUCCEEDED
+cleanitems: Destroying sems and locks
+uwlocktest1 done.
+Operation took 8.793452920 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+cpu4: offline.
+cpu5: offline.
+The system is halted.
+cpu6: offline.
+cpu7: offline.
+cpu2: offline.
+cpu3: offline.
+sys161: 225024785 cycles (225024785 run, 0 global-idle)
+sys161:   cpu0: 131107629 kern, 0 user, 93917156 idle)
+sys161:   cpu1: 117795877 kern, 0 user, 107228908 idle)
+sys161:   cpu2: 91770456 kern, 0 user, 133254329 idle)
+sys161:   cpu3: 84957190 kern, 0 user, 140067595 idle)
+sys161:   cpu4: 84827917 kern, 0 user, 140196868 idle)
+sys161:   cpu5: 86257219 kern, 0 user, 138767566 idle)
+sys161:   cpu6: 84254396 kern, 0 user, 140770389 idle)
+sys161:   cpu7: 278226 kern, 0 user, 224746559 idle)
+sys161: 330457 irqs 0 exns 0r/0w disk 0r/978w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 20.959668 seconds (10.7361 mhz)
+sys161: Elapsed virtual time: 9.000991400 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:49:53 EDT
+
+
+######################################################################
+./run-on-configs locks.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+========================== Using parameters "sy2;q" =================================
+Started runs at: Tue  1 Oct 2013 21:49:53 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 1.599698480 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 44455869 cycles (44455869 run, 0 global-idle)
+sys161:   cpu0: 44455869 kern, 0 user, 0 idle)
+sys161: 17397 irqs 0 exns 0r/0w disk 0r/705w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.137909 seconds (39.068 mhz)
+sys161: Elapsed virtual time: 1.778234760 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 0.686743400 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+The system is halted.
+cpu3: offline.
+cpu2: offline.
+sys161: 21851142 cycles (21851142 run, 0 global-idle)
+sys161:   cpu0: 18872655 kern, 0 user, 2978487 idle)
+sys161:   cpu1: 13472857 kern, 0 user, 8378285 idle)
+sys161:   cpu2: 10087690 kern, 0 user, 11763452 idle)
+sys161:   cpu3: 8124125 kern, 0 user, 13727017 idle)
+sys161: 21505 irqs 0 exns 0r/0w disk 0r/801w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.747768 seconds (12.5023 mhz)
+sys161: Elapsed virtual time: 0.874045680 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 0.523577880 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+cpu4: offline.
+cpu5: offline.
+The system is halted.
+cpu6: offline.
+cpu1: offline.
+cpu2: offline.
+cpu7: offline.
+sys161: 18205757 cycles (18205757 run, 0 global-idle)
+sys161:   cpu0: 11650158 kern, 0 user, 6555599 idle)
+sys161:   cpu1: 8098821 kern, 0 user, 10106936 idle)
+sys161:   cpu2: 6993786 kern, 0 user, 11211971 idle)
+sys161:   cpu3: 5693180 kern, 0 user, 12512577 idle)
+sys161:   cpu4: 5933491 kern, 0 user, 12272266 idle)
+sys161:   cpu5: 4234679 kern, 0 user, 13971078 idle)
+sys161:   cpu6: 5158638 kern, 0 user, 13047119 idle)
+sys161:   cpu7: 1427163 kern, 0 user, 16778594 idle)
+sys161: 21073 irqs 0 exns 0r/0w disk 0r/929w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.216759 seconds (8.21278 mhz)
+sys161: Elapsed virtual time: 0.728230280 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:49:58 EDT
+
+========================== Using parameters "sy2;q" =================================
+Started runs at: Tue  1 Oct 2013 21:49:58 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 1.676091560 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 46394976 cycles (46394976 run, 0 global-idle)
+sys161:   cpu0: 46394976 kern, 0 user, 0 idle)
+sys161: 18172 irqs 0 exns 0r/0w disk 0r/705w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.458239 seconds (31.8158 mhz)
+sys161: Elapsed virtual time: 1.855799040 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 0.723336800 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+The system is halted.
+cpu2: offline.
+cpu3: offline.
+sys161: 22884269 cycles (22884269 run, 0 global-idle)
+sys161:   cpu0: 19670858 kern, 0 user, 3213411 idle)
+sys161:   cpu1: 12502095 kern, 0 user, 10382174 idle)
+sys161:   cpu2: 11247997 kern, 0 user, 11636272 idle)
+sys161:   cpu3: 10781298 kern, 0 user, 12102971 idle)
+sys161: 22910 irqs 0 exns 0r/0w disk 0r/801w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.143087 seconds (10.6782 mhz)
+sys161: Elapsed virtual time: 0.915370760 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 0.554203880 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+cpu4: offline.
+The system is halted.
+cpu7: offline.
+cpu5: offline.
+cpu6: offline.
+cpu2: offline.
+cpu3: offline.
+sys161: 19026032 cycles (19026032 run, 0 global-idle)
+sys161:   cpu0: 14885202 kern, 0 user, 4140830 idle)
+sys161:   cpu1: 7365759 kern, 0 user, 11660273 idle)
+sys161:   cpu2: 6746725 kern, 0 user, 12279307 idle)
+sys161:   cpu3: 4556970 kern, 0 user, 14469062 idle)
+sys161:   cpu4: 4514856 kern, 0 user, 14511176 idle)
+sys161:   cpu5: 6195107 kern, 0 user, 12830925 idle)
+sys161:   cpu6: 5471258 kern, 0 user, 13554774 idle)
+sys161:   cpu7: 2060440 kern, 0 user, 16965592 idle)
+sys161: 21958 irqs 0 exns 0r/0w disk 0r/929w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.750060 seconds (10.8716 mhz)
+sys161: Elapsed virtual time: 0.761041280 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:04 EDT
+
+========================== Using parameters "sy2;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:04 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 1.763510840 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 48529382 cycles (48529382 run, 0 global-idle)
+sys161:   cpu0: 48529382 kern, 0 user, 0 idle)
+sys161: 19029 irqs 0 exns 0r/0w disk 0r/705w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.290289 seconds (37.6112 mhz)
+sys161: Elapsed virtual time: 1.941175280 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 0.698940480 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+cpu3: offline.
+The system is halted.
+cpu1: offline.
+sys161: 22181064 cycles (22181064 run, 0 global-idle)
+sys161:   cpu0: 17385164 kern, 0 user, 4795900 idle)
+sys161:   cpu1: 12823235 kern, 0 user, 9357829 idle)
+sys161:   cpu2: 12164223 kern, 0 user, 10016841 idle)
+sys161:   cpu3: 11713471 kern, 0 user, 10467593 idle)
+sys161: 23047 irqs 0 exns 0r/0w disk 0r/801w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.663108 seconds (13.3371 mhz)
+sys161: Elapsed virtual time: 0.887242560 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy2
+Starting lock test...
+cleanitems: Destroying sems, locks, and cvs
+Lock test done.
+Operation took 0.554789600 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+cpu3: offline.
+cpu4: offline.
+cpu1: offline.
+cpu7: offline.
+The system is halted.
+cpu5: offline.
+cpu6: offline.
+sys161: 19028694 cycles (19028694 run, 0 global-idle)
+sys161:   cpu0: 14229072 kern, 0 user, 4799622 idle)
+sys161:   cpu1: 7677115 kern, 0 user, 11351579 idle)
+sys161:   cpu2: 6324656 kern, 0 user, 12704038 idle)
+sys161:   cpu3: 6793023 kern, 0 user, 12235671 idle)
+sys161:   cpu4: 5720604 kern, 0 user, 13308090 idle)
+sys161:   cpu5: 5784297 kern, 0 user, 13244397 idle)
+sys161:   cpu6: 5275631 kern, 0 user, 13753063 idle)
+sys161:   cpu7: 3759935 kern, 0 user, 15268759 idle)
+sys161: 23289 irqs 0 exns 0r/0w disk 0r/929w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.876591 seconds (10.14 mhz)
+sys161: Elapsed virtual time: 0.761147760 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:08 EDT
+
+
+######################################################################
+./run-on-configs condvars.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+========================== Using parameters "sy3;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:08 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 2.239145760 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 60446431 cycles (60446431 run, 0 global-idle)
+sys161:   cpu0: 60446431 kern, 0 user, 0 idle)
+sys161: 22229 irqs 0 exns 0r/0w disk 0r/2293w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.644372 seconds (36.7596 mhz)
+sys161: Elapsed virtual time: 2.417857240 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 1.554436360 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+The system is halted.
+cpu2: offline.
+cpu3: offline.
+sys161: 43671714 cycles (43671714 run, 0 global-idle)
+sys161:   cpu0: 29150694 kern, 0 user, 14521020 idle)
+sys161:   cpu1: 13705415 kern, 0 user, 29966299 idle)
+sys161:   cpu2: 10271644 kern, 0 user, 33400070 idle)
+sys161:   cpu3: 12667250 kern, 0 user, 31004464 idle)
+sys161: 28090 irqs 0 exns 0r/0w disk 0r/2389w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.092437 seconds (20.8712 mhz)
+sys161: Elapsed virtual time: 1.746868560 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 1.411537080 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+The system is halted.
+cpu5: offline.
+cpu7: offline.
+cpu2: offline.
+cpu3: offline.
+cpu1: offline.
+cpu4: offline.
+sys161: 40364823 cycles (40364823 run, 0 global-idle)
+sys161:   cpu0: 20562739 kern, 0 user, 19802084 idle)
+sys161:   cpu1: 8091342 kern, 0 user, 32273481 idle)
+sys161:   cpu2: 8057563 kern, 0 user, 32307260 idle)
+sys161:   cpu3: 8464922 kern, 0 user, 31899901 idle)
+sys161:   cpu4: 7049161 kern, 0 user, 33315662 idle)
+sys161:   cpu5: 6538974 kern, 0 user, 33825849 idle)
+sys161:   cpu6: 7800498 kern, 0 user, 32564325 idle)
+sys161:   cpu7: 3638703 kern, 0 user, 36726120 idle)
+sys161: 30662 irqs 0 exns 0r/0w disk 0r/2517w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 3.029794 seconds (13.3226 mhz)
+sys161: Elapsed virtual time: 1.614592920 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:15 EDT
+
+========================== Using parameters "sy3;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:15 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 2.159110600 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 58434889 cycles (58434889 run, 0 global-idle)
+sys161:   cpu0: 58434889 kern, 0 user, 0 idle)
+sys161: 21594 irqs 0 exns 0r/0w disk 0r/2293w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.567305 seconds (37.2837 mhz)
+sys161: Elapsed virtual time: 2.337395560 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 1.696135640 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+cpu3: offline.
+cpu2: offline.
+The system is halted.
+sys161: 47246639 cycles (47246639 run, 0 global-idle)
+sys161:   cpu0: 30880452 kern, 0 user, 16366187 idle)
+sys161:   cpu1: 12227487 kern, 0 user, 35019152 idle)
+sys161:   cpu2: 14168434 kern, 0 user, 33078205 idle)
+sys161:   cpu3: 5714705 kern, 0 user, 41531934 idle)
+sys161: 26707 irqs 0 exns 0r/0w disk 0r/2389w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.071162 seconds (22.8117 mhz)
+sys161: Elapsed virtual time: 1.889865560 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 1.415257960 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+cpu7: offline.
+cpu3: offline.
+cpu2: offline.
+cpu4: offline.
+cpu5: offline.
+The system is halted.
+cpu6: offline.
+sys161: 40666253 cycles (40666253 run, 0 global-idle)
+sys161:   cpu0: 20439969 kern, 0 user, 20226284 idle)
+sys161:   cpu1: 12201628 kern, 0 user, 28464625 idle)
+sys161:   cpu2: 8416781 kern, 0 user, 32249472 idle)
+sys161:   cpu3: 6341055 kern, 0 user, 34325198 idle)
+sys161:   cpu4: 7683292 kern, 0 user, 32982961 idle)
+sys161:   cpu5: 7475308 kern, 0 user, 33190945 idle)
+sys161:   cpu6: 3882511 kern, 0 user, 36783742 idle)
+sys161:   cpu7: 3499824 kern, 0 user, 37166429 idle)
+sys161: 30007 irqs 0 exns 0r/0w disk 0r/2517w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 3.026692 seconds (13.4359 mhz)
+sys161: Elapsed virtual time: 1.626650120 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:22 EDT
+
+========================== Using parameters "sy3;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:22 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 2.361150080 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 63516494 cycles (63516494 run, 0 global-idle)
+sys161:   cpu0: 63516494 kern, 0 user, 0 idle)
+sys161: 22875 irqs 0 exns 0r/0w disk 0r/2293w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.875449 seconds (33.8674 mhz)
+sys161: Elapsed virtual time: 2.540659760 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 1.738731400 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+The system is halted.
+cpu2: offline.
+cpu3: offline.
+sys161: 48279095 cycles (48279095 run, 0 global-idle)
+sys161:   cpu0: 33033213 kern, 0 user, 15245882 idle)
+sys161:   cpu1: 15633071 kern, 0 user, 32646024 idle)
+sys161:   cpu2: 11529636 kern, 0 user, 36749459 idle)
+sys161:   cpu3: 3267810 kern, 0 user, 45011285 idle)
+sys161: 26738 irqs 0 exns 0r/0w disk 0r/2389w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.101206 seconds (22.9768 mhz)
+sys161: Elapsed virtual time: 1.931163800 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+cleanitems: Destroying sems, locks, and cvs
+CV test done
+Operation took 1.458269040 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+The system is halted.
+cpu6: offline.
+cpu7: offline.
+cpu3: offline.
+cpu1: offline.
+cpu2: offline.
+cpu4: offline.
+sys161: 41539845 cycles (41539845 run, 0 global-idle)
+sys161:   cpu0: 21642437 kern, 0 user, 19897408 idle)
+sys161:   cpu1: 9544536 kern, 0 user, 31995309 idle)
+sys161:   cpu2: 11066290 kern, 0 user, 30473555 idle)
+sys161:   cpu3: 5474890 kern, 0 user, 36064955 idle)
+sys161:   cpu4: 7523581 kern, 0 user, 34016264 idle)
+sys161:   cpu5: 5061744 kern, 0 user, 36478101 idle)
+sys161:   cpu6: 5926451 kern, 0 user, 35613394 idle)
+sys161:   cpu7: 4901569 kern, 0 user, 36638276 idle)
+sys161: 31012 irqs 0 exns 0r/0w disk 0r/2517w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.643173 seconds (15.7159 mhz)
+sys161: Elapsed virtual time: 1.661593800 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:29 EDT
+
+
+######################################################################
+./run-on-configs catmouse.cmds sys161-512K-1P.conf sys161-512K-4P.conf sys161-512K-8P.conf
+========================== Using parameters "sp2 4 7 7 3 0 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:29 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 4 7 7 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 4 7 7 3 0 0 0 0
+Using 4 bowls, 7 cats, and 7 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c--
+cat_eat   (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 13581244 cycles (13581244 run, 0 global-idle)
+sys161:   cpu0: 13581244 kern, 0 user, 0 idle)
+sys161: 5182 irqs 0 exns 0r/0w disk 0r/981w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.422674 seconds (32.1317 mhz)
+sys161: Elapsed virtual time: 0.543249760 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 4 7 7 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 4 7 7 3 0 0 0 0
+Using 4 bowls, 7 cats, and 7 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   3) start:   Eating Cats:   1  Eating Mice:   0   --c-
+cat_eat   (bowl   4) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   4) finish:  Eating Cats:   1  Eating Mice:   0   --c-
+cat_eat   (bowl   4) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   4) finish:  Eating Cats:   1  Eating Mice:   0   --c-
+panic: cat_eat: attempt to make two cats eat from bowl 3!
+sys161: 9458670 cycles (9458670 run, 0 global-idle)
+sys161:   cpu0: 8912215 kern, 0 user, 546455 idle)
+sys161:   cpu1: 2628371 kern, 0 user, 6830299 idle)
+sys161:   cpu2: 1677049 kern, 0 user, 7781621 idle)
+sys161:   cpu3: 1660997 kern, 0 user, 7797673 idle)
+sys161: 5686 irqs 0 exns 0r/0w disk 0r/1165w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.471066 seconds (20.0793 mhz)
+sys161: Elapsed virtual time: 0.378346800 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 4 7 7 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 4 7 7 3 0 0 0 0
+Using 4 bowls, 7 cats, and 7 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c--
+cat_eat   (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   3) start:   Eating Cats:   1  Eating Mice:   0   --c-
+cat_eat   (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   3) start:   Eating Cats:   1  Eating Mice:   0   --c-
+cat_eat   (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   3) start:   Eating Cats:   1  Eating Mice:   0   --c-
+cat_eat   (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c---
+cat_eat   (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c---
+cat_eat   (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c--
+cat_eat   (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 15885112 cycles (15885112 run, 0 global-idle)
+sys161:   cpu0: 14657665 kern, 0 user, 1227447 idle)
+sys161:   cpu1: 4672252 kern, 0 user, 11212860 idle)
+sys161:   cpu2: 4393466 kern, 0 user, 11491646 idle)
+sys161:   cpu3: 988412 kern, 0 user, 14896700 idle)
+sys161:   cpu4: 415352 kern, 0 user, 15469760 idle)
+sys161:   cpu5: 280265 kern, 0 user, 15604847 idle)
+sys161:   cpu6: 280367 kern, 0 user, 15604745 idle)
+sys161:   cpu7: 279694 kern, 0 user, 15605418 idle)
+sys161: 11011 irqs 0 exns 0r/0w disk 0r/2396w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.976403 seconds (16.269 mhz)
+sys161: Elapsed virtual time: 0.635404480 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:30 EDT
+
+========================== Using parameters "sp2 5 10 10 3 1 1 1 1;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:30 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 5 10 10 3 1 1 1 1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 5 10 10 3 1 1 1 1
+Using 5 bowls, 10 cats, and 10 mice. Looping 3 times.
+Using cat eating time 1, cat sleeping time 1
+Using mouse eating time 1, mouse sleeping time 1
+cat_eat   (bowl   3) start:   Eating Cats:   1  Eating Mice:   0   --c--
+cat_eat   (bowl   2) start:   Eating Cats:   2  Eating Mice:   0   -cc--
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 26809222 cycles (16158493 run, 10650729 global-idle)
+sys161:   cpu0: 16158493 kern, 0 user, 0 idle)
+sys161: 6154 irqs 0 exns 0r/0w disk 0r/915w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.070161 seconds (25.0516 mhz)
+sys161: Elapsed virtual time: 1.072368897 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 5 10 10 3 1 1 1 1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 5 10 10 3 1 1 1 1
+Using 5 bowls, 10 cats, and 10 mice. Looping 3 times.
+Using cat eating time 1, cat sleeping time 1
+Using mouse eating time 1, mouse sleeping time 1
+cat_eat   (bowl   5) start:   Eating Cats:   1  Eating Mice:   0   ----c
+cat_eat   (bowl   4) start:   Eating Cats:   2  Eating Mice:   0   ---cc
+cat_eat   (bowl   3) start:   Eating Cats:   3  Eating Mice:   0   --ccc
+cat_eat   (bowl   2) start:   Eating Cats:   4  Eating Mice:   0   -cccc
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 27209965 cycles (12811495 run, 14398470 global-idle)
+sys161:   cpu0: 12517536 kern, 0 user, 293959 idle)
+sys161:   cpu1: 1848272 kern, 0 user, 10963223 idle)
+sys161:   cpu2: 1809541 kern, 0 user, 11001954 idle)
+sys161:   cpu3: 283154 kern, 0 user, 12528341 idle)
+sys161: 6343 irqs 0 exns 0r/0w disk 0r/1112w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.132945 seconds (24.017 mhz)
+sys161: Elapsed virtual time: 1.088398623 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 5 10 10 3 1 1 1 1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 5 10 10 3 1 1 1 1
+Using 5 bowls, 10 cats, and 10 mice. Looping 3 times.
+Using cat eating time 1, cat sleeping time 1
+Using mouse eating time 1, mouse sleeping time 1
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c---
+cat_eat   (bowl   4) start:   Eating Cats:   2  Eating Mice:   0   -c-c-
+cat_eat   (bowl   5) start:   Eating Cats:   3  Eating Mice:   0   -c-cc
+panic: cat_eat: attempt to make two cats eat from bowl 5!
+sys161: 26791972 cycles (9788336 run, 17003636 global-idle)
+sys161:   cpu0: 8848825 kern, 0 user, 939511 idle)
+sys161:   cpu1: 2526593 kern, 0 user, 7261743 idle)
+sys161:   cpu2: 2349377 kern, 0 user, 7438959 idle)
+sys161:   cpu3: 1365200 kern, 0 user, 8423136 idle)
+sys161:   cpu4: 269064 kern, 0 user, 9519272 idle)
+sys161:   cpu5: 269166 kern, 0 user, 9519170 idle)
+sys161:   cpu6: 269268 kern, 0 user, 9519068 idle)
+sys161:   cpu7: 268595 kern, 0 user, 9519741 idle)
+sys161: 5747 irqs 0 exns 0r/0w disk 0r/1096w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.133615 seconds (23.6341 mhz)
+sys161: Elapsed virtual time: 1.071678903 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:34 EDT
+
+========================== Using parameters "sp2 4 6 6 3 1 2 1 2;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:34 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 4 6 6 3 1 2 1 2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 4 6 6 3 1 2 1 2
+Using 4 bowls, 6 cats, and 6 mice. Looping 3 times.
+Using cat eating time 1, cat sleeping time 2
+Using mouse eating time 1, mouse sleeping time 2
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c--
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 51364131 cycles (12540216 run, 38823915 global-idle)
+sys161:   cpu0: 12540216 kern, 0 user, 0 idle)
+sys161: 4668 irqs 0 exns 0r/0w disk 0r/837w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.046654 seconds (49.0746 mhz)
+sys161: Elapsed virtual time: 2.054565257 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 4 6 6 3 1 2 1 2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 4 6 6 3 1 2 1 2
+Using 4 bowls, 6 cats, and 6 mice. Looping 3 times.
+Using cat eating time 1, cat sleeping time 2
+Using mouse eating time 1, mouse sleeping time 2
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   2   m-m-
+panic: cat_eat: attempt to make a cat eat while mice are eating!
+sys161: 51414676 cycles (10630926 run, 40783750 global-idle)
+sys161:   cpu0: 10350248 kern, 0 user, 280678 idle)
+sys161:   cpu1: 771175 kern, 0 user, 9859751 idle)
+sys161:   cpu2: 1142198 kern, 0 user, 9488728 idle)
+sys161:   cpu3: 277869 kern, 0 user, 10353057 idle)
+sys161: 4562 irqs 0 exns 0r/0w disk 0r/956w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.093437 seconds (24.5599 mhz)
+sys161: Elapsed virtual time: 2.056587057 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 4 6 6 3 1 2 1 2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 4 6 6 3 1 2 1 2
+Using 4 bowls, 6 cats, and 6 mice. Looping 3 times.
+Using cat eating time 1, cat sleeping time 2
+Using mouse eating time 1, mouse sleeping time 2
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m--
+panic: cat_eat: attempt to make a cat eat while mice are eating!
+sys161: 51267850 cycles (8107861 run, 43159989 global-idle)
+sys161:   cpu0: 7752534 kern, 0 user, 355327 idle)
+sys161:   cpu1: 919712 kern, 0 user, 7188149 idle)
+sys161:   cpu2: 1144161 kern, 0 user, 6963700 idle)
+sys161:   cpu3: 2150915 kern, 0 user, 5956946 idle)
+sys161:   cpu4: 402755 kern, 0 user, 7705106 idle)
+sys161:   cpu5: 275490 kern, 0 user, 7832371 idle)
+sys161:   cpu6: 275592 kern, 0 user, 7832269 idle)
+sys161:   cpu7: 274919 kern, 0 user, 7832942 idle)
+sys161: 4319 irqs 0 exns 0r/0w disk 0r/952w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.088078 seconds (47.1178 mhz)
+sys161: Elapsed virtual time: 2.050714023 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:38 EDT
+
+========================== Using parameters "sp2 1 5 5 2 1 0 1 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:38 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 1 5 5 2 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 1 5 5 2 1 0 1 0
+Using 1 bowls, 5 cats, and 5 mice. Looping 2 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c
+panic: cat_eat: attempt to make two cats eat from bowl 1!
+sys161: 9127096 cycles (9127096 run, 0 global-idle)
+sys161:   cpu0: 9127096 kern, 0 user, 0 idle)
+sys161: 3337 irqs 0 exns 0r/0w disk 0r/823w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.250527 seconds (36.4316 mhz)
+sys161: Elapsed virtual time: 0.365083840 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 1 5 5 2 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 1 5 5 2 1 0 1 0
+Using 1 bowls, 5 cats, and 5 mice. Looping 2 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 6924095 cycles (6924095 run, 0 global-idle)
+sys161:   cpu0: 6904288 kern, 0 user, 19807 idle)
+sys161:   cpu1: 1184459 kern, 0 user, 5739636 idle)
+sys161:   cpu2: 860231 kern, 0 user, 6063864 idle)
+sys161:   cpu3: 532154 kern, 0 user, 6391941 idle)
+sys161: 3145 irqs 0 exns 0r/0w disk 0r/885w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.296412 seconds (23.3597 mhz)
+sys161: Elapsed virtual time: 0.276963800 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 1 5 5 2 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 1 5 5 2 1 0 1 0
+Using 1 bowls, 5 cats, and 5 mice. Looping 2 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c
+panic: cat_eat: attempt to make two cats eat from bowl 1!
+sys161: 7277559 cycles (7277559 run, 0 global-idle)
+sys161:   cpu0: 7237824 kern, 0 user, 39735 idle)
+sys161:   cpu1: 1550217 kern, 0 user, 5727342 idle)
+sys161:   cpu2: 1470139 kern, 0 user, 5807420 idle)
+sys161:   cpu3: 731586 kern, 0 user, 6545973 idle)
+sys161:   cpu4: 537431 kern, 0 user, 6740128 idle)
+sys161:   cpu5: 268480 kern, 0 user, 7009079 idle)
+sys161:   cpu6: 268582 kern, 0 user, 7008977 idle)
+sys161:   cpu7: 267909 kern, 0 user, 7009650 idle)
+sys161: 3864 irqs 0 exns 0r/0w disk 0r/942w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.450258 seconds (16.1631 mhz)
+sys161: Elapsed virtual time: 0.291102360 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:39 EDT
+
+========================== Using parameters "sp2 4 0 15 3 0 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:39 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 4 0 15 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 4 0 15 3 0 0 0 0
+Using 4 bowls, 0 cats, and 15 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m-
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   2   m-m-
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   1   --m-
+panic: mouse_eat: attempt to make two mice eat from bowl 3!
+sys161: 16063167 cycles (16063167 run, 0 global-idle)
+sys161:   cpu0: 16063167 kern, 0 user, 0 idle)
+sys161: 6244 irqs 0 exns 0r/0w disk 0r/1118w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.423382 seconds (37.9401 mhz)
+sys161: Elapsed virtual time: 0.642526680 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 4 0 15 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 4 0 15 3 0 0 0 0
+Using 4 bowls, 0 cats, and 15 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -m-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   2   --mm
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -m-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   2   m--m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   3   mm-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   2   m--m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   3   mm-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   2   m--m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   3   mm-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   2   m--m
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   3   m-mm
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   2   m--m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   3   mm-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   2   m--m
+panic: mouse_eat: attempt to make two mice eat from bowl 4!
+sys161: 14387346 cycles (14387346 run, 0 global-idle)
+sys161:   cpu0: 13341976 kern, 0 user, 1045370 idle)
+sys161:   cpu1: 4331266 kern, 0 user, 10056080 idle)
+sys161:   cpu2: 4650123 kern, 0 user, 9737223 idle)
+sys161:   cpu3: 3431949 kern, 0 user, 10955397 idle)
+sys161: 11361 irqs 0 exns 0r/0w disk 0r/2105w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.780920 seconds (18.4236 mhz)
+sys161: Elapsed virtual time: 0.575493840 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 4 0 15 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 4 0 15 3 0 0 0 0
+Using 4 bowls, 0 cats, and 15 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m-
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m-
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m--
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m-
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m--
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m--
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m--
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m--
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m-
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m-
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m---
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -m-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -m-m
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   2   --mm
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   2   --mm
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   2   --mm
+mouse_eat (bowl   3) finish:  Eating Cats:   0  Eating Mice:   1   ---m
+panic: mouse_eat: attempt to make two mice eat from bowl 4!
+sys161: 27407286 cycles (27407286 run, 0 global-idle)
+sys161:   cpu0: 24586517 kern, 0 user, 2820769 idle)
+sys161:   cpu1: 6684920 kern, 0 user, 20722366 idle)
+sys161:   cpu2: 5625431 kern, 0 user, 21781855 idle)
+sys161:   cpu3: 3191427 kern, 0 user, 24215859 idle)
+sys161:   cpu4: 5816119 kern, 0 user, 21591167 idle)
+sys161:   cpu5: 2788970 kern, 0 user, 24618316 idle)
+sys161:   cpu6: 271185 kern, 0 user, 27136101 idle)
+sys161:   cpu7: 270512 kern, 0 user, 27136774 idle)
+sys161: 23782 irqs 0 exns 0r/0w disk 0r/4405w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.964499 seconds (13.9513 mhz)
+sys161: Elapsed virtual time: 1.096291440 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:42 EDT
+
+========================== Using parameters "sp2 4 15 0 3 0 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:42 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 4 15 0 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 4 15 0 3 0 0 0 0
+Using 4 bowls, 15 cats, and 0 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c---
+panic: cat_eat: attempt to make two cats eat from bowl 1!
+sys161: 10908418 cycles (10908418 run, 0 global-idle)
+sys161:   cpu0: 10908418 kern, 0 user, 0 idle)
+sys161: 4054 irqs 0 exns 0r/0w disk 0r/828w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.559667 seconds (19.4909 mhz)
+sys161: Elapsed virtual time: 0.436336720 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 4 15 0 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 4 15 0 3 0 0 0 0
+Using 4 bowls, 15 cats, and 0 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   2) start:   Eating Cats:   2  Eating Mice:   0   -c-c
+cat_eat   (bowl   2) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   2) start:   Eating Cats:   2  Eating Mice:   0   -c-c
+cat_eat   (bowl   2) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+panic: cat_eat: attempt to make two cats eat from bowl 4!
+sys161: 14483919 cycles (14483919 run, 0 global-idle)
+sys161:   cpu0: 13631101 kern, 0 user, 852818 idle)
+sys161:   cpu1: 3868896 kern, 0 user, 10615023 idle)
+sys161:   cpu2: 4277786 kern, 0 user, 10206133 idle)
+sys161:   cpu3: 3711645 kern, 0 user, 10772274 idle)
+sys161: 11385 irqs 0 exns 0r/0w disk 0r/2175w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.944752 seconds (15.3309 mhz)
+sys161: Elapsed virtual time: 0.579356760 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 4 15 0 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 4 15 0 3 0 0 0 0
+Using 4 bowls, 15 cats, and 0 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c---
+cat_eat   (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   2) start:   Eating Cats:   2  Eating Mice:   0   -c-c
+cat_eat   (bowl   2) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+cat_eat   (bowl   1) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+panic: cat_eat: attempt to make two cats eat from bowl 4!
+sys161: 16183702 cycles (16183702 run, 0 global-idle)
+sys161:   cpu0: 14956118 kern, 0 user, 1227584 idle)
+sys161:   cpu1: 2985036 kern, 0 user, 13198666 idle)
+sys161:   cpu2: 5132067 kern, 0 user, 11051635 idle)
+sys161:   cpu3: 1059142 kern, 0 user, 15124560 idle)
+sys161:   cpu4: 1466718 kern, 0 user, 14716984 idle)
+sys161:   cpu5: 3739407 kern, 0 user, 12444295 idle)
+sys161:   cpu6: 1650148 kern, 0 user, 14533554 idle)
+sys161:   cpu7: 268405 kern, 0 user, 15915297 idle)
+sys161: 13630 irqs 0 exns 0r/0w disk 0r/2531w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.321456 seconds (12.2469 mhz)
+sys161: Elapsed virtual time: 0.647348080 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:45 EDT
+
+========================== Using parameters "sp2 4 2 2 6 3 0 0 2;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:45 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 4 2 2 6 3 0 0 2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 4 2 2 6 3 0 0 2
+Using 4 bowls, 2 cats, and 2 mice. Looping 6 times.
+Using cat eating time 3, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 2
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c--c
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 50540485 cycles (7449133 run, 43091352 global-idle)
+sys161:   cpu0: 7449133 kern, 0 user, 0 idle)
+sys161: 2688 irqs 0 exns 0r/0w disk 0r/909w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.022415 seconds (49.4325 mhz)
+sys161: Elapsed virtual time: 2.021619417 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 4 2 2 6 3 0 0 2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 4 2 2 6 3 0 0 2
+Using 4 bowls, 2 cats, and 2 mice. Looping 6 times.
+Using cat eating time 3, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 2
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c---
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   c-c-
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 50703325 cycles (7709240 run, 42994085 global-idle)
+sys161:   cpu0: 7185922 kern, 0 user, 523318 idle)
+sys161:   cpu1: 1967230 kern, 0 user, 5742010 idle)
+sys161:   cpu2: 278573 kern, 0 user, 7430667 idle)
+sys161:   cpu3: 277900 kern, 0 user, 7431340 idle)
+sys161: 3332 irqs 0 exns 0r/0w disk 0r/960w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.044000 seconds (48.5664 mhz)
+sys161: Elapsed virtual time: 2.028133023 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 4 2 2 6 3 0 0 2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 4 2 2 6 3 0 0 2
+Using 4 bowls, 2 cats, and 2 mice. Looping 6 times.
+Using cat eating time 3, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 2
+cat_eat   (bowl   3) start:   Eating Cats:   1  Eating Mice:   0   --c-
+panic: cat_eat: attempt to make two cats eat from bowl 3!
+sys161: 6624795 cycles (6624795 run, 0 global-idle)
+sys161:   cpu0: 6585045 kern, 0 user, 39750 idle)
+sys161:   cpu1: 934747 kern, 0 user, 5690048 idle)
+sys161:   cpu2: 268797 kern, 0 user, 6355998 idle)
+sys161:   cpu3: 268899 kern, 0 user, 6355896 idle)
+sys161:   cpu4: 269001 kern, 0 user, 6355794 idle)
+sys161:   cpu5: 269103 kern, 0 user, 6355692 idle)
+sys161:   cpu6: 269205 kern, 0 user, 6355590 idle)
+sys161:   cpu7: 268532 kern, 0 user, 6356263 idle)
+sys161: 2721 irqs 0 exns 0r/0w disk 0r/945w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.427001 seconds (15.5147 mhz)
+sys161: Elapsed virtual time: 0.264991800 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:48 EDT
+
+========================== Using parameters "sp2 20 2 2 10 1 0 1 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:48 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 20 2 2 10 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 20 2 2 10 1 0 1 0
+Using 20 bowls, 2 cats, and 2 mice. Looping 10 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl   6) start:   Eating Cats:   1  Eating Mice:   0   -----c--------------
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 7703601 cycles (7703601 run, 0 global-idle)
+sys161:   cpu0: 7703601 kern, 0 user, 0 idle)
+sys161: 2741 irqs 0 exns 0r/0w disk 0r/857w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.239872 seconds (32.1155 mhz)
+sys161: Elapsed virtual time: 0.308144040 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 20 2 2 10 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 20 2 2 10 1 0 1 0
+Using 20 bowls, 2 cats, and 2 mice. Looping 10 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl  15) start:   Eating Cats:   1  Eating Mice:   0   --------------c-----
+cat_eat   (bowl   8) start:   Eating Cats:   2  Eating Mice:   0   -------c------c-----
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 7468076 cycles (7468076 run, 0 global-idle)
+sys161:   cpu0: 7259158 kern, 0 user, 208918 idle)
+sys161:   cpu1: 1585880 kern, 0 user, 5882196 idle)
+sys161:   cpu2: 278077 kern, 0 user, 7189999 idle)
+sys161:   cpu3: 277404 kern, 0 user, 7190672 idle)
+sys161: 3243 irqs 0 exns 0r/0w disk 0r/996w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.347630 seconds (21.4828 mhz)
+sys161: Elapsed virtual time: 0.298723040 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 20 2 2 10 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 20 2 2 10 1 0 1 0
+Using 20 bowls, 2 cats, and 2 mice. Looping 10 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl   7) start:   Eating Cats:   1  Eating Mice:   0   ------c-------------
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 6583298 cycles (6583298 run, 0 global-idle)
+sys161:   cpu0: 6543576 kern, 0 user, 39722 idle)
+sys161:   cpu1: 333605 kern, 0 user, 6249693 idle)
+sys161:   cpu2: 808148 kern, 0 user, 5775150 idle)
+sys161:   cpu3: 280632 kern, 0 user, 6302666 idle)
+sys161:   cpu4: 280734 kern, 0 user, 6302564 idle)
+sys161:   cpu5: 280836 kern, 0 user, 6302462 idle)
+sys161:   cpu6: 280938 kern, 0 user, 6302360 idle)
+sys161:   cpu7: 280265 kern, 0 user, 6303033 idle)
+sys161: 2686 irqs 0 exns 0r/0w disk 0r/976w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.405352 seconds (16.2409 mhz)
+sys161: Elapsed virtual time: 0.263331920 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:49 EDT
+
+========================== Using parameters "sp2 20 2 2 5 2 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:49 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 20 2 2 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 20 2 2 5 2 0 0 0
+Using 20 bowls, 2 cats, and 2 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   6) start:   Eating Cats:   1  Eating Mice:   0   -----c--------------
+cat_eat   (bowl  16) start:   Eating Cats:   2  Eating Mice:   0   -----c---------c----
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 7896260 cycles (7896260 run, 0 global-idle)
+sys161:   cpu0: 7896260 kern, 0 user, 0 idle)
+sys161: 2872 irqs 0 exns 0r/0w disk 0r/943w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.249951 seconds (31.5912 mhz)
+sys161: Elapsed virtual time: 0.315850400 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 20 2 2 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 20 2 2 5 2 0 0 0
+Using 20 bowls, 2 cats, and 2 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl  12) start:   Eating Cats:   1  Eating Mice:   0   -----------c--------
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 7044803 cycles (7044803 run, 0 global-idle)
+sys161:   cpu0: 7024226 kern, 0 user, 20577 idle)
+sys161:   cpu1: 376788 kern, 0 user, 6668015 idle)
+sys161:   cpu2: 343906 kern, 0 user, 6700897 idle)
+sys161:   cpu3: 276854 kern, 0 user, 6767949 idle)
+sys161: 2559 irqs 0 exns 0r/0w disk 0r/906w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.313238 seconds (22.4903 mhz)
+sys161: Elapsed virtual time: 0.281792120 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 20 2 2 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 20 2 2 5 2 0 0 0
+Using 20 bowls, 2 cats, and 2 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m-------------------
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  10) start:   Eating Cats:   0  Eating Mice:   1   ---------m----------
+mouse_eat (bowl  10) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   5) start:   Eating Cats:   0  Eating Mice:   1   ----m---------------
+mouse_eat (bowl   5) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  15) start:   Eating Cats:   0  Eating Mice:   1   --------------m-----
+mouse_eat (bowl  15) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  14) start:   Eating Cats:   0  Eating Mice:   1   -------------m------
+mouse_eat (bowl  14) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+cat_eat   (bowl  17) start:   Eating Cats:   1  Eating Mice:   0   ----------------c---
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 12042919 cycles (12042919 run, 0 global-idle)
+sys161:   cpu0: 11611771 kern, 0 user, 431148 idle)
+sys161:   cpu1: 340332 kern, 0 user, 11702587 idle)
+sys161:   cpu2: 5034140 kern, 0 user, 7008779 idle)
+sys161:   cpu3: 280228 kern, 0 user, 11762691 idle)
+sys161:   cpu4: 280330 kern, 0 user, 11762589 idle)
+sys161:   cpu5: 280432 kern, 0 user, 11762487 idle)
+sys161:   cpu6: 280534 kern, 0 user, 11762385 idle)
+sys161:   cpu7: 279861 kern, 0 user, 11763058 idle)
+sys161: 7281 irqs 0 exns 0r/0w disk 0r/1854w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.818806 seconds (14.7079 mhz)
+sys161: Elapsed virtual time: 0.481716760 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:50 EDT
+
+========================== Using parameters "sp2 20 5 2 5 2 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:50 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 20 5 2 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 20 5 2 5 2 0 0 0
+Using 20 bowls, 5 cats, and 2 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl  17) start:   Eating Cats:   1  Eating Mice:   0   ----------------c---
+cat_eat   (bowl   1) start:   Eating Cats:   2  Eating Mice:   0   c---------------c---
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 10810358 cycles (10810358 run, 0 global-idle)
+sys161:   cpu0: 10810358 kern, 0 user, 0 idle)
+sys161: 4055 irqs 0 exns 0r/0w disk 0r/943w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.342092 seconds (31.6007 mhz)
+sys161: Elapsed virtual time: 0.432414320 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 20 5 2 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 20 5 2 5 2 0 0 0
+Using 20 bowls, 5 cats, and 2 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c-------------------
+cat_eat   (bowl  13) start:   Eating Cats:   2  Eating Mice:   0   c-----------c-------
+cat_eat   (bowl  10) start:   Eating Cats:   3  Eating Mice:   0   c--------c--c-------
+panic: cat_eat: attempt to make two cats eat from bowl 13!
+sys161: 7621697 cycles (7621697 run, 0 global-idle)
+sys161:   cpu0: 7564120 kern, 0 user, 57577 idle)
+sys161:   cpu1: 1030115 kern, 0 user, 6591582 idle)
+sys161:   cpu2: 1019619 kern, 0 user, 6602078 idle)
+sys161:   cpu3: 742140 kern, 0 user, 6879557 idle)
+sys161: 3710 irqs 0 exns 0r/0w disk 0r/1072w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.381735 seconds (19.9659 mhz)
+sys161: Elapsed virtual time: 0.304867880 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 20 5 2 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 20 5 2 5 2 0 0 0
+Using 20 bowls, 5 cats, and 2 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl  20) start:   Eating Cats:   1  Eating Mice:   0   -------------------c
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 7200239 cycles (7200239 run, 0 global-idle)
+sys161:   cpu0: 7006176 kern, 0 user, 194063 idle)
+sys161:   cpu1: 1361842 kern, 0 user, 5838397 idle)
+sys161:   cpu2: 727972 kern, 0 user, 6472267 idle)
+sys161:   cpu3: 350942 kern, 0 user, 6849297 idle)
+sys161:   cpu4: 280636 kern, 0 user, 6919603 idle)
+sys161:   cpu5: 280738 kern, 0 user, 6919501 idle)
+sys161:   cpu6: 280840 kern, 0 user, 6919399 idle)
+sys161:   cpu7: 280167 kern, 0 user, 6920072 idle)
+sys161: 3257 irqs 0 exns 0r/0w disk 0r/974w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.468944 seconds (15.3542 mhz)
+sys161: Elapsed virtual time: 0.288009560 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:51 EDT
+
+========================== Using parameters "sp2 20 2 5 5 2 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:51 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 20 2 5 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 20 2 5 5 2 0 0 0
+Using 20 bowls, 2 cats, and 5 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   5) start:   Eating Cats:   1  Eating Mice:   0   ----c---------------
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 8080939 cycles (8080939 run, 0 global-idle)
+sys161:   cpu0: 8080939 kern, 0 user, 0 idle)
+sys161: 2919 irqs 0 exns 0r/0w disk 0r/855w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.276081 seconds (29.2702 mhz)
+sys161: Elapsed virtual time: 0.323237560 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 20 2 5 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 20 2 5 5 2 0 0 0
+Using 20 bowls, 2 cats, and 5 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl  13) start:   Eating Cats:   1  Eating Mice:   0   ------------c-------
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 7019155 cycles (7019155 run, 0 global-idle)
+sys161:   cpu0: 6999337 kern, 0 user, 19818 idle)
+sys161:   cpu1: 1215010 kern, 0 user, 5804145 idle)
+sys161:   cpu2: 435676 kern, 0 user, 6583479 idle)
+sys161:   cpu3: 277302 kern, 0 user, 6741853 idle)
+sys161: 2968 irqs 0 exns 0r/0w disk 0r/906w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.329716 seconds (21.2885 mhz)
+sys161: Elapsed virtual time: 0.280766200 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 20 2 5 5 2 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 20 2 5 5 2 0 0 0
+Using 20 bowls, 2 cats, and 5 mice. Looping 5 times.
+Using cat eating time 2, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m----------------
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m------------------
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  19) start:   Eating Cats:   0  Eating Mice:   1   ------------------m-
+mouse_eat (bowl  19) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  14) start:   Eating Cats:   0  Eating Mice:   1   -------------m------
+mouse_eat (bowl  14) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   1   -m------------------
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   5) start:   Eating Cats:   0  Eating Mice:   1   ----m---------------
+mouse_eat (bowl   5) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  19) start:   Eating Cats:   0  Eating Mice:   1   ------------------m-
+mouse_eat (bowl  19) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m----------------
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   5) start:   Eating Cats:   0  Eating Mice:   1   ----m---------------
+mouse_eat (bowl   5) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   7) start:   Eating Cats:   0  Eating Mice:   1   ------m-------------
+mouse_eat (bowl   7) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  19) start:   Eating Cats:   0  Eating Mice:   1   ------------------m-
+mouse_eat (bowl  19) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl   4) start:   Eating Cats:   0  Eating Mice:   1   ---m----------------
+mouse_eat (bowl   4) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+mouse_eat (bowl  10) start:   Eating Cats:   0  Eating Mice:   1   ---------m----------
+mouse_eat (bowl  10) finish:  Eating Cats:   0  Eating Mice:   0   --------------------
+cat_eat   (bowl  17) start:   Eating Cats:   1  Eating Mice:   0   ----------------c---
+cat_eat   (bowl   2) start:   Eating Cats:   2  Eating Mice:   0   -c--------------c---
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 22089483 cycles (22089483 run, 0 global-idle)
+sys161:   cpu0: 20509203 kern, 0 user, 1580280 idle)
+sys161:   cpu1: 1267818 kern, 0 user, 20821665 idle)
+sys161:   cpu2: 10456885 kern, 0 user, 11632598 idle)
+sys161:   cpu3: 291208 kern, 0 user, 21798275 idle)
+sys161:   cpu4: 798782 kern, 0 user, 21290701 idle)
+sys161:   cpu5: 280127 kern, 0 user, 21809356 idle)
+sys161:   cpu6: 280229 kern, 0 user, 21809254 idle)
+sys161:   cpu7: 279556 kern, 0 user, 21809927 idle)
+sys161: 15339 irqs 0 exns 0r/0w disk 0r/3350w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.509493 seconds (14.6337 mhz)
+sys161: Elapsed virtual time: 0.883579320 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:53 EDT
+
+========================== Using parameters "sp2 5 1 5 4 1 0 1 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:53 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 5 1 5 4 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 5 1 5 4 1 0 1 0
+Using 5 bowls, 1 cats, and 5 mice. Looping 4 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+mouse_eat (bowl   5) start:   Eating Cats:   0  Eating Mice:   1   ----m
+panic: cat_eat: attempt to make a cat eat while mice are eating!
+sys161: 7682651 cycles (7682651 run, 0 global-idle)
+sys161:   cpu0: 7682651 kern, 0 user, 0 idle)
+sys161: 2758 irqs 0 exns 0r/0w disk 0r/834w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.251715 seconds (30.5212 mhz)
+sys161: Elapsed virtual time: 0.307306040 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 5 1 5 4 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 5 1 5 4 1 0 1 0
+Using 5 bowls, 1 cats, and 5 mice. Looping 4 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   1   m----
+panic: cat_eat: attempt to make a cat eat while mice are eating!
+sys161: 6924870 cycles (6924870 run, 0 global-idle)
+sys161:   cpu0: 6905056 kern, 0 user, 19814 idle)
+sys161:   cpu1: 1148968 kern, 0 user, 5775902 idle)
+sys161:   cpu2: 780277 kern, 0 user, 6144593 idle)
+sys161:   cpu3: 272353 kern, 0 user, 6652517 idle)
+sys161: 3025 irqs 0 exns 0r/0w disk 0r/885w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.342789 seconds (20.2016 mhz)
+sys161: Elapsed virtual time: 0.276994800 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 5 1 5 4 1 0 1 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 5 1 5 4 1 0 1 0
+Using 5 bowls, 1 cats, and 5 mice. Looping 4 times.
+Using cat eating time 1, cat sleeping time 0
+Using mouse eating time 1, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c----
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 6898930 cycles (6898930 run, 0 global-idle)
+sys161:   cpu0: 6838781 kern, 0 user, 60149 idle)
+sys161:   cpu1: 1209543 kern, 0 user, 5689387 idle)
+sys161:   cpu2: 646126 kern, 0 user, 6252804 idle)
+sys161:   cpu3: 280108 kern, 0 user, 6618822 idle)
+sys161:   cpu4: 280210 kern, 0 user, 6618720 idle)
+sys161:   cpu5: 280312 kern, 0 user, 6618618 idle)
+sys161:   cpu6: 280414 kern, 0 user, 6618516 idle)
+sys161:   cpu7: 279741 kern, 0 user, 6619189 idle)
+sys161: 3038 irqs 0 exns 0r/0w disk 0r/957w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.469067 seconds (14.7078 mhz)
+sys161: Elapsed virtual time: 0.275957200 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:54 EDT
+
+========================== Using parameters "sp2 3 1 5 6 0 0 0 0;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:54 EDT
+sys161 -c sys161-512K-1P.conf kernel "sp2 3 1 5 6 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sp2 3 1 5 6 0 0 0 0
+Using 3 bowls, 1 cats, and 5 mice. Looping 6 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c--
+cat_eat   (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ---
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c--
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 9220753 cycles (9220753 run, 0 global-idle)
+sys161:   cpu0: 9220753 kern, 0 user, 0 idle)
+sys161: 3429 irqs 0 exns 0r/0w disk 0r/978w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.295329 seconds (31.222 mhz)
+sys161: Elapsed virtual time: 0.368830120 seconds (25 mhz)
+
+sys161 -c sys161-512K-4P.conf kernel "sp2 3 1 5 6 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 3 1 5 6 0 0 0 0
+Using 3 bowls, 1 cats, and 5 mice. Looping 6 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c-
+cat_eat   (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ---
+cat_eat   (bowl   2) start:   Eating Cats:   1  Eating Mice:   0   -c-
+cat_eat   (bowl   2) finish:  Eating Cats:   0  Eating Mice:   0   ---
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c--
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 8591155 cycles (8591155 run, 0 global-idle)
+sys161:   cpu0: 8546038 kern, 0 user, 45117 idle)
+sys161:   cpu1: 1492758 kern, 0 user, 7098397 idle)
+sys161:   cpu2: 2503657 kern, 0 user, 6087498 idle)
+sys161:   cpu3: 277113 kern, 0 user, 8314042 idle)
+sys161: 4765 irqs 0 exns 0r/0w disk 0r/1171w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.460618 seconds (18.6514 mhz)
+sys161: Elapsed virtual time: 0.343646200 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sp2 3 1 5 6 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sp2 3 1 5 6 0 0 0 0
+Using 3 bowls, 1 cats, and 5 mice. Looping 6 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+mouse_eat (bowl   3) start:   Eating Cats:   0  Eating Mice:   1   --m
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   2   m-m
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   1   --m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -mm
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   1   --m
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   2   m-m
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   1   --m
+mouse_eat (bowl   1) start:   Eating Cats:   0  Eating Mice:   2   m-m
+mouse_eat (bowl   1) finish:  Eating Cats:   0  Eating Mice:   1   --m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -mm
+mouse_eat (bowl   2) finish:  Eating Cats:   0  Eating Mice:   1   --m
+mouse_eat (bowl   2) start:   Eating Cats:   0  Eating Mice:   2   -mm
+panic: mouse_eat: attempt to make two mice eat from bowl 3!
+sys161: 11631420 cycles (11631420 run, 0 global-idle)
+sys161:   cpu0: 10903447 kern, 0 user, 727973 idle)
+sys161:   cpu1: 5314430 kern, 0 user, 6316990 idle)
+sys161:   cpu2: 1387981 kern, 0 user, 10243439 idle)
+sys161:   cpu3: 271281 kern, 0 user, 11360139 idle)
+sys161:   cpu4: 271383 kern, 0 user, 11360037 idle)
+sys161:   cpu5: 271485 kern, 0 user, 11359935 idle)
+sys161:   cpu6: 271587 kern, 0 user, 11359833 idle)
+sys161:   cpu7: 270914 kern, 0 user, 11360506 idle)
+sys161: 7735 irqs 0 exns 0r/0w disk 0r/1727w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.821518 seconds (14.1584 mhz)
+sys161: Elapsed virtual time: 0.465256800 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:56 EDT
+
+
+######################################################################
+./run-on-configs semaphores.cmds sys161-512K-1P.conf sys161-512K-8P.conf
+========================== Using parameters "sy1;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:56 EDT
+sys161 -c sys161-512K-1P.conf kernel "sy1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: sy1
+Starting semaphore test...
+If this hangs, it's broken: ok
+Thread  4: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+Thread  0: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Thread  1: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Thread  9: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+Thread 19: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+Thread 13: MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+Thread 18: RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+Thread  2: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+Thread 10: JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ
+Thread 26: ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+Thread  6: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Thread 21: UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+Thread  7: GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+Thread 15: OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+Thread 12: LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+Thread 17: QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ
+Thread  8: HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+Thread 11: KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+Thread  3: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+Thread  5: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+Thread 24: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Thread 27: [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
+Thread 29: ]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+Thread 22: VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+Thread 14: NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+Thread 16: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+Thread 20: TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+Thread 28: \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Thread 23: WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+Thread 25: YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+Thread 30: ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Thread 31: _______________________________________________________________
+cleanitems: Destroying sems, locks, and cvs
+Semaphore test done.
+Operation took 1.369161040 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 38703852 cycles (38703852 run, 0 global-idle)
+sys161:   cpu0: 38703852 kern, 0 user, 0 idle)
+sys161: 16073 irqs 0 exns 0r/0w disk 0r/3146w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.236609 seconds (31.2984 mhz)
+sys161: Elapsed virtual time: 1.548154080 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "sy1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: sy1
+Starting semaphore test...
+If this hangs, it's broken: ok
+Thread  7: GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+Thread 13: MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+Thread  2: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+Thread 21: UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+Thread  3: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+Thread  4: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+Thread 14: NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+Thread  6: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Thread 17: QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ
+Thread 12: LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+Thread  0: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Thread 30: ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Thread 15: OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+Thread 19: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+Thread  9: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+Thread 28: \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Thread  1: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Thread 11: KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+Thread 25: YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+Thread  8: HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+Thread 18: RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+Thread 20: TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+Thread 10: JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ
+Thread 16: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+Thread 23: WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+Thread 22: VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+Thread  5: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+Thread 29: ]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+Thread 27: [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
+Thread 24: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Thread 31: _______________________________________________________________
+Thread 26: ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+cleanitems: Destroying sems, locks, and cvs
+Semaphore test done.
+Operation took 0.665098960 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+cpu3: offline.
+cpu7: offline.
+cpu1: offline.
+cpu5: offline.
+The system is halted.
+cpu6: offline.
+cpu2: offline.
+sys161: 21787408 cycles (21787408 run, 0 global-idle)
+sys161:   cpu0: 19651875 kern, 0 user, 2135533 idle)
+sys161:   cpu1: 3175358 kern, 0 user, 18612050 idle)
+sys161:   cpu2: 3955438 kern, 0 user, 17831970 idle)
+sys161:   cpu3: 4228534 kern, 0 user, 17558874 idle)
+sys161:   cpu4: 5006257 kern, 0 user, 16781151 idle)
+sys161:   cpu5: 2968819 kern, 0 user, 18818589 idle)
+sys161:   cpu6: 3537446 kern, 0 user, 18249962 idle)
+sys161:   cpu7: 2319023 kern, 0 user, 19468385 idle)
+sys161: 18623 irqs 0 exns 0r/0w disk 0r/3370w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.778054 seconds (12.2535 mhz)
+sys161: Elapsed virtual time: 0.871496320 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:50:59 EDT
+
+
+######################################################################
+./run-on-configs threads.cmds sys161-512K-1P.conf sys161-512K-8P.conf
+========================== Using parameters "tt1;q" =================================
+Started runs at: Tue  1 Oct 2013 21:50:59 EDT
+sys161 -c sys161-512K-1P.conf kernel "tt1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: tt1
+Starting thread test...
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003033003300131351301533015510301130150055103130130130150110503153350130101010101000315135351515515315553513335315551413455315135313154315431522331244112512433511154352411251253412431254512135341423254562635241632413241653246432651432524351627375231476523147652314765231476523147652334746252762516442437216453721145432725327535421234216454262153464152561526241575246171245472457272434517232514135143535161317764423373547623154766313574715741433736172534617253461725336377523617542361755256671523674152367715126365263525167621674151646752141756547564747535614737615136153636121573626571725712525747273341162232513462751344272531375317122324736521473652147365224233562473516247226473256477276634256374256377264437427422742774766422627426742674227476424224272667624672467246724672467747224724674674674674674674476744644746644476767776767676767676767676767676767666666666666
+Thread test done.
+Operation took 0.544865600 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 18075059 cycles (18075059 run, 0 global-idle)
+sys161:   cpu0: 18075059 kern, 0 user, 0 idle)
+sys161: 7324 irqs 0 exns 0r/0w disk 0r/1626w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.576754 seconds (31.3393 mhz)
+sys161: Elapsed virtual time: 0.723002360 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "tt1;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: tt1
+Starting thread test...
+222222222222112121212121212121202102102102102102102102102102102102102102102102102102102102102102102102102102102102102102102102102102502501150215021502750217502175017201720175012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765012765017650176501765017650176501765017650176501765017650176507650765076507650765076507650765765765765765765765765765765765765765765765765765765765765765765476547654765447547654763476534765347653476534765347653476534765347653476347634634634634634634634634344343433434344343434434343343434434343443434334343443434344343433434344343434434343343434434343443434334343443434344343433434344343434434343343434434343343434334343443434334343433434333333333333
+Thread test done.
+Operation took 0.306480560 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+cpu3: offline.
+cpu7: offline.
+cpu2: offline.
+cpu4: offline.
+cpu5: offline.
+The system is halted.
+cpu6: offline.
+sys161: 12841955 cycles (12841955 run, 0 global-idle)
+sys161:   cpu0: 12671559 kern, 0 user, 170396 idle)
+sys161:   cpu1: 2726953 kern, 0 user, 10115002 idle)
+sys161:   cpu2: 2716413 kern, 0 user, 10125542 idle)
+sys161:   cpu3: 785822 kern, 0 user, 12056133 idle)
+sys161:   cpu4: 338902 kern, 0 user, 12503053 idle)
+sys161:   cpu5: 338964 kern, 0 user, 12502991 idle)
+sys161:   cpu6: 339026 kern, 0 user, 12502929 idle)
+sys161:   cpu7: 337606 kern, 0 user, 12504349 idle)
+sys161: 7680 irqs 0 exns 0r/0w disk 0r/1850w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.889747 seconds (14.4333 mhz)
+sys161: Elapsed virtual time: 0.513678200 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:51:01 EDT
+
+========================== Using parameters "tt2;q" =================================
+Started runs at: Tue  1 Oct 2013 21:51:01 EDT
+sys161 -c sys161-512K-1P.conf kernel "tt2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: tt2
+Starting thread test 2...
+0314256703145627
+Thread test 2 done.
+Operation took 1.770751800 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 48724541 cycles (48724541 run, 0 global-idle)
+sys161:   cpu0: 48724541 kern, 0 user, 0 idle)
+sys161: 19102 irqs 0 exns 0r/0w disk 0r/686w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 1.600148 seconds (30.45 mhz)
+sys161: Elapsed virtual time: 1.948981640 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "tt2;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: tt2
+Starting thread test 2...
+2104367514362750
+Thread test 2 done.
+Operation took 0.530626360 seconds
+OS/161 kernel: q
+Shutting down.
+cpu0: offline.
+The system is halted.
+cpu2: offline.
+cpu3: offline.
+cpu6: offline.
+cpu4: offline.
+cpu5: offline.
+cpu7: offline.
+sys161: 18336497 cycles (18336497 run, 0 global-idle)
+sys161:   cpu0: 18212091 kern, 0 user, 124406 idle)
+sys161:   cpu1: 12460767 kern, 0 user, 5875730 idle)
+sys161:   cpu2: 12106713 kern, 0 user, 6229784 idle)
+sys161:   cpu3: 11671700 kern, 0 user, 6664797 idle)
+sys161:   cpu4: 239525 kern, 0 user, 18096972 idle)
+sys161:   cpu5: 239587 kern, 0 user, 18096910 idle)
+sys161:   cpu6: 238932 kern, 0 user, 18097565 idle)
+sys161:   cpu7: 238219 kern, 0 user, 18098278 idle)
+sys161: 21216 irqs 0 exns 0r/0w disk 0r/910w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.077872 seconds (8.82465 mhz)
+sys161: Elapsed virtual time: 0.733459880 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:51:04 EDT
+
+========================== Using parameters "tt3;q" =================================
+Started runs at: Tue  1 Oct 2013 21:51:04 EDT
+sys161 -c sys161-512K-1P.conf kernel "tt3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+OS/161 kernel: tt3
+Starting thread test 3 (5 [sleepalots], 2 {computes}, 1 waker)
+[0]{0: 77}{1: 165}{1: 185}[3]{0: 62}[1][0][3][2]{1: 38}[1][3][2][0][4]{1: 12}{0: 10}[0][4][1][2][3]{1: 158}[3][0][2][3]{0: 73}[1]{1: 149}[4][0][2][3]{0: 54}[4][0][1]{1: 75}[2][4][1][3][2][0]{1: 33}[1][3]{0: 148}[2][4][0]{1: 34}[3][1][4]{1: 203}[0][2]{0: 93}[2][0][4][3][1][2]{0: 175}[3][0][1][4][2][4][0]{0: 8}[1][3][0][1][2][0][3]{0: 40}[4][3][1][2][3][1][2][0][4][3][0][1][4][2][3][4][0][2][1][3][4][3][0][1][4][2][0][1][2][4][4][1][2][4][1][4]
+Thread test 3 done
+Operation took 0.798939960 seconds
+OS/161 kernel: q
+Shutting down.
+The system is halted.
+sys161: 24456976 cycles (24456976 run, 0 global-idle)
+sys161:   cpu0: 24456976 kern, 0 user, 0 idle)
+sys161: 9693 irqs 0 exns 0r/0w disk 0r/1152w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.769064 seconds (31.801 mhz)
+sys161: Elapsed virtual time: 0.978279040 seconds (25 mhz)
+
+sys161 -c sys161-512K-8P.conf kernel "tt3;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #61)
+
+304k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+cpu4: MIPS r3000
+cpu5: MIPS r3000
+cpu6: MIPS r3000
+cpu7: MIPS r3000
+OS/161 kernel: tt3
+Starting thread test 3 (5 [sleepalots], 2 {computes}, 1 waker)
+{0: 30}{0: 15}{1: 200}{0: 111}[3][1][4][2][0][3]{0: 227}{1: 205}[1][4][0]{0: 29}[2][3][0][4][1]{0: 158}{1: 24}[2][0][1][4][3]{0: 108}{1: 216}[2][4][1]{0: 170}[0][4][3][2]{1: 66}[4]{0: 183}[1][0][4][3][2]{0: 255}{1: 160}[4][1][0][2][3][4]{1: 98}[3][2][1][0]{1: 174}[3][0]{1: 97}[1][4][2]{1: 176}[3][0][3][4][2][3][0][2][3][1][4][1][0][3][2][4][2][0][3][1][4][2][3][0][4][1][3][4][2][0][1][3][0][4][2][3][0][1][3][2][4][0][2][1][4][0][1][2][0][1][2][1][1]
+Thread test 3 done
+Operation took 0.283222480 seconds
+OS/161 kernel: q
+Shutting down.
+cpu1: offline.
+cpu7: offline.
+cpu4: offline.
+cpu2: offline.
+cpu3: offline.
+cpu5: offline.
+cpu6: offline.
+The system is halted.
+sys161: 12363725 cycles (12363725 run, 0 global-idle)
+sys161:   cpu0: 10849314 kern, 0 user, 1514411 idle)
+sys161:   cpu1: 6546409 kern, 0 user, 5817316 idle)
+sys161:   cpu2: 3529730 kern, 0 user, 8833995 idle)
+sys161:   cpu3: 359464 kern, 0 user, 12004261 idle)
+sys161:   cpu4: 358809 kern, 0 user, 12004916 idle)
+sys161:   cpu5: 358871 kern, 0 user, 12004854 idle)
+sys161:   cpu6: 358933 kern, 0 user, 12004792 idle)
+sys161:   cpu7: 357513 kern, 0 user, 12006212 idle)
+sys161: 8258 irqs 0 exns 0r/0w disk 0r/1383w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.952950 seconds (12.9742 mhz)
+sys161: Elapsed virtual time: 0.494549000 seconds (25 mhz)
+
+Ended runs at: Tue  1 Oct 2013 21:51:06 EDT
+
+
+Finished ./run-by-config at: Tue  1 Oct 2013 21:51:06 EDT

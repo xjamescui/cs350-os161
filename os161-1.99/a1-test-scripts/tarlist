@@ -1,0 +1,35 @@
+a1-test-scripts/Makefile
+a1-test-scripts/README
+a1-test-scripts/tarlist
+
+# Files that contain lists of parameters / tests to run
+a1-test-scripts/catmouse.cmds
+a1-test-scripts/condvars.cmds
+a1-test-scripts/locks.cmds
+a1-test-scripts/semaphores.cmds
+a1-test-scripts/threads.cmds
+a1-test-scripts/uw1.cmds
+
+# Scripts for running tests
+a1-test-scripts/run-batch
+a1-test-scripts/run-by-config
+a1-test-scripts/run-on-configs
+# Not needed/used anymore
+# a1-test-scripts/run-by-parameters
+# a1-test-scripts/run-tests
+
+# Strips out a bunch of extra sys161/os161 output
+# to make things easier to read.
+a1-test-scripts/strip-text
+
+# Configuration files
+a1-test-scripts/sys161-512K-1P.conf
+a1-test-scripts/sys161-512K-4P.conf
+a1-test-scripts/sys161-512K-8P.conf
+a1-test-scripts/sys161.conf
+
+# List of parameter files and configuration combinations to run
+a1-test-scripts/test-list-by-config1
+a1-test-scripts/test-list-by-config2
+# Not needed/used 
+# a1-test-scripts/test-list-by-params

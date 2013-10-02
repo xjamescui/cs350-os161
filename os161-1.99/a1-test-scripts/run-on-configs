@@ -1,0 +1,61 @@
+#!/bin/csh -f
+#
+# Specify a parameter/test file and a list of configurations
+# to run the tests against.
+# If no configuration files are specified the default is used 
+# (i.e., sys161.conf)
+# For each test in the parameter file we run it against
+# each of the system configurations. This is done because
+# the output for multiple runs for the same set of parameters
+# should give approximately the same output (modulo non-determinism)
+
+set usage="Usage: $0 test/parametersfile [configfile1, configfile2 ,...]"
+
+# When debugging is on we don't actually run the tests.
+set debug=0
+set STRIP=./strip-text
+
+if ( $#argv < 1 ) then
+  echo $usage
+  exit 1
+endif
+
+if ($debug == 1) then
+  set execute=0
+else
+  set execute=1
+endif
+
+# The first argument is the file with the parameters list
+set paramsfile=$1
+
+# All of the other arguments are configuration files
+shift argv
+set configfiles=($argv)
+
+set paramlist="`fgrep -v \# $paramsfile`"
+
+# echo parameter count = $#configfiles
+
+if ($#configfiles == 0) then
+  set configfiles=sys161.conf
+endif
+
+  foreach p ($paramlist:q)
+  echo ========================== Using parameters \"$p\;q\" =================================
+    /bin/echo -n "Started runs at: "
+		date
+    foreach config ($configfiles)
+      echo sys161 -c $config kernel \"$p\;q\"
+      if ( $execute == 1 ) then
+        sys161 -c $config kernel "$p;q" |& $STRIP
+      endif
+      echo ""  
+    end
+    /bin/echo -n "Ended runs at: "
+		date
+    echo ""
+end
+
+exit 0
+

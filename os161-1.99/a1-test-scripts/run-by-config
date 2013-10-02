@@ -1,0 +1,45 @@
+#!/bin/csh -f
+
+set debug=0
+set version = "Created Fall 13: v1.0"
+set usage = "Usage: $0 test-list-file"
+
+if ($#argv != 1) then
+    echo "$usage"
+    exit 1
+endif
+
+set file=$1
+
+if ($debug == 1) then
+  set execute=0
+else
+  set execute=1
+endif
+
+# -n isn't portable across builtin echos so use /bin/echo
+/bin/echo -n "Starting $0 Version $version at: "
+date
+
+
+set tests=("`fgrep -v \# $file`")
+if ($debug == 1) then
+  # echo $tests
+endif
+
+# :q joins the elements on each line
+foreach i ($tests:q) 
+  echo "######################################################################"
+  echo "./run-on-configs $i"
+  if ($execute == 1) then
+    ./run-on-configs $i
+  endif
+  echo ""
+end
+
+# -n isn't portable across builtin echos so use /bin/echo
+/bin/echo -n "Finished $0 at: "
+date
+
+exit 0
+

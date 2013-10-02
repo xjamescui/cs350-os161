@@ -1,0 +1,59 @@
+# Parameters here are: Numbowls, cats, mice, iterations, 
+# cat eat time, cat sleep time, mouse eat time, mouse sleep time
+#
+
+### scarce resource tests (fewer bowls than creatures), balanced demand
+
+# 4 Bowls, 7 cats 7 mice (really fast eat and sleep times)
+sp2 4 7 7 3 0 0 0 0
+
+# Lots of cats and mice relative to the number of bowls
+sp2 5 10 10 3 1 1 1 1
+
+# Lots of sleepy cats and mice
+sp2 4 6 6 3 1 2 1 2
+
+# Just one bowl with 5 cats and mice where they just eat and do not sleep
+sp2 1 5 5 2 1 0 1 0
+
+### scarce resource tests (fewer bowls than creatures), imbalanced demand
+
+# 4 Bowls, 0 cats 15 mice (really fast eat and sleep times)
+sp2 4 0 15 3 0 0 0 0
+
+# 4 Bowls, 15 cats 0 mice (really fast eat and sleep times)
+sp2 4 15 0 3 0 0 0 0
+
+# 4 bowls, 1 fat cat, 2 sleepy mice, cat mostly eats, mice mostly sleep
+# (mice will almost always encounter cats)
+sp2 4 2 2 6 3 0 0 2
+
+### plentiful resource tests (more bowls than creatures), balanced demand
+
+# Lots more bowls than animals and a fair number of iterations.
+# Make sure that even if there are lots of bowls that animals
+# of different types are not eating at the same time.
+sp2 20 2 2 10 1 0 1 0
+
+### plentiful resource tests (more bowls than creatures), imbalanced demand
+
+# Lots more bowls than animals a fair number of iterations
+# Cats take a long time eating while mice eat really fast
+sp2 20 2 2 5 2 0 0 0
+
+# Similar to above but with more cats than mice
+sp2 20 5 2 5 2 0 0 0
+
+# Similar to above but with more mice than cats
+sp2 20 2 5 5 2 0 0 0
+
+
+# Test with an imbalance of cats and mice (1 cat 5 mice)
+# As many bowls as mice but do not forget they are assigned
+# using rand so all bowls may not get used.
+sp2 5 1 5 4 1 0 1 0
+
+# Test with an imbalance of cats and mice (5 cats 1 mouse)
+sp2 3 1 5 6 0 0 0 0
+
+
