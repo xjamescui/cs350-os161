@@ -149,48 +149,55 @@ static void toggleEatingAnimal() {
 	}
 }
 
+static void clearCatQueue(struct lock *lk) {
+	for (int i = 0; i < NumBowls; i++) {
+		if (i < cat_queue_count) {
+			cv_signal(CatsTurn, lk);
+		} else {
+			break;
+		}
+	}
+}
+
+static void clearMiceQueue(struct lock *lk) {
+	for (int i = 0; i < NumBowls; i++) {
+		if (i < mice_queue_count) {
+			cv_signal(MiceTurn, lk);
+		} else {
+			break;
+		}
+	}
+}
+
 static void callNext(struct lock *lk) {
-	dbflags = DB_CATMOUSE;
+//	dbflags = DB_CATMOUSE;
 	if (eatingAnimal == CAT) {
 		if (cat_queue_count > 0) {
-			for (int i = 0; i < NumBowls; i++) {
-				if (i < cat_queue_count) {
-					cv_signal(CatsTurn, lk);
-				} else {
-					break;
-				}
-			}
+			clearCatQueue(lk);
 		} else {
-			DEBUG(DB_CATMOUSE,
-					"cats queue is empty: make it mice turn again, eatingAnimal = %d\n",
-					eatingAnimal);
 
 			//if mice queue is not empty then make it mice's turn again
 			if (mice_queue_count > 0) {
 				eatingAnimal = MOUSE;
-				cv_broadcast(MiceTurn, lk);
+				clearMiceQueue(lk);
 
+			} else {
+				//if both cats and mice queue are currently empty, then reset eatingAnimal
+				eatingAnimal = NONE;
 			}
 		}
 
 	} else if (eatingAnimal == MOUSE) {
 		if (mice_queue_count > 0) {
-			for (int i = 0; i < NumBowls; i++) {
-				if (i < mice_queue_count) {
-
-					cv_signal(MiceTurn, lk);
-				} else {
-					break;
-				}
-			}
+			clearMiceQueue(lk);
 		} else {
-			DEBUG(DB_CATMOUSE,
-					"mice queue is empty: make it cats turn again, eatingAnimal=%d\n",
-					eatingAnimal);
-			//if cats queue is not empty then make it cats' turn
+
 			if (cat_queue_count > 0) {
 				eatingAnimal = CAT;
-				cv_broadcast(CatsTurn, lk);
+				clearCatQueue(lk);
+			} else {
+				//if both cats and mice queue are currently empty, then reset eatingAnimal
+				eatingAnimal = NONE;
 			}
 		}
 	}
@@ -201,7 +208,7 @@ static void callNext(struct lock *lk) {
  */
 static void diningRoom(int animal) {
 
-	dbflags = DB_CATMOUSE;
+//	dbflags = DB_CATMOUSE;
 	unsigned int bowl;
 
 	//bunch of cats and mouse entering the dining room
