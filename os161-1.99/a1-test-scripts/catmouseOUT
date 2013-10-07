@@ -1,0 +1,39 @@
+========================== Using parameters "sp2 4 7 7 3 0 0 0 0;q" =================================
+Started runs at: Sun  6 Oct 2013 15:04:59 EDT
+sys161 -c sys161-512K-4P.conf kernel "sp2 4 7 7 3 0 0 0 0;q"
+
+
+Put-your-group-name-here's system version 0 (ASST1 #212)
+
+300k physical memory available
+
+cpu0: MIPS r3000
+cpu1: MIPS r3000
+cpu2: MIPS r3000
+cpu3: MIPS r3000
+OS/161 kernel: sp2 4 7 7 3 0 0 0 0
+Using 4 bowls, 7 cats, and 7 mice. Looping 3 times.
+Using cat eating time 0, cat sleeping time 0
+Using mouse eating time 0, mouse sleeping time 0
+cat_eat   (bowl   1) start:   Eating Cats:   1  Eating Mice:   0   c---
+cat_eat   (bowl   2) start:   Eating Cats:   2  Eating Mice:   0   cc--
+cat_eat   (bowl   2) finish:  Eating Cats:   1  Eating Mice:   0   c---
+cat_eat   (bowl   1) finish:  Eating Cats:   0  Eating Mice:   0   ----
+cat_eat   (bowl   4) start:   Eating Cats:   1  Eating Mice:   0   ---c
+cat_eat   (bowl   3) start:   Eating Cats:   2  Eating Mice:   0   --cc
+cat_eat   (bowl   3) finish:  Eating Cats:   1  Eating Mice:   0   ---c
+panic: mouse_eat: attempt to make a mouse eat while cats are eating!
+sys161: 10566411 cycles (10566411 run, 0 global-idle)
+sys161:   cpu0: 10094067 kern, 0 user, 472344 idle)
+sys161:   cpu1: 2956020 kern, 0 user, 7610391 idle)
+sys161:   cpu2: 3941768 kern, 0 user, 6624643 idle)
+sys161:   cpu3: 3259282 kern, 0 user, 7307129 idle)
+sys161: 7796 irqs 0 exns 0r/0w disk 0r/1321w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 0.591146 seconds (17.8745 mhz)
+sys161: Elapsed virtual time: 0.422656440 seconds (25 mhz)
+
+Ended runs at: Sun  6 Oct 2013 15:04:59 EDT
+
+========================== Using parameters "sp2 5 10 10 3 1 1 1 1;q" =================================
+Started runs at: Sun  6 Oct 2013 15:04:59 EDT
+sys161 -c sys161-512K-4P.conf kernel "sp2 5 10 10 3 1 1 1 1;q"

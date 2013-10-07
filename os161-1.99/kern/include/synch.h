@@ -124,7 +124,7 @@ struct cv {
         char *cv_name;
         // add what you need here
 #if OPT_A1
-
+        struct spinlock cv_spinlock;
         struct wchan *cv_wchan;
 
 

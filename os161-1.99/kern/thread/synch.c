@@ -279,6 +279,10 @@ cv_create(const char *name) {
 
 	// add stuff here as needed
 #if OPT_A1
+
+	//init spinlock
+	spinlock_init(&cv->cv_spinlock);
+
 	//initialize wait channel for cv
 	cv->cv_wchan = wchan_create(cv->cv_name);
 	if (cv->cv_wchan == NULL) {
@@ -295,6 +299,7 @@ void cv_destroy(struct cv *cv) {
 	KASSERT(cv != NULL);
 
 #if OPT_A1
+	spinlock_cleanup(&cv->cv_spinlock);
 	wchan_destroy(cv->cv_wchan);
 #endif
 
@@ -306,10 +311,16 @@ void cv_wait(struct cv *cv, struct lock *lock) {
 #if OPT_A1
 	KASSERT(lock != NULL);
 
+	spinlock_acquire(&cv->cv_spinlock);
+
+	KASSERT(lock_do_i_hold(lock));
+
 	wchan_lock(cv->cv_wchan);
 
 	//calling thread will release the lock then block
 	lock_release(lock);
+
+	spinlock_release(&cv->cv_spinlock);
 
 	wchan_sleep(cv->cv_wchan);
 
@@ -326,10 +337,13 @@ void cv_wait(struct cv *cv, struct lock *lock) {
 void cv_signal(struct cv *cv, struct lock *lock) {
 #if OPT_A1
 
+	spinlock_acquire(&cv->cv_spinlock);
 	//caller must hold lock
 	KASSERT(lock_do_i_hold(lock));
 
 	wchan_wakeone(cv->cv_wchan);
+
+	spinlock_release(&cv->cv_spinlock);
 
 #else
 	(void) cv;    // suppress warning until code gets written
@@ -340,11 +354,13 @@ void cv_signal(struct cv *cv, struct lock *lock) {
 void cv_broadcast(struct cv *cv, struct lock *lock) {
 #if OPT_A1
 
+	spinlock_acquire(&cv->cv_spinlock);
 	//caller must hold lock
 	KASSERT(lock_do_i_hold(lock));
 
 	wchan_wakeall(cv->cv_wchan);
 
+	spinlock_release(&cv->cv_spinlock);
 #else
 	(void) cv;    // suppress warning until code gets written
 	(void) lock;// suppress warning until code gets written
