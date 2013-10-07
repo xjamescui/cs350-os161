@@ -85,12 +85,9 @@ int MouseSleepTime = 3;  // length of time a mouse spends sleeping
 struct semaphore *CatMouseWait;
 #if OPT_A1
 //struct semaphore *BowlsLimit;
-struct semaphore *BowlsLimit, *CatsBowlsLimit, *MiceBowlsLimit;
-struct semaphore *CatSendout;
-struct cv *CatsTurn, *MiceTurn, *CatsLineUp, *MiceLineUp, *BackToCat,
-		*BackToMice, *NextBatch, *NextNextBatch;
-
-struct lock *EatLock, MiceLock;
+struct semaphore *BowlsLimit;
+struct cv *CatsTurn, *MiceTurn;
+struct lock *EatLock;
 
 const int CAT = 0;
 const int MOUSE = 1;
@@ -98,8 +95,6 @@ const int NONE = -1;
 
 volatile int* bowlsArray;
 volatile int eatingAnimal = -1;
-volatile bool nextBatchCalled = false;
-volatile bool lastOneOut = false;
 volatile int cat_queue_count;
 volatile int mice_queue_count;
 
@@ -149,7 +144,10 @@ static void toggleEatingAnimal() {
 	}
 }
 
-static void clearCatQueue(struct lock *lk) {
+/**
+ * Wake up min{NumBowls, cat_queue_count} cat threads fro this "queue"
+ */
+static void openCatQueue(struct lock *lk) {
 	for (int i = 0; i < NumBowls; i++) {
 		if (i < cat_queue_count) {
 			cv_signal(CatsTurn, lk);
@@ -159,7 +157,10 @@ static void clearCatQueue(struct lock *lk) {
 	}
 }
 
-static void clearMiceQueue(struct lock *lk) {
+/**
+ * Wake up min{NumBowls, mice_queue_count} mouse threads from this "queue"
+ */
+static void openMiceQueue(struct lock *lk) {
 	for (int i = 0; i < NumBowls; i++) {
 		if (i < mice_queue_count) {
 			cv_signal(MiceTurn, lk);
@@ -170,16 +171,15 @@ static void clearMiceQueue(struct lock *lk) {
 }
 
 static void callNext(struct lock *lk) {
-//	dbflags = DB_CATMOUSE;
 	if (eatingAnimal == CAT) {
 		if (cat_queue_count > 0) {
-			clearCatQueue(lk);
+			openCatQueue(lk);
 		} else {
 
 			//if mice queue is not empty then make it mice's turn again
 			if (mice_queue_count > 0) {
 				eatingAnimal = MOUSE;
-				clearMiceQueue(lk);
+				openMiceQueue(lk);
 
 			} else {
 				//if both cats and mice queue are currently empty, then reset eatingAnimal
@@ -189,12 +189,13 @@ static void callNext(struct lock *lk) {
 
 	} else if (eatingAnimal == MOUSE) {
 		if (mice_queue_count > 0) {
-			clearMiceQueue(lk);
+			openMiceQueue(lk);
 		} else {
 
+			//if cat queue is not empty then make it
 			if (cat_queue_count > 0) {
 				eatingAnimal = CAT;
-				clearCatQueue(lk);
+				openCatQueue(lk);
 			} else {
 				//if both cats and mice queue are currently empty, then reset eatingAnimal
 				eatingAnimal = NONE;
@@ -208,7 +209,6 @@ static void callNext(struct lock *lk) {
  */
 static void diningRoom(int animal) {
 
-//	dbflags = DB_CATMOUSE;
 	unsigned int bowl;
 
 	//bunch of cats and mouse entering the dining room
@@ -227,18 +227,14 @@ static void diningRoom(int animal) {
 			|| (animal == eatingAnimal && BowlsLimit->sem_count == 0)) {
 		if (animal == MOUSE) {
 			mice_queue_count++;
-			DEBUG(DB_CATMOUSE, "mice coming in\n");
 			cv_wait(MiceTurn, EatLock);
-			DEBUG(DB_CATMOUSE, "awaking mice\n");
 			mice_queue_count--;
 			break;
 		}
 
 		else if (animal == CAT) {
 			cat_queue_count++;
-			DEBUG(DB_CATMOUSE, "cat coming in\n");
 			cv_wait(CatsTurn, EatLock);
-			DEBUG(DB_CATMOUSE, "awaking cat\n");
 			cat_queue_count--;
 
 			break;
@@ -268,10 +264,6 @@ static void diningRoom(int animal) {
 
 	//call next batch if this is the last guy out
 	if (BowlsLimit->sem_count == NumBowls) {
-		DEBUG(DB_CATMOUSE, "sem_count is %d\n", BowlsLimit->sem_count);
-		DEBUG(DB_CATMOUSE, "mice queue has : %d\n", mice_queue_count);
-		DEBUG(DB_CATMOUSE, "cat queue has : %d\n", cat_queue_count);
-		DEBUG(DB_CATMOUSE, "now calling next batch...\n");
 		toggleEatingAnimal();
 		callNext(EatLock);
 	}
@@ -302,7 +294,6 @@ static void diningRoom(int animal) {
 static
 void cat_simulation(void * unusedpointer, unsigned long catnumber) {
 	int i;
-//	unsigned int bowl;
 
 	/* avoid unused variable warnings. */
 	(void) unusedpointer;
