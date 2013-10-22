@@ -111,6 +111,11 @@ void syscall(struct trapframe *tf) {
 	case SYS__exit:
 		sys__exit(tf->tf_a0);
 		break;
+
+	case SYS_write:
+		err = sys_write(tf->tf_a0, (const void *) tf->tf_a1,
+				(size_t) tf->tf_a2);
+		break;
 #endif
 
 	default:

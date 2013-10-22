@@ -1,4 +1,5 @@
 #include <sys_functions.h>
+#include <copyinout.h>
 #include <types.h>
 #include <current.h>
 #include <proc.h>
@@ -20,3 +21,11 @@ void sys__exit(int exitcode) {
 	proc_destroy(curthread->t_proc);
 
 }
+
+int sys_write(int filehandle, const void *buf, size_t size) {
+	(void) filehandle;
+	(void) size;
+	int wroteBytes = kprintf(buf);
+	return wroteBytes;
+}
+
