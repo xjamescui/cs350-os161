@@ -42,7 +42,6 @@
 int
 main(int argc, char *argv[])
 {
-	_exit(4);
 	int i, j;
 
 	if (argc != 3) {

@@ -89,6 +89,7 @@
 #define DB_NETFS       0x400
 #define DB_KMALLOC     0x800
 #define DB_CATMOUSE	   0x900
+#define DB_A2		   0x904
 
 extern uint32_t dbflags;
 

@@ -44,8 +44,6 @@
 #include <kern/time.h>
 #include <kern/unistd.h>
 #include <kern/wait.h>
-#include "opt-A2.h"
-
 
 /*
  * Prototypes for OS/161 system calls.
@@ -133,12 +131,6 @@ int reboot(int code);
 int sync(void);
 /* mkdir - see sys/stat.h */
 int rmdir(const char *dirname);
-
-#if OP_A2
-
-void _exit(int exitcode);
-
-#endif
 
 
 /* Recommended. */

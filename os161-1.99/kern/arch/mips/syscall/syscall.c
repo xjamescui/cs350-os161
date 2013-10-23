@@ -79,6 +79,7 @@ void syscall(struct trapframe *tf) {
 	int callno;
 	int32_t retval;
 	int err;
+	int dbflags = DB_A2;
 
 	KASSERT(curthread != NULL);
 	KASSERT(curthread->t_curspl == 0);
@@ -109,6 +110,7 @@ void syscall(struct trapframe *tf) {
 #if OPT_A2
 		/* Add stuff here */
 	case SYS__exit:
+		DEBUG(DB_A2, "calling sys__exit\n");
 		sys__exit(tf->tf_a0);
 		break;
 
