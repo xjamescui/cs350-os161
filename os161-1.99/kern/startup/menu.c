@@ -45,6 +45,8 @@
 #include "opt-sfs.h"
 #include "opt-net.h"
 
+#include "opt-A2.h"
+
 /*
  * In-kernel menu and command dispatcher.
  */
@@ -89,19 +91,31 @@ cmd_progthread(void *ptr, unsigned long nargs)
 	char **args = ptr;
 	char progname[128];
 	int result;
-
 	KASSERT(nargs >= 1);
-
+	/*
 	if (nargs > 2) {
 		kprintf("Warning: argument passing from menu not supported\n");
 	}
-
+	*/
 	/* Hope we fit. */
 	KASSERT(strlen(args[0]) < sizeof(progname));
 
 	strcpy(progname, args[0]);
+	
+	#if OPT_A2
+	
+	if(nargs > 2) {
+		kprintf("Calling runprogram with cmdline params\n");
+		result = runprogram2(progname, nargs, args);
+	}
+	else {
+		result = runprogram(progname);
+	}
 
+	#else
 	result = runprogram(progname);
+	#endif
+
 	if (result) {
 		kprintf("Running program %s failed: %s\n", args[0],
 			strerror(result));
@@ -150,6 +164,13 @@ common_prog(int nargs, char **args)
 		proc_destroy(proc);
 		return result;
 	}
+
+
+	//HACK SOLUTION
+	while(true);
+
+
+
 
 	/*
 	 * The new process will be destroyed when the program exits...

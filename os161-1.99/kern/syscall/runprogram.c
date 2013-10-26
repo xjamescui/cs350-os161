@@ -44,6 +44,117 @@
 #include <vfs.h>
 #include <syscall.h>
 #include <test.h>
+#include "opt-A2.h"
+
+
+#if OPT_A2
+
+#include <copyinout.h>
+
+
+int
+runprogram2(char *progname, unsigned long nargs, char **args)
+{
+	struct addrspace *as;
+	struct vnode *v;
+	vaddr_t entrypoint, stackptr;
+	int result;
+
+	int argc = (int)nargs;
+	kprintf("Value of argc is: %d\n", argc);
+	(void)args;
+	/*
+	kprintf(args[0]);
+	kprintf(args[1]);
+	kprintf(args[2]);
+	kprintf(args[3]);
+	*/
+	kprintf("\nPrinting orig args\n");
+
+	for(int a = 0 ; a < argc ; a++) {
+		kprintf("%s\n", args[a]);
+	}
+	kprintf("\n\n\n");
+	/* Open the file. */
+	result = vfs_open(progname, O_RDONLY, 0, &v);
+	if (result) {
+		return result;
+	}
+
+	/* We should be a new process. */
+	KASSERT(curproc_getas() == NULL);
+
+	/* Create a new address space. */
+	as = as_create();
+	if (as ==NULL) {
+		vfs_close(v);
+		return ENOMEM;
+	}
+
+	/* Switch to it and activate it. */
+	curproc_setas(as);
+	as_activate();
+
+	/* Load the executable. */
+	result = load_elf(v, &entrypoint);
+	if (result) {
+		/* p_addrspace will go away when curproc is destroyed */
+		vfs_close(v);
+		return result;
+	}
+
+	/* Done with the file now. */
+	vfs_close(v);
+
+	/* Define the user stack in the address space */
+	result = as_define_stack(as, &stackptr);
+	if (result) {
+		/* p_addrspace will go away when curproc is destroyed */
+		return result;
+	}
+
+	//copy here
+	userptr_t * pointers = kmalloc((argc+1)*sizeof(char*));
+	userptr_t tempptr = (userptr_t)stackptr;
+	//copy args
+	kprintf("Copying args\n");
+	for(int a = argc-1 ; a >= 0 ; a--) {
+		tempptr-=(strlen(args[a])+1);
+		pointers[a] = tempptr;
+		copyoutstr(args[a], tempptr ,strlen(args[a])+1, NULL);
+		kprintf("Copied: %s\n", (char*)tempptr);
+	}
+	pointers[argc] = 0x00000000;
+	
+	//align to 4
+	tempptr = (userptr_t)((unsigned int)tempptr & 0x11111100);
+	
+	//copy pointers
+	userptr_t arrStart = tempptr - (argc+1)*4;
+	copyout(pointers, arrStart, (argc+1)*4);
+
+	//align to 8
+	tempptr = (userptr_t)((unsigned int)arrStart & 0x11111000);
+	stackptr = (vaddr_t)tempptr;
+
+	kprintf("Printing args\nargc = %d :", argc);
+	
+	for(int a = 0 ; a < argc ; a++) {
+		kprintf("%s ", (char*)pointers [a]);
+	}
+	kprintf("\n%s", (char*)pointers[argc]);
+	kprintf("\nEnter new process\n");
+	/* Warp to user mode. */
+	enter_new_process(argc /*argc*/, (userptr_t)arrStart /*userspace addr of argv*/,
+			  stackptr, entrypoint);
+	
+	/* enter_new_process does not return. */
+	panic("enter_new_process returned\n");
+	return EINVAL;
+}
+
+
+#endif
 
 /*
  * Load program "progname" and start running it in usermode.
