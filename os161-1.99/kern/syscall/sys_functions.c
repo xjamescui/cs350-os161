@@ -10,6 +10,8 @@
 #include <uio.h>
 #include <vfs.h>
 #include <copyinout.h>
+#include <synch.h>
+#include <kern/errno.h>
 
 /**
  * All non-file related syscall functions for A2 goes here
@@ -34,14 +36,10 @@ void sys__exit(int exitcode) {
 	//turn off all interrupts
 	int original_spl = splhigh();
 
-//	DEBUG(DB_A2, "exitcode is: %d\n", exitcode);
-//	DEBUG(DB_A2, "size of threadarray is %d\n", processCount);
-
-//detach all threads used by this process
+	//detach all threads used by this process
 	for (int i = 0; i < processCount; i++) {
 		threadarray_remove(&process->p_threads, i);
 	}
-
 	KASSERT(threadarray_num(&process->p_threads) == 0);
 
 	//destroy process
@@ -53,42 +51,47 @@ void sys__exit(int exitcode) {
 	thread_exit();
 }
 
-int line = 0;
+__off_t offset = 0;
 
 int sys_write(int fd, const void *buf, size_t size) {
-	int dbflags = DB_A2;
-	int32_t wroteBytes = -1;
+//	int dbflags = DB_A2;
+	int32_t wroteBytes = 0;
 	struct vnode* vn = NULL;
 	struct iovec iov;
 	struct uio uio_W; //uio for writing
 	char *device = NULL;
 
-
 	//disable interrupts
 	int old_spl = splhigh();
 
 	switch (fd) {
-	default:
+	case 1: //stdout
 
 		//open a vnode for console
 		device = kstrdup("con:");
-		vfs_open(device, O_WRONLY, 0, &vn);
+		vfs_open(device, O_WRONLY, 0664, &vn);
 
-		DEBUG(DB_A2, "writing.. %d\n", line);
-		line++;
+//		DEBUG(DB_A2, "writing.. %d\n", (int)offset);
 
 		//setup a uio to write buf to console
-		uio_kinit(&iov, &uio_W, &buf, size, 0, UIO_WRITE);
+		uio_kinit(&iov, &uio_W, &buf, sizeof(buf), 0, UIO_WRITE);
 
 		//write to console
-		VOP_WRITE(vn, &uio_W);
+		wroteBytes = VOP_WRITE(vn, &uio_W);
+//		DEBUG(DB_A2, "fd is %d, writing.. %d\n", fd, (int )uio_W.uio_resid);
 
+//		offset = uio_W.uio_offset;
 		//turn old interruption level back on
 		splx(old_spl);
 
+		(void) size;
+
+		break;
+	default:
+
 		break;
 	}
-
+//	(void) buf;
 	(void) fd;
 
 	kfree(device);
