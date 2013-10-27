@@ -22,7 +22,7 @@
  *
  * sys__exit
  * sys_write
- *
+ * sys_open
  */
 
 void sys__exit(int exitcode) {
@@ -102,18 +102,42 @@ int sys_write(int fd, const void *buf, size_t size) {
 int sys_open(const char *filename, int flags, int mode) {
 
 	int dbflags = 0;
-//
-//	if (filename == "con:") {
-//		DEBUG(DB_A2, "flag is " + flags);
-//	}
+	struct vnode* file;
+	int fd = 0; //filehandle to be returned 
 
 
+	//if file is the console: stdin, stdout, stderr
+	if(filename == "con:" && flags == O_RDONLY){
+		fd = STDIN_FILENO;	//0
+	}
+	else if(filename == "con:" && flags == O_WRONLY){
+		fd = STDOUT_FILENO; //1
+	}
+	else{
+		//check in fd_table to see if file is already open 
 
+
+		//if not then open the file and add to the file descriptor table
+
+		if(vfs_open(filename, flags, mode, file)){
+			//if there is a problem opening the file
+			// errno =
+			return -1;
+		}
+
+
+		//update fd
+
+	}
+
+	
 
 	(void) flags;
 	(void) mode;
 	(void) filename;
 
-	return 0;
+	return fd;
 
 }
+
+
