@@ -30,7 +30,6 @@
 #ifndef _VNODE_H_
 #define _VNODE_H_
 
-
 struct uio;
 struct stat;
 
@@ -52,12 +51,12 @@ struct stat;
  * need to worry about it.
  */
 struct vnode {
-	int vn_refcount;                /* Reference count */
+	int vn_refcount; /* Reference count */
 	int vn_opencount;
 
-	struct fs *vn_fs;               /* Filesystem vnode belongs to */
+	struct fs *vn_fs; /* Filesystem vnode belongs to */
 
-	void *vn_data;                  /* Filesystem-specific data */
+	void *vn_data; /* Filesystem-specific data */
 
 	const struct vnode_ops *vn_ops; /* Functions on this vnode */
 };
@@ -193,12 +192,11 @@ struct vnode {
 #define VOP_MAGIC	0xa2b3c4d5
 
 struct vnode_ops {
-	unsigned long vop_magic;	/* should always be VOP_MAGIC */
+	unsigned long vop_magic; /* should always be VOP_MAGIC */
 
 	int (*vop_open)(struct vnode *object, int flags_from_open);
 	int (*vop_close)(struct vnode *object);
 	int (*vop_reclaim)(struct vnode *vnode);
-
 
 	int (*vop_read)(struct vnode *file, struct uio *uio);
 	int (*vop_readlink)(struct vnode *link, struct uio *uio);
@@ -213,30 +211,21 @@ struct vnode_ops {
 	int (*vop_truncate)(struct vnode *file, off_t len);
 	int (*vop_namefile)(struct vnode *file, struct uio *uio);
 
+	int (*vop_creat)(struct vnode *dir, const char *name, bool excl,
+			mode_t mode, struct vnode **result);
+	int (*vop_symlink)(struct vnode *dir, const char *contents,
+			const char *name);
+	int (*vop_mkdir)(struct vnode *parentdir, const char *name, mode_t mode);
+	int (*vop_link)(struct vnode *dir, const char *name, struct vnode *file);
+	int (*vop_remove)(struct vnode *dir, const char *name);
+	int (*vop_rmdir)(struct vnode *dir, const char *name);
 
-	int (*vop_creat)(struct vnode *dir, 
-			 const char *name, bool excl, mode_t mode,
-			 struct vnode **result);
-	int (*vop_symlink)(struct vnode *dir, 
-			   const char *contents, const char *name);
-	int (*vop_mkdir)(struct vnode *parentdir, 
-			 const char *name, mode_t mode);
-	int (*vop_link)(struct vnode *dir, 
-			const char *name, struct vnode *file);
-	int (*vop_remove)(struct vnode *dir, 
-			  const char *name);
-	int (*vop_rmdir)(struct vnode *dir,
-			 const char *name);
+	int (*vop_rename)(struct vnode *vn1, const char *name1, struct vnode *vn2,
+			const char *name2);
 
-	int (*vop_rename)(struct vnode *vn1, const char *name1, 
-			  struct vnode *vn2, const char *name2);
-
-	
-	int (*vop_lookup)(struct vnode *dir, 
-			  char *pathname, struct vnode **result);
-	int (*vop_lookparent)(struct vnode *dir,
-			      char *pathname, struct vnode **result,
-			      char *buf, size_t len);
+	int (*vop_lookup)(struct vnode *dir, char *pathname, struct vnode **result);
+	int (*vop_lookparent)(struct vnode *dir, char *pathname,
+			struct vnode **result, char *buf, size_t len);
 };
 
 #define __VOP(vn, sym) (vnode_check(vn, #sym), (vn)->vn_ops->vop_##sym)
@@ -299,8 +288,8 @@ void vnode_decopen(struct vnode *);
  * Vnode initialization (intended for use by filesystem code)
  * The reference count is initialized to 1.
  */
-int vnode_init(struct vnode *, const struct vnode_ops *ops,
-	       struct fs *fs, void *fsdata);
+int vnode_init(struct vnode *, const struct vnode_ops *ops, struct fs *fs,
+		void *fsdata);
 
 #define VOP_INIT(vn, ops, fs, data)     vnode_init(vn, ops, fs, data)
 
@@ -311,6 +300,5 @@ int vnode_init(struct vnode *, const struct vnode_ops *ops,
 void vnode_cleanup(struct vnode *);
 
 #define VOP_CLEANUP(vn)			vnode_cleanup(vn)
-
 
 #endif /* _VNODE_H_ */
