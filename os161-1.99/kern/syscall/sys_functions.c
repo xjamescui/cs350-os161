@@ -104,33 +104,65 @@ int sys_open(const char *filename, int flags, int mode) {
 	int dbflags = 0;
 	struct vnode* file;
 	int fd = 0; //filehandle to be returned 
-
+	bool opened = false;
+	struct file_desc* table = curthread->fd_table;
 
 	//if file is the console: stdin, stdout, stderr
-	if(filename == "con:" && flags == O_RDONLY){
+	if (filename == "con:" && flags == O_RDONLY) {
 		fd = STDIN_FILENO;	//0
-	}
-	else if(filename == "con:" && flags == O_WRONLY){
+	} else if (filename == "con:" && flags == O_WRONLY && mode == 0664) {
 		fd = STDOUT_FILENO; //1
-	}
-	else{
+	} else if (filename == "con:" && flags == O_WRONLY && mode == 0665) {
+		fd = STDERR_FILENO; //2
+	} else {
+
 		//check in fd_table to see if file is already open 
+		KASSERT(MAX_OPEN_COUNT > 4);
+		for (int i = 3; i < MAX_OPEN_COUNT; i++) {
 
+			if (table[i] == NULL) {
+				break;
+			}
 
-		//if not then open the file and add to the file descriptor table
+			if (table[i].f_name == filename) {
+				opened = true;
+				table[i].f_opencount++;
+				fd = i;
+				//should we also incrememnt reference count?
+			}
 
-		if(vfs_open(filename, flags, mode, file)){
-			//if there is a problem opening the file
-			// errno =
-			return -1;
 		}
 
+		//if not already opened
+		if (!opened) {
 
-		//update fd
+			//check if we reached MAX_OPEN_COUNT
+			fd = 3;
+			while (fd < MAX_OPEN_COUNT && table[fd] != NULL) {
+				fd++;
+			}
 
+			if (fd < MAX_OPEN_COUNT) {
+				//open file and add entry to fdtable
+				if (vfs_open(filename, flags, mode, file)) {
+					//if there is a problem opening the file
+					// errno =
+					return -1;
+				}
+
+				struct file_desc newFileOpen = kmalloc(
+						sizeof(struct file_desc));
+				newFileOpen.f_name = filename;
+				newFileOpen.f_opencount = 1;
+				newFileOpen.f_refcount = 1;
+				newFileOpen.f_vn = file;
+				newFileOpen.f_lock = lock_create(filename+"_lock");
+
+				//add entry to fdtable
+				table[fd] = newFileOpen;
+			}
+		}
 	}
-
-	
 
 	(void) flags;
 	(void) mode;
@@ -140,4 +172,11 @@ int sys_open(const char *filename, int flags, int mode) {
 
 }
 
-
+#if OPT_A2
+///**
+// * For Debugging Only
+// */
+//void printTable(){
+//
+//}
+#endif

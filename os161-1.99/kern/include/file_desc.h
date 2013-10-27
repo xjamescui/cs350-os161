@@ -4,8 +4,7 @@
 
 //Value for these constants are subject to Change
 const int MAX_LEN_FILENAME = 50;
-const int MAX_OPEN_COUNT = 0;
-const int MAX_FD_COUNT = 4; //for initializing the file descriptor table
+const int MAX_OPEN_COUNT = 10;
 
 struct file_desc {
 
