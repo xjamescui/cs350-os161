@@ -28,7 +28,7 @@ main()
 	int save_errno = 0;
 
   /* Useful for debugging, if failures occur turn verbose on by uncommenting */
-  // TEST_VERBOSE_ON();
+   TEST_VERBOSE_ON();
 
   /* Check that open succeeds */
   f1 = open("FILE1", O_RDWR | O_CREAT | O_TRUNC);

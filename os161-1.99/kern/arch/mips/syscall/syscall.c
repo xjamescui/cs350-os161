@@ -114,13 +114,21 @@ void syscall(struct trapframe *tf) {
 		sys__exit(tf->tf_a0);
 		break;
 
+	case SYS_read:
+		err = sys_read(tf->tf_a0, (void *) tf->tf_a1, (size_t) tf->tf_a2,&retval);
+		break;
+
 	case SYS_write:
 		err = sys_write(tf->tf_a0, (const void *) tf->tf_a1,
-				(size_t) tf->tf_a2);
+				(size_t) tf->tf_a2,&retval);
 		break;
 
 	case SYS_open:
-		err = sys_open((const char *)tf->tf_a0, tf->tf_a1, tf->tf_a2);
+		err = sys_open((const char *) tf->tf_a0, tf->tf_a1, tf->tf_a2, &retval);
+		break;
+
+	case SYS_close:
+		err = sys_close(tf->tf_a0);
 		break;
 #endif
 
@@ -136,6 +144,7 @@ void syscall(struct trapframe *tf) {
 		 * userlevel to a return value of -1 and the error
 		 * code in errno.
 		 */
+
 		tf->tf_v0 = err;
 		tf->tf_a3 = 1; /* signal an error */
 	} else {
