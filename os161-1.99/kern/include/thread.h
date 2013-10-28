@@ -41,11 +41,14 @@
 #include <threadlist.h>
 #include <file_desc.h>
 
+struct file_desc;
 struct cpu;
 
 /* get machine-dependent defs */
 #include <machine/thread.h>
 
+
+#define MAX_OPEN_COUNT 10
 
 /* Size of kernel stacks; must be power of 2 */
 #define STACK_SIZE 4096

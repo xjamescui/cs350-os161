@@ -1,14 +1,14 @@
 #include <types.h>
-#include <synch.h>
-#include <vnode.h>
+
+struct lock;
+struct vnode;
 
 //Value for these constants are subject to Change
-const int MAX_LEN_FILENAME = 50;
-const int MAX_OPEN_COUNT = 10;
+#define MAX_LEN_FILENAME  50
 
 struct file_desc {
 
-	char f_name[MAX_LEN_FILENAME];
+	char* f_name; //should set MAX_LEN_FILENAME on it later
 	off_t f_offset;
 	int f_opencount;
 	int f_refcount;

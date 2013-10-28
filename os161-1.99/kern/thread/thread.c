@@ -53,7 +53,6 @@
 
 #include "opt-synchprobs.h"
 
-
 /* Magic number used as a guard value on kernel thread stacks. */
 #define THREAD_STACK_MAGIC 0xbaadf00d
 
@@ -143,7 +142,7 @@ thread_create(const char *name)
 	thread->t_context = NULL;
 	thread->t_cpu = NULL;
 	thread->t_proc = NULL;
-	thread->fd_table = NULL;
+//	thread->fd_table = NULL;
 
 	/* Interrupt state fields */
 	thread->t_in_interrupt = false;

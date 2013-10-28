@@ -13,7 +13,7 @@
 #include <synch.h>
 #include <kern/errno.h>
 #include <thread.h>
-#include <unistd.h>
+#include <kern/unistd.h>
 
 /**
  * All non-file related syscall functions for A2 goes here
@@ -59,7 +59,7 @@ void sys__exit(int exitcode) {
 __off_t offset = 0;
 
 int sys_write(int fd, const void *buf, size_t size) {
-	int dbflags = DB_A2;
+//	int dbflags = DB_A2;
 	int32_t wroteBytes = 0;
 	struct vnode* vn = NULL;
 	struct iovec iov;
@@ -101,11 +101,10 @@ int sys_write(int fd, const void *buf, size_t size) {
 
 int sys_open(const char *filename, int flags, int mode) {
 
-	int dbflags = 0;
 	struct vnode* file;
-	int fd = 0; //filehandle to be returned 
+	int fd = 0; //filehandle to be returned
 	bool opened = false;
-	struct file_desc* table = curthread->fd_table;
+	struct file_desc** table = curthread->fd_table;
 
 	//if file is the console: stdin, stdout, stderr
 	if (filename == "con:" && flags == O_RDONLY) {
@@ -116,7 +115,7 @@ int sys_open(const char *filename, int flags, int mode) {
 		fd = STDERR_FILENO; //2
 	} else {
 
-		//check in fd_table to see if file is already open 
+		//check in fd_table to see if file is already open
 		KASSERT(MAX_OPEN_COUNT > 4);
 		for (int i = 3; i < MAX_OPEN_COUNT; i++) {
 
@@ -124,9 +123,12 @@ int sys_open(const char *filename, int flags, int mode) {
 				break;
 			}
 
-			if (table[i].f_name == filename) {
+			/**
+			 * todo: f_name should have a max of MAX_LEN_FILENAME letters
+			 */
+			if (table[i]->f_name == filename) {
 				opened = true;
-				table[i].f_opencount++;
+				table[i]->f_opencount++;
 				fd = i;
 				//should we also incrememnt reference count?
 			}
@@ -144,29 +146,21 @@ int sys_open(const char *filename, int flags, int mode) {
 
 			if (fd < MAX_OPEN_COUNT) {
 				//open file and add entry to fdtable
-				if (vfs_open(filename, flags, mode, file)) {
+				if (vfs_open((char *) filename, flags, mode, &file)) {
 					//if there is a problem opening the file
 					// errno =
 					return -1;
 				}
 
-				struct file_desc newFileOpen = kmalloc(
-						sizeof(struct file_desc));
-				newFileOpen.f_name = filename;
-				newFileOpen.f_opencount = 1;
-				newFileOpen.f_refcount = 1;
-				newFileOpen.f_vn = file;
-				newFileOpen.f_lock = lock_create(filename+"_lock");
-
-				//add entry to fdtable
-				table[fd] = newFileOpen;
+				table[fd] = kmalloc(sizeof(struct file_desc));
+				table[fd]->f_name = (char *) filename;
+				table[fd]->f_opencount = 1;
+				table[fd]->f_refcount = 1;
+				table[fd]->f_vn = file;
+				table[fd]->f_lock = lock_create(filename);
 			}
 		}
 	}
-
-	(void) flags;
-	(void) mode;
-	(void) filename;
 
 	return fd;
 
