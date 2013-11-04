@@ -42,6 +42,8 @@
 struct addrspace;
 struct vnode;
 
+#define MAX_OPEN_COUNT 10
+
 /*
  * Process structure.
  */
@@ -55,6 +57,7 @@ struct proc {
 
 	/* VFS */
 	struct vnode *p_cwd;		/* current working directory */
+	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this thread */
 
 	/* add more material here as needed */
 };

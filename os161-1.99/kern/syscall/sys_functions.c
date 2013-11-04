@@ -74,12 +74,14 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	int old_spl = splhigh();
 
 	//check if file is opened
-	if (curthread->fd_table[fd] == NULL) {
+	if (curthread->t_proc->fd_table[fd] == NULL) {
 		return EBADF;
 	}
 
-	file = curthread->fd_table[fd];
+	file = curthread->t_proc->fd_table[fd];
 	lock_acquire(file->f_lock);
+
+
 	//setup uio to read
 	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
 	if (VOP_READ(file->f_vn, &uio_R)) {
@@ -87,8 +89,11 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	}
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
+
+
 	lock_release(file->f_lock);
 
+	DEBUG(DB_A2, "buf is %d\n", (int)buf);
 	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
 
 	*retval = readBytes;
@@ -128,11 +133,11 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	default:
 
 		//check if the file is opened
-		if (curthread->fd_table[fd] == NULL) {
+		if (curthread->t_proc->fd_table[fd] == NULL) {
 			DEBUG(DB_A2, "error EBADF\n");
 			return EBADF;
 		}
-		file = curthread->fd_table[fd];
+		file = curthread->t_proc->fd_table[fd];
 
 		KASSERT(file->f_lock != NULL);
 		lock_acquire(file->f_lock);
@@ -166,7 +171,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	int dbflags = DB_A2;
 	int fd = 0; //filehandle to be returned
 	bool opened = false;
-	struct file_desc** table = curthread->fd_table;
+	struct file_desc** table = curthread->t_proc->fd_table;
 
 	int old_spl = splhigh();
 
@@ -244,13 +249,13 @@ int sys_close(int fd) {
 	KASSERT(curthread->t_curspl == 0);
 	int old_spl = splhigh();
 
-	if (curthread->fd_table[fd] == NULL) {
+	if (curthread->t_proc->fd_table[fd] == NULL) {
 		splx(old_spl);
 		return EBADF;
 	}
 
-	KASSERT(curthread->fd_table[fd] != NULL);
-	struct file_desc* file = curthread->fd_table[fd];
+	KASSERT(curthread->t_proc->fd_table[fd] != NULL);
+	struct file_desc* file = curthread->t_proc->fd_table[fd];
 
 	DEBUG(DB_A2, "open count is: %d\n", file->f_vn->vn_opencount);
 
@@ -267,10 +272,10 @@ int sys_close(int fd) {
 
 		lock_destroy(file->f_lock);
 		vfs_close(file->f_vn);
-		curthread->fd_table[fd] = NULL;
+		curthread->t_proc->fd_table[fd] = NULL;
 		KASSERT(file != NULL);
 		kfree(file);
-		KASSERT(curthread->fd_table[fd]==NULL);
+		KASSERT(curthread->t_proc->fd_table[fd]==NULL);
 	} else {
 
 		return -1;

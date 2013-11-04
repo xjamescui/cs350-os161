@@ -142,7 +142,6 @@ thread_create(const char *name)
 	thread->t_context = NULL;
 	thread->t_cpu = NULL;
 	thread->t_proc = NULL;
-//	thread->fd_table = NULL;
 
 	/* Interrupt state fields */
 	thread->t_in_interrupt = false;

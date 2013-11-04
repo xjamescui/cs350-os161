@@ -48,8 +48,6 @@ struct cpu;
 #include <machine/thread.h>
 
 
-#define MAX_OPEN_COUNT 10
-
 /* Size of kernel stacks; must be power of 2 */
 #define STACK_SIZE 4096
 
@@ -87,7 +85,7 @@ struct thread {
 	struct switchframe *t_context;	/* Saved register context (on stack) */
 	struct cpu *t_cpu;		/* CPU thread runs on */
 	struct proc *t_proc;		/* Process thread belongs to */
-	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this thread */
+
 	/*
 	 * Interrupt state fields.
 	 *
