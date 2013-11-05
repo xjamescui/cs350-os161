@@ -69,8 +69,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	struct iovec iov;
 	struct uio uio_R; //uio for reading
 
-	DEBUG(DB_A2, "buf is %d\n", (int)buf);
-
+	DEBUG(DB_A2, "buf is %d at %p\n", *((int*)buf), buf);
 	int old_spl = splhigh();
 
 	//check if file is opened
@@ -81,19 +80,21 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	file = curthread->t_proc->fd_table[fd];
 	lock_acquire(file->f_lock);
 
-
 	//setup uio to read
 	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
-	if (VOP_READ(file->f_vn, &uio_R)) {
-		return -1;
+	DEBUG(DB_A2, "residual left = %d\n", (int)uio_R.uio_resid);
+	DEBUG(DB_A2, "data is at %p\n", file->f_vn->vn_data);
+	if(uiomove(file->f_vn, nbytes, &uio_R)){
+		return EBADF;
 	}
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
 
 
+
 	lock_release(file->f_lock);
 
-	DEBUG(DB_A2, "buf is %d\n", (int)buf);
+	DEBUG(DB_A2, "buf is %d at %p\n", *((int*)buf), buf);
 	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
 
 	*retval = readBytes;
@@ -142,8 +143,9 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 		KASSERT(file->f_lock != NULL);
 		lock_acquire(file->f_lock);
 
+
 		//setup uio to write to file
-		uio_kinit(&iov, &uio_W, &buf, nbytes, file->f_offset, UIO_WRITE);
+		uio_kinit(&iov, &uio_W, (void *)buf, nbytes, file->f_offset, UIO_WRITE);
 
 		//writing....
 		if (VOP_WRITE(file->f_vn, &uio_W)) {
@@ -151,11 +153,11 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 			return -1;
 		}
 
+
 		//set the bytes written
 		wroteBytes = nbytes - uio_W.uio_resid;
 		//update offset
 		file->f_offset = uio_W.uio_offset;
-
 		lock_release(file->f_lock);
 		break;
 	}
