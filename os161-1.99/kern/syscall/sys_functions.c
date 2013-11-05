@@ -82,11 +82,11 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
 	//setup uio to read
 	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
-	DEBUG(DB_A2, "residual left = %d\n", (int)uio_R.uio_resid);
-	DEBUG(DB_A2, "data is at %p\n", file->f_vn->vn_data);
-	if(uiomove(file->f_vn, nbytes, &uio_R)){
-		return EBADF;
+
+	if(VOP_READ(file->f_vn, &uio_R)){
+		return -1;
 	}
+
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
 
