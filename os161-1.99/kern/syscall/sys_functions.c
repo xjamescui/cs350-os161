@@ -69,7 +69,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	struct iovec iov;
 	struct uio uio_R; //uio for reading
 
-	DEBUG(DB_A2, "buf is %d at %p\n", *((int*)buf), buf);
+	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
 	int old_spl = splhigh();
 
 	//check if file is opened
@@ -83,18 +83,16 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	//setup uio to read
 	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
 
-	if(VOP_READ(file->f_vn, &uio_R)){
+	if (VOP_READ(file->f_vn, &uio_R)) {
 		return -1;
 	}
 
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
 
-
-
 	lock_release(file->f_lock);
 
-	DEBUG(DB_A2, "buf is %d at %p\n", *((int*)buf), buf);
+	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
 	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
 
 	*retval = readBytes;
@@ -143,16 +141,15 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 		KASSERT(file->f_lock != NULL);
 		lock_acquire(file->f_lock);
 
-
 		//setup uio to write to file
-		uio_kinit(&iov, &uio_W, (void *)buf, nbytes, file->f_offset, UIO_WRITE);
+		uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset,
+				UIO_WRITE);
 
 		//writing....
 		if (VOP_WRITE(file->f_vn, &uio_W)) {
 			DEBUG(DB_A2, "error in VOP_WRITE\n");
 			return -1;
 		}
-
 
 		//set the bytes written
 		wroteBytes = nbytes - uio_W.uio_resid;
@@ -288,3 +285,40 @@ int sys_close(int fd) {
 	return 0;
 }
 
+pid_t sys_fork() {
+
+	/**
+	 * Note: child should be "born" with the same state as the parent
+	 *
+	 * child's address space = copy of(parent's address space)
+	 * return child_pid to parent
+	 * return 0 to child_pid
+	 * child_pid != parent_pid
+	 */
+
+	struct proc* parent = curthread->t_proc;
+
+	//turn off interrupts
+	int old_spl = splhigh();
+
+	//create child process (make sure child starts with the same context as parent)
+	//best way is to look at parent's current trapframe and go from there
+
+	//copy parent's address space to child
+
+	//create thread in child process
+
+	/**
+	 * copy parent's fd_table to child
+	 * Note: However, the file handle objects the file tables point to are shared,
+	 * so, for instance, calls to lseek in one process can affect the other.
+	 */
+
+	//turn interrupts back on
+	splx(old_spl);
+	KASSERT(curthread->t_curspl == 0);
+
+	//return
+	(void) parent;
+	return 0;
+}
