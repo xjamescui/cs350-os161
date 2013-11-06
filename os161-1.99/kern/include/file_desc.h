@@ -4,7 +4,7 @@ struct lock;
 struct vnode;
 
 //Value for these constants are subject to Change
-#define MAX_LEN_FILENAME  50
+#define MAX_LEN_FILENAME  60
 
 struct file_desc {
 
@@ -12,5 +12,6 @@ struct file_desc {
 	off_t f_offset;
 	struct lock* f_lock;
 	struct vnode* f_vn;
+	int f_flags;
 
 };
