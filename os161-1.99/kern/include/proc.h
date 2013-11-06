@@ -42,7 +42,7 @@
 struct addrspace;
 struct vnode;
 
-#define MAX_OPEN_COUNT 10
+#define MAX_OPEN_COUNT 20
 
 /*
  * Process structure.
