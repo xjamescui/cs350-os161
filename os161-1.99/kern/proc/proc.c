@@ -224,7 +224,6 @@ proc_remthread(struct thread *t)
 
 	proc = t->t_proc;
 	KASSERT(proc != NULL);
-
 	spinlock_acquire(&proc->p_lock);
 	/* ugh: find the thread in the array */
 	num = threadarray_num(&proc->p_threads);

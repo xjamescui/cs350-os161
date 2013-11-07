@@ -26,30 +26,26 @@
  * sys_open
  * sys_close
  *
- * fork
  */
 
 void sys__exit(int exitcode) {
-//	int dbflags = DB_A2;
-//
 	(void) exitcode;
-//	struct proc *process = curthread->t_proc;
-//
-//	KASSERT(process != NULL);
-//
-//	int processCount = threadarray_num(&process->p_threads);
-//
-//	//detach all threads used by this process
-//	for (int i = 0; i < processCount; i++) {
-//		threadarray_remove(&process->p_threads, i);
-//	}
-//	KASSERT(threadarray_num(&process->p_threads) == 0);
-//
-//	//destroy process
-//	proc_destroy(process);
-//
-//	DEBUG(DB_A2, "HERE");
+	struct proc *process = curthread->t_proc;
 
+	KASSERT(process != NULL);
+
+	int processThreadCount = threadarray_num(&process->p_threads);
+
+	//detach all threads used by this process
+	for (int i = 0; i < processThreadCount; i++) {
+		threadarray_remove(&process->p_threads, i);
+	}
+	KASSERT(threadarray_num(&process->p_threads) == 0);
+
+	//destroy process
+	KASSERT(process != NULL);
+	proc_destroy(process);
+	curthread->t_proc = NULL;
 	thread_exit();
 
 }
@@ -66,12 +62,18 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	struct file_desc* file;
 	struct iovec iov;
 	struct uio uio_R; //uio for reading
-
-	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
+	int errno = -1;
 
 	//check for valid fd
 	if (fd < 0 || fd > MAX_OPEN_COUNT - 1) {
 		return EBADF;
+	}
+
+	//reading from stdin
+	if (fd == STDIN_FILENO) {
+		if ((errno = sys_open("con:", O_RDONLY, 0, &fd))) {
+			return errno;
+		}
 	}
 
 	file = curthread->t_proc->fd_table[fd];
@@ -120,6 +122,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	int dbflags = DB_A2;
 	int wroteBytes = 0;
+	int errno = -1;
 	struct file_desc* file = NULL; //file
 	struct iovec iov;
 	struct uio uio_W; //uio for writing
@@ -131,21 +134,15 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 	switch (fd) {
 	case STDOUT_FILENO:
-		if (sys_open("con:", O_WRONLY, 0664, &fd)) {
+		if ((errno = sys_open("con:", O_WRONLY, 0664, &fd))) {
 			DEBUG(DB_A2, "ERROR WRITING TO STDOUT!\n");
-			return -1;
-		}
-		break;
-	case STDIN_FILENO:
-		if (sys_open("con:", O_RDONLY, 0, &fd)) {
-			DEBUG(DB_A2, "ERROR WRITING TO STDIN!\n");
-			return -1;
+			return errno;
 		}
 		break;
 	case STDERR_FILENO:
-		if (sys_open("con:", O_WRONLY, 0665, &fd)) {
+		if ((errno = sys_open("con:", O_WRONLY, 0665, &fd))) {
 			DEBUG(DB_A2, "ERROR WRITING TO STDERR!\n");
-			return -1;
+			return errno;
 		}
 		break;
 	default:
@@ -181,6 +178,7 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	wroteBytes = nbytes - uio_W.uio_resid;
 	//update offset
 	file->f_offset = uio_W.uio_offset;
+
 	lock_release(file->f_lock);
 
 	*retval = wroteBytes;
@@ -195,9 +193,8 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	struct file_desc** table = curthread->t_proc->fd_table;
 	struct vnode* openedVnode = NULL;
 
-//	DEBUG(DB_A2, "pointer is %p\n", (void *)filename);
 	//check if filename is a valid pointer
-	if ((unsigned int) filename >= 0xffffffff) {
+	if ((uint32_t) filename >= 0xffffffff) {
 		DEBUG(DB_A2, "filename is not a valid pointer\n");
 		return EFAULT;
 	}

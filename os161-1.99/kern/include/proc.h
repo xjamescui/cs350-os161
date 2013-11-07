@@ -38,28 +38,31 @@
 
 #include <spinlock.h>
 #include <thread.h> /* required for struct threadarray */
+#include <file_desc.h>
+#include <kern/limits.h>
 
 struct addrspace;
 struct vnode;
+struct file_desc;
 
-#define MAX_OPEN_COUNT 20
+#define MAX_OPEN_COUNT __OPEN_MAX
 
 /*
  * Process structure.
  */
 struct proc {
-	char *p_name;			/* Name of this process */
-	struct spinlock p_lock;		/* Lock for this structure */
-	struct threadarray p_threads;	/* Threads in this process */
+	char *p_name; /* Name of this process */
+	struct spinlock p_lock; /* Lock for this structure */
+	struct threadarray p_threads; /* Threads in this process */
 
 	/* VM */
-	struct addrspace *p_addrspace;	/* virtual address space */
+	struct addrspace *p_addrspace; /* virtual address space */
 
 	/* VFS */
-	struct vnode *p_cwd;		/* current working directory */
+	struct vnode *p_cwd; /* current working directory */
 	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this thread */
 
-	/* add more material here as needed */
+/* add more material here as needed */
 };
 
 /* This is the process structure for the kernel and for kernel-only threads. */
@@ -85,6 +88,5 @@ struct addrspace *curproc_getas(void);
 
 /* Change the address space of the current process, and return the old one. */
 struct addrspace *curproc_setas(struct addrspace *);
-
 
 #endif /* _PROC_H_ */

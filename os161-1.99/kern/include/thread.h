@@ -39,9 +39,7 @@
 #include <array.h>
 #include <spinlock.h>
 #include <threadlist.h>
-#include <file_desc.h>
 
-struct file_desc;
 struct cpu;
 
 /* get machine-dependent defs */

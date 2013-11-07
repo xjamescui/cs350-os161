@@ -55,6 +55,8 @@
 
 #define MAXMENUARGS  16
 
+struct semaphore *progThreadSem;
+
 // XXX this should not be in this file
 void
 getinterval(time_t s1, uint32_t ns1, time_t s2, uint32_t ns2,
@@ -101,14 +103,15 @@ cmd_progthread(void *ptr, unsigned long nargs)
 	KASSERT(strlen(args[0]) < sizeof(progname));
 
 	strcpy(progname, args[0]);
-	
+
 	#if OPT_A2
-	
+
 	if(nargs > 2) {
 		kprintf("Calling runprogram with cmdline params\n");
-		result = runprogram2(progname, nargs, args);
+		result = runprogram2(progname, nargs, args, progThreadSem);
 	}
 	else {
+	  V(progThreadSem);
 		result = runprogram(progname);
 	}
 
@@ -155,6 +158,8 @@ common_prog(int nargs, char **args)
 		return ENOMEM;
 	}
 
+	progThreadSem = sem_create("progThreadSem", 0);
+
 	result = thread_fork(args[0] /* thread name */,
 			proc /* new process */,
 			cmd_progthread /* thread function */,
@@ -164,18 +169,12 @@ common_prog(int nargs, char **args)
 		proc_destroy(proc);
 		return result;
 	}
-
-
-	//HACK SOLUTION
-	while(true);
-
-
-
+	P(progThreadSem);
 
 	/*
 	 * The new process will be destroyed when the program exits...
 	 * once you write the code for handling that.
-	 */ 
+	 */
 
 	return 0;
 }
@@ -411,7 +410,7 @@ cmd_kheapstats(int nargs, char **args)
 	(void)args;
 
 	kheap_printstats();
-	
+
 	return 0;
 }
 
@@ -427,7 +426,7 @@ showmenu(const char *name, const char *x[])
 
 	kprintf("\n");
 	kprintf("%s\n", name);
-	
+
 	for (i=ct=0; x[i]; i++) {
 		ct++;
 	}

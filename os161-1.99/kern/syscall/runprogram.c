@@ -50,7 +50,7 @@
 
 #include <copyinout.h>
 
-int runprogram2(char *progname, unsigned long nargs, char **args) {
+int runprogram2(char *progname, unsigned long nargs, char **args, struct semaphore *progThreadSem) {
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
@@ -143,6 +143,10 @@ int runprogram2(char *progname, unsigned long nargs, char **args) {
 	}
 	kprintf("\n%s", (char*) pointers[argc]);
 	kprintf("\nEnter new process\n");
+
+	//increase semaphore count to avoid race condition
+	V(progThreadSem);
+
 	/* Warp to user mode. */
 	enter_new_process(argc /*argc*/,
 			(userptr_t) arrStart /*userspace addr of argv*/, stackptr,
@@ -213,4 +217,3 @@ int runprogram(char *progname) {
 	panic("enter_new_process returned\n");
 	return EINVAL;
 }
-

@@ -35,6 +35,7 @@
  * functions.
  */
 
+#include <synch.h>
 
 /* This is only actually available if OPT_SYNCHPROBS is set. */
 int whalemating(int, char **);
@@ -79,7 +80,8 @@ int mallocstress(int, char **);
 int nettest(int, char **);
 
 /* Routine for running a user-level program. */
-int runprogram2(char *progname, unsigned long nargs, char **args);
+int runprogram2(char *progname, unsigned long nargs, char **args,
+		struct semaphore *progThreadSem);
 int runprogram(char *progname);
 
 /* Kernel menu system. */
@@ -89,6 +91,5 @@ void hello(void);
 
 /* The main function, called from start.S. */
 void kmain(char *bootstring);
-
 
 #endif /* _TEST_H_ */
