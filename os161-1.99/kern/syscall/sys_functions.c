@@ -21,30 +21,34 @@
  * Functions:
  *
  * sys__exit
+ * sys_read
  * sys_write
  * sys_open
+ * sys_close
+ *
+ * fork
  */
 
 void sys__exit(int exitcode) {
-	int dbflags = DB_A2;
-
+//	int dbflags = DB_A2;
+//
 	(void) exitcode;
-	struct proc *process = curthread->t_proc;
-
-	KASSERT(process != NULL);
-
-	int processCount = threadarray_num(&process->p_threads);
-
-	//detach all threads used by this process
-	for (int i = 0; i < processCount; i++) {
-		threadarray_remove(&process->p_threads, i);
-	}
-	KASSERT(threadarray_num(&process->p_threads) == 0);
-
-	//destroy process
-	proc_destroy(process);
-
-	DEBUG(DB_A2, "HERE");
+//	struct proc *process = curthread->t_proc;
+//
+//	KASSERT(process != NULL);
+//
+//	int processCount = threadarray_num(&process->p_threads);
+//
+//	//detach all threads used by this process
+//	for (int i = 0; i < processCount; i++) {
+//		threadarray_remove(&process->p_threads, i);
+//	}
+//	KASSERT(threadarray_num(&process->p_threads) == 0);
+//
+//	//destroy process
+//	proc_destroy(process);
+//
+//	DEBUG(DB_A2, "HERE");
 
 	thread_exit();
 
@@ -74,7 +78,6 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
 	//check if file is opened
 	if (file == NULL) {
-		DEBUG(DB_A2, "RRWRRONG!\n");
 		return EBADF;
 	}
 
@@ -127,49 +130,58 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	}
 
 	switch (fd) {
-	case STDOUT_FILENO: //stdout
-		wroteBytes = kprintf(buf);
-
-		break;
-	case STDIN_FILENO: //stdin
-		break;
-	case STDERR_FILENO:
-		break;
-	default:
-
-		file = curthread->t_proc->fd_table[fd];
-
-		//check if the file is opened
-		if (file == NULL) {
-			return EBADF;
-		}
-
-		//check if file is readonly
-		if (file->f_flags == O_RDONLY) {
-			return EBADF;
-		}
-
-		KASSERT(file->f_lock != NULL);
-
-		lock_acquire(file->f_lock);
-
-		//setup uio to write to file
-		uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset,
-				UIO_WRITE);
-
-		//writing....
-		if (VOP_WRITE(file->f_vn, &uio_W)) {
-			DEBUG(DB_A2, "error in VOP_WRITE\n");
+	case STDOUT_FILENO:
+		if (sys_open("con:", O_WRONLY, 0664, &fd)) {
+			DEBUG(DB_A2, "ERROR WRITING TO STDOUT!\n");
 			return -1;
 		}
-
-		//set the bytes written
-		wroteBytes = nbytes - uio_W.uio_resid;
-		//update offset
-		file->f_offset = uio_W.uio_offset;
-		lock_release(file->f_lock);
+		break;
+	case STDIN_FILENO:
+		if (sys_open("con:", O_RDONLY, 0, &fd)) {
+			DEBUG(DB_A2, "ERROR WRITING TO STDIN!\n");
+			return -1;
+		}
+		break;
+	case STDERR_FILENO:
+		if (sys_open("con:", O_WRONLY, 0665, &fd)) {
+			DEBUG(DB_A2, "ERROR WRITING TO STDERR!\n");
+			return -1;
+		}
+		break;
+	default:
 		break;
 	}
+
+	file = curthread->t_proc->fd_table[fd];
+
+	//check if the file is opened
+	if (file == NULL) {
+		return EBADF;
+	}
+
+	//check if file is readonly
+	if (file->f_flags == O_RDONLY) {
+		return EBADF;
+	}
+
+	KASSERT(file->f_lock != NULL);
+
+	lock_acquire(file->f_lock);
+
+	//setup uio to write to file
+	uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset, UIO_WRITE);
+
+	//writing....
+	if (VOP_WRITE(file->f_vn, &uio_W)) {
+		DEBUG(DB_A2, "error in VOP_WRITE\n");
+		return -1;
+	}
+
+	//set the bytes written
+	wroteBytes = nbytes - uio_W.uio_resid;
+	//update offset
+	file->f_offset = uio_W.uio_offset;
+	lock_release(file->f_lock);
 
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
@@ -179,19 +191,21 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	int dbflags = DB_A2;
-	int fd = 0; //filehandle to be returned
+	int fd = -1; //filehandle to be returned
 	struct file_desc** table = curthread->t_proc->fd_table;
 	struct vnode* openedVnode = NULL;
 
+//	DEBUG(DB_A2, "pointer is %p\n", (void *)filename);
 	//check if filename is a valid pointer
-	DEBUG(DB_A2, "filename is %d\n", (int )filename);
-	if ((unsigned int) filename > 0x7fffffff) {
+	if ((unsigned int) filename >= 0xffffffff) {
+		DEBUG(DB_A2, "filename is not a valid pointer\n");
 		return EFAULT;
 	}
 
 	//check if filename is of correct size
 	if (strlen(filename) > MAX_LEN_FILENAME || filename == ""
 			|| strlen(filename) == 0) {
+		DEBUG(DB_A2, "filename is of invalid size (too small/toobig)\n");
 		return EBADF;
 	}
 
@@ -202,74 +216,81 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 		fd = STDOUT_FILENO; //1
 	} else if (filename == "con:" && flags == O_WRONLY && mode == 0665) {
 		fd = STDERR_FILENO; //2
-	} else {
+	}
 
-		//check in fd_table to see if file is already open
-		KASSERT(MAX_OPEN_COUNT > 4);
+	KASSERT(MAX_OPEN_COUNT > 4);
+
+	//check in fd_table to see if file is already open
+	if (fd < 3 && fd >= 0) {
+		//standard console related
+		KASSERT(filename == "con:");
+		if (table[fd] != NULL) {
+			openedVnode = table[fd]->f_vn;
+		}
+
+	} else {
+		//file related
 		for (int i = 3; i < MAX_OPEN_COUNT; i++) {
 
 			if (table[i] == NULL) {
 				break;
 			}
-
-			/**
-			 * todo: f_name should have a max of MAX_LEN_FILENAME letters
-			 */
 			if (table[i]->f_name == filename) {
 				openedVnode = table[i]->f_vn;
 			}
 		}
-
 		//check if we reached MAX_OPEN_COUNT
 		fd = 3;
 		while (fd < MAX_OPEN_COUNT && table[fd] != NULL) {
 			fd++;
 		}
+	}
 
-		//check to see if the row we found is valid
-		if (fd >= MAX_OPEN_COUNT) {
-			return EMFILE;
+	//check to see if the row we found is valid
+	if (fd >= MAX_OPEN_COUNT) {
+		return EMFILE;
+	}
+
+	//config vnode: a new one or reference to an existing
+	struct vnode* openFile = (openedVnode == NULL) ? NULL : openedVnode;
+
+	if (openFile == NULL) {
+		//open file and add entry to fdtable
+		char * filename_W = kstrdup(filename);
+		if (vfs_open(filename_W, flags, mode, &openFile)) {
+			//if there is a problem opening the file
+			return ENOENT;
 		}
+		kfree(filename_W);
+	} else {
+		//we are using an existing vnode
+		KASSERT(openFile == openedVnode);
 
-		//config vnode: a new one or reference to an existing
-		struct vnode* openFile = (openedVnode == NULL) ? NULL : openedVnode;
-
-		if (openFile == NULL) {
-			//open file and add entry to fdtable
-			char * filename_W = kstrdup(filename);
-			if (vfs_open(filename_W, flags, mode, &openFile)) {
-				//if there is a problem opening the file
-				return ENOENT;
-			}
-			kfree(filename_W);
-		} else {
-			//we are using an existing vnode
-			KASSERT(openFile == openedVnode);
-
+		if (fd >= 3) {
 			//inc ref count
 			vnode_incref(openFile);
 		}
+	}
 
-		KASSERT(table[fd]== NULL);
-
-		DEBUG(DB_A2, "file %s will be opened with fd = %d\n", filename, fd);
-
+	if (table[fd] == NULL) {
 		table[fd] = kmalloc(sizeof(struct file_desc));
-		table[fd]->f_vn = openFile;
-		table[fd]->f_name = (char *) filename;
-		table[fd]->f_offset = 0;
-		table[fd]->f_flags = flags;
 		table[fd]->f_lock = lock_create(filename);
+	}
+	table[fd]->f_vn = openFile;
+	table[fd]->f_name = (char *) filename;
+	table[fd]->f_offset = 0;
+	table[fd]->f_flags = flags;
+	KASSERT(table[fd]->f_vn->vn_opencount >= 1);
+	KASSERT(table[fd]->f_vn->vn_refcount >= 1);
 
-		KASSERT(table[fd]->f_vn->vn_opencount >= 1);
-		KASSERT(table[fd]->f_vn->vn_refcount >= 1);
+	if (fd >= 3) {
 
 		DEBUG(DB_A2,
 				"%s created on fd = %d and vnode = %p and has vn_refcount = %d\n",
 				table[fd]->f_name, fd, table[fd]->f_vn,
 				table[fd]->f_vn->vn_refcount);
-
 	}
+
 	*retval = (int32_t) fd;
 	KASSERT(curthread->t_curspl == 0);
 
