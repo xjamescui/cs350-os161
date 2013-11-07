@@ -13,6 +13,5 @@ struct file_desc {
 	struct lock* f_lock;
 	struct vnode* f_vn;
 	int f_flags;
-	bool available;
 
 };
