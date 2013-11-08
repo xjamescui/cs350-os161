@@ -53,9 +53,11 @@ struct semaphore *RaceConditionSem; //to be used in menu.c
  * Process structure.
  */
 struct proc {
+	pid_t p_id; /* process id */
 	char *p_name; /* Name of this process */
 	struct spinlock p_lock; /* Lock for this structure */
 	struct threadarray p_threads; /* Threads in this process */
+	int p_exitcode; /* exit code */
 
 	/* VM */
 	struct addrspace *p_addrspace; /* virtual address space */

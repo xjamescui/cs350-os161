@@ -20,11 +20,10 @@
 #define MODE_STDOUT 1337
 #define MODE_STDERR 1338
 /**
- * All non-file related syscall functions for A2 goes here
+ * All file related syscall functions for A2 goes here
  *
  * Functions:
  *
- * sys__exit
  * sys_read
  * sys_write
  * sys_open
@@ -32,37 +31,11 @@
  *
  */
 
-void sys__exit(int exitcode) {
-//	kprintf("in sys__exit");
-	(void) exitcode;
-	//V(RaceConditionSem); //user program exit, let the other process go
-	struct proc *process = curthread->t_proc;
 
-	KASSERT(process != NULL);
-
-	int processThreadCount = threadarray_num(&process->p_threads);
-
-	//detach all threads used by this process
-	for (int i = 0; i < processThreadCount; i++) {
-		threadarray_remove(&process->p_threads, i);
-	}
-	KASSERT(threadarray_num(&process->p_threads) == 0);
-
-	//destroy process
-	KASSERT(process != NULL);
-	proc_destroy(process);
-	curthread->t_proc = NULL;
-//	kprintf("before V");
-	V(RaceConditionSem);
-//	kprintf("after V");
-	thread_exit();
-
-}
 /**
  * Return value: nbytes read is returned.
  * This count should be positive.
  * A return value of 0 should be construed as signifying end-of-file.
- * On error, read returns -1 and sets errno to a suitable error code for the error condition encountered.
  */
 int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
@@ -139,7 +112,7 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	}
 
 	//check for valid buffer
-	if(buf == NULL || copycheck){
+	if(buf == NULL){
 		return EFAULT;
 	}
 
@@ -208,9 +181,9 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	}
 
 	//check if flags is valid
-	if(flags != O_RDONLY && flags != O_WRONLY && flags == O_RDWR ){
-		return EINVAL;
-	}
+//	if(flags != O_RDONLY && flags != O_WRONLY && flags != O_RDWR ){
+//		return EINVAL;
+//	}
 
 	//check if filename is of correct size/format
 	if (strlen(filename) > MAX_LEN_FILENAME || filename == ""
