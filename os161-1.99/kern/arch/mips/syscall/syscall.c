@@ -79,7 +79,6 @@ void syscall(struct trapframe *tf) {
 	int callno;
 	int32_t retval;
 	int err;
-
 	KASSERT(curthread != NULL);
 	KASSERT(curthread->t_curspl == 0);
 	KASSERT(curthread->t_iplhigh_count == 0);

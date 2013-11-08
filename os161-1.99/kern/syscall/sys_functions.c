@@ -136,7 +136,7 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	switch (fd) {
 	case STDOUT_FILENO:
 		if ((errno = sys_open("con:", O_WRONLY, MODE_STDOUT, &fd))) {
-			DEBUG(DB_A2, "ERROR WRITING TO STDOUT!\n");
+			DEBUG(DB_A2, "ERROR WRITING TO STDOUT code is %d!\n", errno);
 			return errno;
 		}
 		break;
@@ -197,7 +197,12 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 		return EFAULT;
 	}
 
-	//check if filename is of correct size
+	//check if flags is valid
+	if(flags != O_RDONLY && flags != O_WRONLY && flags == O_RDWR ){
+		return EINVAL;
+	}
+
+	//check if filename is of correct size/format
 	if (strlen(filename) > MAX_LEN_FILENAME || filename == ""
 			|| strlen(filename) == 0) {
 		DEBUG(DB_A2, "filename is of invalid size (too small/toobig)\n");

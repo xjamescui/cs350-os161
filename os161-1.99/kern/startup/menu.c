@@ -154,11 +154,6 @@ int common_prog(int nargs, char **args) {
 			cmd_progthread /* thread function */, args /* thread arg */,
 			nargs /* thread arg */);
 
-#if OPT_A2
-	P(RaceConditionSem);
-	sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
-#endif
-
 	if (result) {
 		kprintf("thread_fork failed: %s\n", strerror(result));
 		proc_destroy(proc);
@@ -169,6 +164,11 @@ int common_prog(int nargs, char **args) {
 	 * The new process will be destroyed when the program exits...
 	 * once you write the code for handling that.
 	 */
+
+#if OPT_A2
+	P(RaceConditionSem);
+	sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
+#endif
 
 	return 0;
 }
