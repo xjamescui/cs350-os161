@@ -3,7 +3,6 @@
 #include <proc.h>
 #include <lib.h>
 #include <copyinout.h>
-#include <sys_functions.h>
 #include <spl.h>
 #include <thread.h>
 #include <kern/fcntl.h>
@@ -15,6 +14,7 @@
 #include <kern/errno.h>
 #include <thread.h>
 #include <kern/unistd.h>
+#include <sys_functions.h>
 
 #define MODE_STDIN 1336
 #define MODE_STDOUT 1337
@@ -30,7 +30,6 @@
  * sys_close
  *
  */
-
 
 /**
  * Return value: nbytes read is returned.
@@ -70,12 +69,11 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 		return EBADF;
 	}
 
-
 	//setup uio to read
 	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
 
 	//Reading...
-	if ((errno=VOP_READ(file->f_vn, &uio_R))) {
+	if ((errno = VOP_READ(file->f_vn, &uio_R))) {
 		return errno;
 	}
 	readBytes = nbytes - uio_R.uio_resid;
@@ -112,7 +110,7 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	}
 
 	//check for valid buffer
-	if(buf == NULL){
+	if (buf == NULL) {
 		return EFAULT;
 	}
 
@@ -145,14 +143,12 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 		return EBADF;
 	}
 
-
 	//setup uio to write to file
 	uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset, UIO_WRITE);
 
-	//put lock here
 
 	//writing....
-	if ((errno=VOP_WRITE(file->f_vn, &uio_W))) {
+	if ((errno = VOP_WRITE(file->f_vn, &uio_W))) {
 		DEBUG(DB_A2, "error in VOP_WRITE\n");
 		return errno;
 	}
@@ -160,7 +156,6 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	wroteBytes = nbytes - uio_W.uio_resid;
 	file->f_offset = uio_W.uio_offset;
 
-	//release lock here
 
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
@@ -175,13 +170,13 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	struct vnode* openedVnode = NULL;
 
 	//check if filename is a valid pointer
-	if ((uint32_t) filename >= 0xffffffff) {
+	if ((uint32_t) filename % 4 != 0) {
 		DEBUG(DB_A2, "filename is not a valid pointer\n");
 		return EFAULT;
 	}
 
 	//check if flags is valid
-//	if(flags != O_RDONLY && flags != O_WRONLY && flags != O_RDWR ){
+//	if (flags != O_RDONLY && flags != O_WRONLY && flags != O_RDWR) {
 //		return EINVAL;
 //	}
 
@@ -274,8 +269,8 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	if (fd >= 3) {
 
 		DEBUG(DB_A2,
-				"%s created on fd = %d and vnode = %p and has vn_refcount = %d\n",
-				table[fd]->f_name, fd, table[fd]->f_vn,
+				"%s created on fd = %d and vnode = %p and has opencount = %d vn_refcount = %d\n",
+				table[fd]->f_name, fd, table[fd]->f_vn, table[fd]->f_vn->vn_opencount,
 				table[fd]->f_vn->vn_refcount);
 	}
 
@@ -324,43 +319,5 @@ int sys_close(int fd) {
 	kfree(file);
 	KASSERT(curthread->t_proc->fd_table[fd]==NULL);
 
-	return 0;
-}
-
-pid_t sys_fork() {
-
-	/**
-	 * Note: child should be "born" with the same state as the parent
-	 *
-	 * child's address space = copy of(parent's address space)
-	 * return child_pid to parent
-	 * return 0 to child_pid
-	 * child_pid != parent_pid
-	 */
-
-	struct proc* parent = curthread->t_proc;
-
-//turn off interrupts
-	int old_spl = splhigh();
-
-//create child process (make sure child starts with the same context as parent)
-//best way is to look at parent's current trapframe and go from there
-
-//copy parent's address space to child
-
-//create thread in child process
-
-	/**
-	 * copy parent's fd_table to child
-	 * Note: However, the file handle objects the file tables point to are shared,
-	 * so, for instance, calls to lseek in one process can affect the other.
-	 */
-
-//turn interrupts back on
-	splx(old_spl);
-	KASSERT(curthread->t_curspl == 0);
-
-//return
-	(void) parent;
 	return 0;
 }

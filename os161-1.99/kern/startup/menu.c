@@ -167,7 +167,6 @@ int common_prog(int nargs, char **args) {
 
 #if OPT_A2
 	P(RaceConditionSem);
-        //kprintf("Ping");
 	sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
 #endif
 

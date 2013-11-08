@@ -128,9 +128,9 @@ void syscall(struct trapframe *tf) {
 		err = sys_close(tf->tf_a0);
 		break;
 
-	case SYS_fork:
-		err = sys_fork();
-		break;
+//	case SYS_fork:
+//		err = sys_fork();
+//		break;
 #endif
 
 	default:

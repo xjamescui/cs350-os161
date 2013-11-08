@@ -10,10 +10,9 @@ void sys__exit(int exitcode) {
 
 	KASSERT(cur_process != NULL);
 
+	//detach all threads used by this process
 	int processThreadCount = threadarray_num(&cur_process->p_threads);
 
-
-	//detach all threads used by this process
 	for (int i = 0; i < processThreadCount; i++) {
 		threadarray_remove(&cur_process->p_threads, i);
 	}
@@ -22,14 +21,15 @@ void sys__exit(int exitcode) {
 	//set encoded exitcode onto current process
 	cur_process->p_exitcode = _MKWAIT_EXIT(exitcode);
 
-	//tell the "interested" party about my exit
+
 
 	//destroy process
 	KASSERT(cur_process != NULL);
 	proc_destroy(cur_process);
-
-	//exit thread
 	curthread->t_proc = NULL;
+
+	//tell the "interested" party about my exit
+
 	V(RaceConditionSem);
 	thread_exit();
 
