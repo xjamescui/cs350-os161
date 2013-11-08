@@ -2,6 +2,7 @@
 #include <current.h>
 #include <proc.h>
 #include <lib.h>
+#include <copyinout.h>
 #include <sys_functions.h>
 #include <spl.h>
 #include <thread.h>
@@ -131,6 +132,11 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	//check for valid fd
 	if (fd < 0 || fd > MAX_OPEN_COUNT - 1) {
 		return EBADF;
+	}
+
+	//check for valid buffer
+	if(buf == NULL || copycheck){
+		return EFAULT;
 	}
 
 	switch (fd) {
