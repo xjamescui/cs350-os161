@@ -32,8 +32,9 @@
  */
 
 void sys__exit(int exitcode) {
+//	kprintf("in sys__exit");
 	(void) exitcode;
-	V(RaceConditionSem); //user program exit, let the other process go
+	//V(RaceConditionSem); //user program exit, let the other process go
 	struct proc *process = curthread->t_proc;
 
 	KASSERT(process != NULL);
@@ -50,6 +51,9 @@ void sys__exit(int exitcode) {
 	KASSERT(process != NULL);
 	proc_destroy(process);
 	curthread->t_proc = NULL;
+//	kprintf("before V");
+	V(RaceConditionSem);
+//	kprintf("after V");
 	thread_exit();
 
 }

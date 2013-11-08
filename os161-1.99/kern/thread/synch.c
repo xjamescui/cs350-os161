@@ -130,7 +130,6 @@ void V(struct semaphore *sem) {
 	KASSERT(sem != NULL);
 
 	spinlock_acquire(&sem->sem_lock);
-
 	sem->sem_count++;
 	KASSERT(sem->sem_count > 0);
 	wchan_wakeone(sem->sem_wchan);

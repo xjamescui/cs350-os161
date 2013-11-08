@@ -101,10 +101,10 @@ void cmd_progthread(void *ptr, unsigned long nargs) {
 #if OPT_A2
 
 	if (nargs > 2) {
-		kprintf("Calling runprogram with cmdline params\n");
+		//kprintf("Calling runprogram with cmdline params\n");
 		result = runprogram2(progname, nargs, args, RaceConditionSem);
 	} else {
-//	  V(RaceConditionSem);
+	  //V(RaceConditionSem);
 		result = runprogram(progname);
 	}
 
@@ -167,6 +167,7 @@ int common_prog(int nargs, char **args) {
 
 #if OPT_A2
 	P(RaceConditionSem);
+        //kprintf("Ping");
 	sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
 #endif
 
@@ -188,7 +189,7 @@ int cmd_prog(int nargs, char **args) {
 	nargs--;
 
 #if OPT_A2
-	RaceConditionSem = sem_create("RaceCond", 0);
+	//RaceConditionSem = sem_create("RaceConditionSem", 0);
 #endif
 
 	return common_prog(nargs, args);
