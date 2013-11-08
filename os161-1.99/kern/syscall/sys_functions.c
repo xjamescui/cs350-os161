@@ -15,6 +15,9 @@
 #include <thread.h>
 #include <kern/unistd.h>
 
+#define MODE_STDIN 1336
+#define MODE_STDOUT 1337
+#define MODE_STDERR 1338
 /**
  * All non-file related syscall functions for A2 goes here
  *
@@ -30,6 +33,7 @@
 
 void sys__exit(int exitcode) {
 	(void) exitcode;
+	V(RaceConditionSem); //user program exit, let the other process go
 	struct proc *process = curthread->t_proc;
 
 	KASSERT(process != NULL);
@@ -71,7 +75,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
 	//reading from stdin
 	if (fd == STDIN_FILENO) {
-		if ((errno = sys_open("con:", O_RDONLY, 0, &fd))) {
+		if ((errno = sys_open("con:", O_RDONLY, MODE_STDIN, &fd))) {
 			return errno;
 		}
 	}
@@ -88,19 +92,16 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 		return EBADF;
 	}
 
-	lock_acquire(file->f_lock);
 
 	//setup uio to read
 	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
 
-	if (VOP_READ(file->f_vn, &uio_R)) {
-		return -1;
+	//Reading...
+	if ((errno=VOP_READ(file->f_vn, &uio_R))) {
+		return errno;
 	}
-
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
-
-	lock_release(file->f_lock);
 
 	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
 	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
@@ -134,13 +135,13 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 	switch (fd) {
 	case STDOUT_FILENO:
-		if ((errno = sys_open("con:", O_WRONLY, 0664, &fd))) {
+		if ((errno = sys_open("con:", O_WRONLY, MODE_STDOUT, &fd))) {
 			DEBUG(DB_A2, "ERROR WRITING TO STDOUT!\n");
 			return errno;
 		}
 		break;
 	case STDERR_FILENO:
-		if ((errno = sys_open("con:", O_WRONLY, 0665, &fd))) {
+		if ((errno = sys_open("con:", O_WRONLY, MODE_STDERR, &fd))) {
 			DEBUG(DB_A2, "ERROR WRITING TO STDERR!\n");
 			return errno;
 		}
@@ -161,25 +162,22 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 		return EBADF;
 	}
 
-	KASSERT(file->f_lock != NULL);
-
-	lock_acquire(file->f_lock);
 
 	//setup uio to write to file
 	uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset, UIO_WRITE);
 
+	//put lock here
+
 	//writing....
-	if (VOP_WRITE(file->f_vn, &uio_W)) {
+	if ((errno=VOP_WRITE(file->f_vn, &uio_W))) {
 		DEBUG(DB_A2, "error in VOP_WRITE\n");
-		return -1;
+		return errno;
 	}
 
-	//set the bytes written
 	wroteBytes = nbytes - uio_W.uio_resid;
-	//update offset
 	file->f_offset = uio_W.uio_offset;
 
-	lock_release(file->f_lock);
+	//release lock here
 
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
@@ -207,26 +205,40 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	}
 
 	//if file is the console: stdin, stdout, stderr
-	if (filename == "con:" && flags == O_RDONLY) {
-		fd = STDIN_FILENO;	//0
-	} else if (filename == "con:" && flags == O_WRONLY && mode == 0664) {
-		fd = STDOUT_FILENO; //1
-	} else if (filename == "con:" && flags == O_WRONLY && mode == 0665) {
-		fd = STDERR_FILENO; //2
+	if (filename == "con:") {
+		if (flags == O_RDONLY) {
+			fd = STDIN_FILENO;	//0
+		} else if (flags == O_WRONLY && mode == MODE_STDOUT) {
+			fd = STDOUT_FILENO; //1
+		} else if (flags == O_WRONLY && mode == MODE_STDERR) {
+			fd = STDERR_FILENO; //2
+		}
 	}
 
 	KASSERT(MAX_OPEN_COUNT > 4);
 
 	//check in fd_table to see if file is already open
 	if (fd < 3 && fd >= 0) {
-		//standard console related
+
+		//standard console related (0,1,2)
 		KASSERT(filename == "con:");
 		if (table[fd] != NULL) {
 			openedVnode = table[fd]->f_vn;
 		}
 
-	} else {
-		//file related
+	} else { //file related (3 - (n-1))
+
+		//check if we reached MAX_OPEN_COUNT
+		fd = 3;
+		while (fd < MAX_OPEN_COUNT && table[fd] != NULL) {
+			fd++;
+		}
+
+		//check to see if the row we found is valid
+		if (fd >= MAX_OPEN_COUNT) {
+			return EMFILE;
+		}
+
 		for (int i = 3; i < MAX_OPEN_COUNT; i++) {
 
 			if (table[i] == NULL) {
@@ -236,16 +248,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 				openedVnode = table[i]->f_vn;
 			}
 		}
-		//check if we reached MAX_OPEN_COUNT
-		fd = 3;
-		while (fd < MAX_OPEN_COUNT && table[fd] != NULL) {
-			fd++;
-		}
-	}
 
-	//check to see if the row we found is valid
-	if (fd >= MAX_OPEN_COUNT) {
-		return EMFILE;
 	}
 
 	//config vnode: a new one or reference to an existing
@@ -269,9 +272,9 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 		}
 	}
 
+	//open a new file
 	if (table[fd] == NULL) {
 		table[fd] = kmalloc(sizeof(struct file_desc));
-		table[fd]->f_lock = lock_create(filename);
 	}
 	table[fd]->f_vn = openFile;
 	table[fd]->f_name = (char *) filename;
@@ -328,7 +331,6 @@ int sys_close(int fd) {
 
 	//clean up row in the table
 	file->f_vn = NULL;
-	lock_destroy(file->f_lock);
 	curthread->t_proc->fd_table[fd] = NULL;
 	KASSERT(file != NULL);
 	kfree(file);

@@ -53,6 +53,7 @@ vnode_init(struct vnode *vn, const struct vnode_ops *ops,
 	vn->vn_opencount = 0;
 	vn->vn_fs = fs;
 	vn->vn_data = fsdata;
+
 	return 0;
 }
 
@@ -71,6 +72,7 @@ vnode_cleanup(struct vnode *vn)
 	vn->vn_opencount = 0;
 	vn->vn_fs = NULL;
 	vn->vn_data = NULL;
+
 }
 
 

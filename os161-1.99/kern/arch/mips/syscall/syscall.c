@@ -107,7 +107,6 @@ void syscall(struct trapframe *tf) {
 		break;
 
 #if OPT_A2
-		/* Add stuff here */
 	case SYS__exit:
 		sys__exit(tf->tf_a0);
 		break;

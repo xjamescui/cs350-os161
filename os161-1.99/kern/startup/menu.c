@@ -55,13 +55,9 @@
 
 #define MAXMENUARGS  16
 
-struct semaphore *progThreadSem;
-
 // XXX this should not be in this file
-void
-getinterval(time_t s1, uint32_t ns1, time_t s2, uint32_t ns2,
-	    time_t *rs, uint32_t *rns)
-{
+void getinterval(time_t s1, uint32_t ns1, time_t s2, uint32_t ns2, time_t *rs,
+		uint32_t *rns) {
 	if (ns2 < ns1) {
 		ns2 += 1000000000;
 		s2--;
@@ -87,41 +83,37 @@ getinterval(time_t s1, uint32_t ns1, time_t s2, uint32_t ns2,
  * it gets by passing it to vfs_open(). 
  */
 static
-void
-cmd_progthread(void *ptr, unsigned long nargs)
-{
+void cmd_progthread(void *ptr, unsigned long nargs) {
 	char **args = ptr;
 	char progname[128];
 	int result;
 	KASSERT(nargs >= 1);
 	/*
-	if (nargs > 2) {
-		kprintf("Warning: argument passing from menu not supported\n");
-	}
-	*/
+	 if (nargs > 2) {
+	 kprintf("Warning: argument passing from menu not supported\n");
+	 }
+	 */
 	/* Hope we fit. */
 	KASSERT(strlen(args[0]) < sizeof(progname));
 
 	strcpy(progname, args[0]);
 
-	#if OPT_A2
+#if OPT_A2
 
-	if(nargs > 2) {
+	if (nargs > 2) {
 		kprintf("Calling runprogram with cmdline params\n");
-		result = runprogram2(progname, nargs, args, progThreadSem);
-	}
-	else {
-	  V(progThreadSem);
+		result = runprogram2(progname, nargs, args, RaceConditionSem);
+	} else {
+//	  V(RaceConditionSem);
 		result = runprogram(progname);
 	}
 
-	#else
+#else
 	result = runprogram(progname);
-	#endif
+#endif
 
 	if (result) {
-		kprintf("Running program %s failed: %s\n", args[0],
-			strerror(result));
+		kprintf("Running program %s failed: %s\n", args[0], strerror(result));
 		return;
 	}
 
@@ -141,15 +133,13 @@ cmd_progthread(void *ptr, unsigned long nargs)
  * between that code and the menu input code.
  */
 static
-int
-common_prog(int nargs, char **args)
-{
+int common_prog(int nargs, char **args) {
 	struct proc *proc;
 	int result;
 
 #if OPT_SYNCHPROBS
 	kprintf("Warning: this probably won't work with a "
-		"synchronization-problems kernel.\n");
+			"synchronization-problems kernel.\n");
 #endif
 
 	/* Create a process for the new program to run in. */
@@ -158,18 +148,22 @@ common_prog(int nargs, char **args)
 		return ENOMEM;
 	}
 
-	progThreadSem = sem_create("progThreadSem", 0);
+	RaceConditionSem = sem_create("RaceConditionSem", 0);
 
-	result = thread_fork(args[0] /* thread name */,
-			proc /* new process */,
-			cmd_progthread /* thread function */,
-			args /* thread arg */, nargs /* thread arg */);
+	result = thread_fork(args[0] /* thread name */, proc /* new process */,
+			cmd_progthread /* thread function */, args /* thread arg */,
+			nargs /* thread arg */);
+
+#if OPT_A2
+	P(RaceConditionSem);
+	sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
+#endif
+
 	if (result) {
 		kprintf("thread_fork failed: %s\n", strerror(result));
 		proc_destroy(proc);
 		return result;
 	}
-	P(progThreadSem);
 
 	/*
 	 * The new process will be destroyed when the program exits...
@@ -183,9 +177,7 @@ common_prog(int nargs, char **args)
  * Command for running an arbitrary userlevel program.
  */
 static
-int
-cmd_prog(int nargs, char **args)
-{
+int cmd_prog(int nargs, char **args) {
 	if (nargs < 2) {
 		kprintf("Usage: p program [arguments]\n");
 		return EINVAL;
@@ -195,6 +187,10 @@ cmd_prog(int nargs, char **args)
 	args++;
 	nargs--;
 
+#if OPT_A2
+	RaceConditionSem = sem_create("RaceCond", 0);
+#endif
+
 	return common_prog(nargs, args);
 }
 
@@ -202,16 +198,14 @@ cmd_prog(int nargs, char **args)
  * Command for starting the system shell.
  */
 static
-int
-cmd_shell(int nargs, char **args)
-{
-	(void)args;
+int cmd_shell(int nargs, char **args) {
+	(void) args;
 	if (nargs != 1) {
 		kprintf("Usage: s\n");
 		return EINVAL;
 	}
 
-	args[0] = (char *)_PATH_SHELL;
+	args[0] = (char *) _PATH_SHELL;
 
 	return common_prog(nargs, args);
 }
@@ -220,9 +214,7 @@ cmd_shell(int nargs, char **args)
  * Command for changing directory.
  */
 static
-int
-cmd_chdir(int nargs, char **args)
-{
+int cmd_chdir(int nargs, char **args) {
 	if (nargs != 2) {
 		kprintf("Usage: cd directory\n");
 		return EINVAL;
@@ -235,18 +227,16 @@ cmd_chdir(int nargs, char **args)
  * Command for printing the current directory.
  */
 static
-int
-cmd_pwd(int nargs, char **args)
-{
-	char buf[PATH_MAX+1];
+int cmd_pwd(int nargs, char **args) {
+	char buf[PATH_MAX + 1];
 	int result;
 	struct iovec iov;
 	struct uio ku;
 
-	(void)nargs;
-	(void)args;
+	(void) nargs;
+	(void) args;
 
-	uio_kinit(&iov, &ku, buf, sizeof(buf)-1, 0, UIO_READ);
+	uio_kinit(&iov, &ku, buf, sizeof(buf) - 1, 0, UIO_READ);
 	result = vfs_getcwd(&ku);
 	if (result) {
 		kprintf("vfs_getcwd failed (%s)\n", strerror(result));
@@ -254,7 +244,7 @@ cmd_pwd(int nargs, char **args)
 	}
 
 	/* null terminate */
-	buf[sizeof(buf)-1-ku.uio_resid] = 0;
+	buf[sizeof(buf) - 1 - ku.uio_resid] = 0;
 
 	/* print it */
 	kprintf("%s\n", buf);
@@ -266,11 +256,9 @@ cmd_pwd(int nargs, char **args)
  * Command for running sync.
  */
 static
-int
-cmd_sync(int nargs, char **args)
-{
-	(void)nargs;
-	(void)args;
+int cmd_sync(int nargs, char **args) {
+	(void) nargs;
+	(void) args;
 
 	vfs_sync();
 
@@ -281,11 +269,9 @@ cmd_sync(int nargs, char **args)
  * Command for doing an intentional panic.
  */
 static
-int
-cmd_panic(int nargs, char **args)
-{
-	(void)nargs;
-	(void)args;
+int cmd_panic(int nargs, char **args) {
+	(void) nargs;
+	(void) args;
 
 	panic("User requested panic\n");
 	return 0;
@@ -295,11 +281,9 @@ cmd_panic(int nargs, char **args)
  * Command for shutting down.
  */
 static
-int
-cmd_quit(int nargs, char **args)
-{
-	(void)nargs;
-	(void)args;
+int cmd_quit(int nargs, char **args) {
+	(void) nargs;
+	(void) args;
 
 	vfs_sync();
 	sys_reboot(RB_POWEROFF);
@@ -317,15 +301,12 @@ static const struct {
 	int (*func)(const char *device);
 } mounttable[] = {
 #if OPT_SFS
-	{ "sfs", sfs_mount },
+		{ "sfs", sfs_mount },
 #endif
-	{ NULL, NULL }
-};
+		{ NULL, NULL } };
 
 static
-int
-cmd_mount(int nargs, char **args)
-{
+int cmd_mount(int nargs, char **args) {
 	char *fstype;
 	char *device;
 	int i;
@@ -339,11 +320,11 @@ cmd_mount(int nargs, char **args)
 	device = args[2];
 
 	/* Allow (but do not require) colon after device name */
-	if (device[strlen(device)-1]==':') {
-		device[strlen(device)-1] = 0;
+	if (device[strlen(device) - 1] == ':') {
+		device[strlen(device) - 1] = 0;
 	}
 
-	for (i=0; mounttable[i].name; i++) {
+	for (i = 0; mounttable[i].name; i++) {
 		if (!strcmp(mounttable[i].name, fstype)) {
 			return mounttable[i].func(device);
 		}
@@ -353,9 +334,7 @@ cmd_mount(int nargs, char **args)
 }
 
 static
-int
-cmd_unmount(int nargs, char **args)
-{
+int cmd_unmount(int nargs, char **args) {
 	char *device;
 
 	if (nargs != 2) {
@@ -366,8 +345,8 @@ cmd_unmount(int nargs, char **args)
 	device = args[1];
 
 	/* Allow (but do not require) colon after device name */
-	if (device[strlen(device)-1]==':') {
-		device[strlen(device)-1] = 0;
+	if (device[strlen(device) - 1] == ':') {
+		device[strlen(device) - 1] = 0;
 	}
 
 	return vfs_unmount(device);
@@ -382,9 +361,7 @@ cmd_unmount(int nargs, char **args)
  * The default bootfs is "emu0".
  */
 static
-int
-cmd_bootfs(int nargs, char **args)
-{
+int cmd_bootfs(int nargs, char **args) {
 	char *device;
 
 	if (nargs != 2) {
@@ -395,19 +372,17 @@ cmd_bootfs(int nargs, char **args)
 	device = args[1];
 
 	/* Allow (but do not require) colon after device name */
-	if (device[strlen(device)-1]==':') {
-		device[strlen(device)-1] = 0;
+	if (device[strlen(device) - 1] == ':') {
+		device[strlen(device) - 1] = 0;
 	}
 
 	return vfs_setbootfs(device);
 }
 
 static
-int
-cmd_kheapstats(int nargs, char **args)
-{
-	(void)nargs;
-	(void)args;
+int cmd_kheapstats(int nargs, char **args) {
+	(void) nargs;
+	(void) args;
 
 	kheap_printstats();
 
@@ -419,23 +394,21 @@ cmd_kheapstats(int nargs, char **args)
 // Menus.
 
 static
-void
-showmenu(const char *name, const char *x[])
-{
+void showmenu(const char *name, const char *x[]) {
 	int ct, half, i;
 
 	kprintf("\n");
 	kprintf("%s\n", name);
 
-	for (i=ct=0; x[i]; i++) {
+	for (i = ct = 0; x[i]; i++) {
 		ct++;
 	}
-	half = (ct+1)/2;
+	half = (ct + 1) / 2;
 
-	for (i=0; i<half; i++) {
+	for (i = 0; i < half; i++) {
 		kprintf("    %-36s", x[i]);
-		if (i+half < ct) {
-			kprintf("%s", x[i+half]);
+		if (i + half < ct) {
+			kprintf("%s", x[i + half]);
 		}
 		kprintf("\n");
 	}
@@ -443,91 +416,79 @@ showmenu(const char *name, const char *x[])
 	kprintf("\n");
 }
 
-static const char *opsmenu[] = {
-	"[s]       Shell                     ",
-	"[p]       Other program             ",
-	"[mount]   Mount a filesystem        ",
-	"[unmount] Unmount a filesystem      ",
-	"[bootfs]  Set \"boot\" filesystem     ",
-	"[pf]      Print a file              ",
-	"[cd]      Change directory          ",
-	"[pwd]     Print current directory   ",
-	"[sync]    Sync filesystems          ",
-	"[panic]   Intentional panic         ",
-	"[q]       Quit and shut down        ",
-	NULL
-};
+static const char *opsmenu[] = { "[s]       Shell                     ",
+		"[p]       Other program             ",
+		"[mount]   Mount a filesystem        ",
+		"[unmount] Unmount a filesystem      ",
+		"[bootfs]  Set \"boot\" filesystem     ",
+		"[pf]      Print a file              ",
+		"[cd]      Change directory          ",
+		"[pwd]     Print current directory   ",
+		"[sync]    Sync filesystems          ",
+		"[panic]   Intentional panic         ",
+		"[q]       Quit and shut down        ",
+		NULL };
 
 static
-int
-cmd_opsmenu(int n, char **a)
-{
-	(void)n;
-	(void)a;
+int cmd_opsmenu(int n, char **a) {
+	(void) n;
+	(void) a;
 
 	showmenu("OS/161 operations menu", opsmenu);
 	return 0;
 }
 
-static const char *testmenu[] = {
-	"[at]  Array test                    ",
-	"[bt]  Bitmap test                   ",
-	"[km1] Kernel malloc test            ",
-	"[km2] kmalloc stress test           ",
-	"[tt1] Thread test 1                 ",
-	"[tt2] Thread test 2                 ",
-	"[tt3] Thread test 3                 ",
+static const char *testmenu[] = { "[at]  Array test                    ",
+		"[bt]  Bitmap test                   ",
+		"[km1] Kernel malloc test            ",
+		"[km2] kmalloc stress test           ",
+		"[tt1] Thread test 1                 ",
+		"[tt2] Thread test 2                 ",
+		"[tt3] Thread test 3                 ",
 #if OPT_NET
-	"[net] Network test                  ",
+		"[net] Network test                  ",
 #endif
-	"[sy1] Semaphore test                ",
-	"[sy2] Lock test             (1)     ",
-	"[sy3] CV test               (1)     ",
-	"[fs1] Filesystem test               ",
-	"[fs2] FS read stress        (4)     ",
-	"[fs3] FS write stress       (4)     ",
-	"[fs4] FS write stress 2     (4)     ",
-	"[fs5] FS create stress      (4)     ",
-	NULL
-};
+		"[sy1] Semaphore test                ",
+		"[sy2] Lock test             (1)     ",
+		"[sy3] CV test               (1)     ",
+		"[fs1] Filesystem test               ",
+		"[fs2] FS read stress        (4)     ",
+		"[fs3] FS write stress       (4)     ",
+		"[fs4] FS write stress 2     (4)     ",
+		"[fs5] FS create stress      (4)     ",
+		NULL };
 
 static
-int
-cmd_testmenu(int n, char **a)
-{
-	(void)n;
-	(void)a;
+int cmd_testmenu(int n, char **a) {
+	(void) n;
+	(void) a;
 
 	showmenu("OS/161 tests menu", testmenu);
 	kprintf("    (1) These tests will fail until you finish the "
-		"synch assignment.\n");
+			"synch assignment.\n");
 	kprintf("    (4) These tests may fail until you finish the "
-		"file system assignment.\n");
+			"file system assignment.\n");
 	kprintf("\n");
 
 	return 0;
 }
 
-static const char *mainmenu[] = {
-	"[?o] Operations menu                ",
-	"[?t] Tests menu                     ",
+static const char *mainmenu[] = { "[?o] Operations menu                ",
+		"[?t] Tests menu                     ",
 #if OPT_SYNCHPROBS
-	"[sp1] Whale Mating                  ",
+		"[sp1] Whale Mating                  ",
 #ifdef UW
-	"[sp2] Cat/mouse                     ",
+		"[sp2] Cat/mouse                     ",
 #endif /* UW */
 #endif
-	"[kh] Kernel heap stats              ",
-	"[q] Quit and shut down              ",
-	NULL
-};
+		"[kh] Kernel heap stats              ",
+		"[q] Quit and shut down              ",
+		NULL };
 
 static
-int
-cmd_mainmenu(int n, char **a)
-{
-	(void)n;
-	(void)a;
+int cmd_mainmenu(int n, char **a) {
+	(void) n;
+	(void) a;
 
 	showmenu("OS/161 kernel menu", mainmenu);
 	return 0;
@@ -541,87 +502,64 @@ static struct {
 	const char *name;
 	int (*func)(int nargs, char **args);
 } cmdtable[] = {
-	/* menus */
-	{ "?",		cmd_mainmenu },
-	{ "h",		cmd_mainmenu },
-	{ "help",	cmd_mainmenu },
-	{ "?o",		cmd_opsmenu },
-	{ "?t",		cmd_testmenu },
+/* menus */
+{ "?", cmd_mainmenu }, { "h", cmd_mainmenu }, { "help", cmd_mainmenu }, { "?o",
+		cmd_opsmenu }, { "?t", cmd_testmenu },
 
-	/* operations */
-	{ "s",		cmd_shell },
-	{ "p",		cmd_prog },
-	{ "mount",	cmd_mount },
-	{ "unmount",	cmd_unmount },
-	{ "bootfs",	cmd_bootfs },
-	{ "pf",		printfile },
-	{ "cd",		cmd_chdir },
-	{ "pwd",	cmd_pwd },
-	{ "sync",	cmd_sync },
-	{ "panic",	cmd_panic },
-	{ "q",		cmd_quit },
-	{ "exit",	cmd_quit },
-	{ "halt",	cmd_quit },
+/* operations */
+{ "s", cmd_shell }, { "p", cmd_prog }, { "mount", cmd_mount }, { "unmount",
+		cmd_unmount }, { "bootfs", cmd_bootfs }, { "pf", printfile }, { "cd",
+		cmd_chdir }, { "pwd", cmd_pwd }, { "sync", cmd_sync }, { "panic",
+		cmd_panic }, { "q", cmd_quit }, { "exit", cmd_quit },
+		{ "halt", cmd_quit },
 
 #if OPT_SYNCHPROBS
-	/* in-kernel synchronization problem(s) */
-	{ "sp1",	whalemating },
+		/* in-kernel synchronization problem(s) */
+		{	"sp1", whalemating},
 #ifdef UW
-	{ "sp2",	catmouse },
+		{	"sp2", catmouse},
 #endif /* UW */
 #endif
 
-	/* stats */
-	{ "kh",         cmd_kheapstats },
+		/* stats */
+		{ "kh", cmd_kheapstats },
 
-	/* base system tests */
-	{ "at",		arraytest },
-	{ "bt",		bitmaptest },
-	{ "km1",	malloctest },
-	{ "km2",	mallocstress },
+		/* base system tests */
+		{ "at", arraytest }, { "bt", bitmaptest }, { "km1", malloctest }, {
+				"km2", mallocstress },
 #if OPT_NET
-	{ "net",	nettest },
+		{	"net", nettest},
 #endif
-	{ "tt1",	threadtest },
-	{ "tt2",	threadtest2 },
-	{ "tt3",	threadtest3 },
-	{ "sy1",	semtest },
+		{ "tt1", threadtest }, { "tt2", threadtest2 }, { "tt3", threadtest3 }, {
+				"sy1", semtest },
 
-	/* synchronization assignment tests */
-	{ "sy2",	locktest },
-	{ "sy3",	cvtest },
+		/* synchronization assignment tests */
+		{ "sy2", locktest }, { "sy3", cvtest },
 #ifdef UW
-	{ "uw1",	uwlocktest1 },
+		{	"uw1", uwlocktest1},
 #endif
 
-	/* file system assignment tests */
-	{ "fs1",	fstest },
-	{ "fs2",	readstress },
-	{ "fs3",	writestress },
-	{ "fs4",	writestress2 },
-	{ "fs5",	createstress },
+		/* file system assignment tests */
+		{ "fs1", fstest }, { "fs2", readstress }, { "fs3", writestress }, {
+				"fs4", writestress2 }, { "fs5", createstress },
 
-	{ NULL, NULL }
-};
+		{ NULL, NULL } };
 
 /*
  * Process a single command.
  */
 static
-int
-cmd_dispatch(char *cmd)
-{
+int cmd_dispatch(char *cmd) {
 	time_t beforesecs, aftersecs, secs;
 	uint32_t beforensecs, afternsecs, nsecs;
 	char *args[MAXMENUARGS];
-	int nargs=0;
+	int nargs = 0;
 	char *word;
 	char *context;
 	int i, result;
 
-	for (word = strtok_r(cmd, " \t", &context);
-	     word != NULL;
-	     word = strtok_r(NULL, " \t", &context)) {
+	for (word = strtok_r(cmd, " \t", &context); word != NULL;
+			word = strtok_r(NULL, " \t", &context)) {
 
 		if (nargs >= MAXMENUARGS) {
 			kprintf("Command line has too many words\n");
@@ -630,11 +568,11 @@ cmd_dispatch(char *cmd)
 		args[nargs++] = word;
 	}
 
-	if (nargs==0) {
+	if (nargs == 0) {
 		return 0;
 	}
 
-	for (i=0; cmdtable[i].name; i++) {
+	for (i = 0; cmdtable[i].name; i++) {
 		if (*cmdtable[i].name && !strcmp(args[0], cmdtable[i].name)) {
 			KASSERT(cmdtable[i].func!=NULL);
 
@@ -643,13 +581,11 @@ cmd_dispatch(char *cmd)
 			result = cmdtable[i].func(nargs, args);
 
 			gettime(&aftersecs, &afternsecs);
-			getinterval(beforesecs, beforensecs,
-				    aftersecs, afternsecs,
-				    &secs, &nsecs);
+			getinterval(beforesecs, beforensecs, aftersecs, afternsecs, &secs,
+					&nsecs);
 
-			kprintf("Operation took %lu.%09lu seconds\n",
-				(unsigned long) secs,
-				(unsigned long) nsecs);
+			kprintf("Operation took %lu.%09lu seconds\n", (unsigned long) secs,
+					(unsigned long) nsecs);
 
 			return result;
 		}
@@ -667,16 +603,13 @@ cmd_dispatch(char *cmd)
  * comamnds as we execute them and panic if the command is invalid or fails.
  */
 static
-void
-menu_execute(char *line, int isargs)
-{
+void menu_execute(char *line, int isargs) {
 	char *command;
 	char *context;
 	int result;
 
-	for (command = strtok_r(line, ";", &context);
-	     command != NULL;
-	     command = strtok_r(NULL, ";", &context)) {
+	for (command = strtok_r(line, ";", &context); command != NULL; command =
+			strtok_r(NULL, ";", &context)) {
 
 		if (isargs) {
 			kprintf("OS/161 kernel: %s\n", command);
@@ -709,9 +642,7 @@ menu_execute(char *line, int isargs)
  *      "mount sfs lhd0; bootfs lhd0; s"
  */
 
-void
-menu(char *args)
-{
+void menu(char *args) {
 	char buf[64];
 
 	menu_execute(args, 1);

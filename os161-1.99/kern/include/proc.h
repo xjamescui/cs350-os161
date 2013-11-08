@@ -47,6 +47,8 @@ struct file_desc;
 
 #define MAX_OPEN_COUNT __OPEN_MAX
 
+struct semaphore *RaceConditionSem; //to be used in menu.c
+
 /*
  * Process structure.
  */

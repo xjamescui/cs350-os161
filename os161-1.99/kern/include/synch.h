@@ -34,7 +34,6 @@
  * Header file for synchronization primitives.
  */
 
-
 #include <spinlock.h>
 #include <thread.h>
 #include "opt-A1.h"
@@ -46,10 +45,10 @@
  * internally.
  */
 struct semaphore {
-        char *sem_name;
+	char *sem_name;
 	struct wchan *sem_wchan;
 	struct spinlock sem_lock;
-        volatile int sem_count;
+	volatile int sem_count;
 };
 
 struct semaphore *sem_create(const char *name, int initial_count);
@@ -64,7 +63,6 @@ void sem_destroy(struct semaphore *);
 void P(struct semaphore *);
 void V(struct semaphore *);
 
-
 /*
  * Simple lock for mutual exclusion.
  *
@@ -75,16 +73,16 @@ void V(struct semaphore *);
  * (should be) made internally.
  */
 struct lock {
-        char *lk_name;
-        // add what you need here
+	char *lk_name;
+	// add what you need here
 #if OPT_A1
 
-        struct wchan *lk_wchan;
-        struct spinlock lk_spinlock;
-        volatile struct thread *lk_holder;
+	struct wchan *lk_wchan;
+	struct spinlock lk_spinlock;
+	volatile struct thread *lk_holder;
 
 #endif /*OPT_A1*/
-        // (don't forget to mark things volatile as needed)
+// (don't forget to mark things volatile as needed)
 };
 
 struct lock *lock_create(const char *name);
@@ -105,7 +103,6 @@ void lock_release(struct lock *);
 bool lock_do_i_hold(struct lock *);
 void lock_destroy(struct lock *);
 
-
 /*
  * Condition variable.
  *
@@ -121,15 +118,14 @@ void lock_destroy(struct lock *);
  */
 
 struct cv {
-        char *cv_name;
-        // add what you need here
+	char *cv_name;
+	// add what you need here
 #if OPT_A1
-        struct spinlock cv_spinlock;
-        struct wchan *cv_wchan;
-
+	struct spinlock cv_spinlock;
+	struct wchan *cv_wchan;
 
 #endif /* OPT_A1 */
-        // (don't forget to mark things volatile as needed)
+// (don't forget to mark things volatile as needed)
 };
 
 struct cv *cv_create(const char *name);
@@ -151,6 +147,5 @@ void cv_destroy(struct cv *);
 void cv_wait(struct cv *cv, struct lock *lock);
 void cv_signal(struct cv *cv, struct lock *lock);
 void cv_broadcast(struct cv *cv, struct lock *lock);
-
 
 #endif /* _SYNCH_H_ */

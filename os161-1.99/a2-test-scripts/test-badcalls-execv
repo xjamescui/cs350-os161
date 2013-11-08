@@ -1,0 +1,3 @@
+#!/bin/csh -f
+
+sys161 kernel "p testbin/badcall a;q"

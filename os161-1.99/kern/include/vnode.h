@@ -53,7 +53,6 @@ struct stat;
 struct vnode {
 	int vn_refcount; /* Reference count */
 	int vn_opencount;
-
 	struct fs *vn_fs; /* Filesystem vnode belongs to */
 
 	void *vn_data; /* Filesystem-specific data */
