@@ -378,6 +378,8 @@ file      syscall/time_syscalls.c
 file      syscall/sys_files.c
 file	  syscall/sys_waitpid.c
 file	  syscall/sys__exit.c
+file	  syscall/sys_fork.c
+
 #
 # Startup and initialization
 #

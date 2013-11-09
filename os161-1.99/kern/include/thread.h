@@ -39,6 +39,11 @@
 #include <array.h>
 #include <spinlock.h>
 #include <threadlist.h>
+#include "opt-A2.h"
+
+#if OPT_A2
+#include <mips/trapframe.h>
+#endif
 
 struct cpu;
 
@@ -157,6 +162,13 @@ void thread_exit(void);
  */
 void thread_yield(void);
 
+#if OPT_A2
+/**
+ * Initialize thread from a forked process
+ */
+void childPrep(void *tf, unsigned long addrspace);
+
+#endif
 /*
  * Reshuffle the run queue. Called from the timer interrupt.
  */

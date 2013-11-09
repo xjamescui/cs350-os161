@@ -45,7 +45,6 @@
 #include <kern/unistd.h>
 #include <kern/wait.h>
 
-
 /*
  * Prototypes for OS/161 system calls.
  *
@@ -132,6 +131,7 @@ int reboot(int code);
 int sync(void);
 /* mkdir - see sys/stat.h */
 int rmdir(const char *dirname);
+
 
 /* Recommended. */
 int getpid(void);

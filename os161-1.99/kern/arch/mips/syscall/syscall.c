@@ -128,9 +128,14 @@ void syscall(struct trapframe *tf) {
 		err = sys_close(tf->tf_a0);
 		break;
 
-//	case SYS_fork:
-//		err = sys_fork();
-//		break;
+	case SYS_fork:
+		err = sys_fork(tf, &retval);
+		break;
+
+	case SYS_getpid:
+		err = 0;
+		retval = sys_getpid(); //getpid does not produce an error
+		break;
 #endif
 
 	default:

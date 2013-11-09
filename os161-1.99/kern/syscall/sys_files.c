@@ -38,7 +38,7 @@
  */
 int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
-	int dbflags = DB_A2;
+//	int dbflags = DB_A2;
 	int readBytes = 0;
 	struct file_desc* file;
 	struct iovec iov;
@@ -79,8 +79,8 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
 
-	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
-	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
+//	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
+//	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
 
 	*retval = readBytes;
 	KASSERT(curthread->t_curspl == 0);

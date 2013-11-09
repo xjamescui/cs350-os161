@@ -772,6 +772,24 @@ void thread_yield(void) {
 	thread_switch(S_READY, NULL);
 }
 
+/**
+ * First function called by thread fork
+ * - Creates a trapframe on the stack and copies over the addrspace from parent
+ */
+void childPrep(void *tf, unsigned long addrspace) {
+	((struct trapframe *) tf)->tf_a3 = 0;
+	((struct trapframe *) tf)->tf_v0 = 0;
+	((struct trapframe *) tf)->tf_epc += 4;
+	curthread->t_proc->p_addrspace = (struct addrspace *) addrspace;
+	as_activate();
+	struct trapframe tfChild;
+	//copy_trapframe ((struct trapframe *)tf, &tfChild);
+	memcpy(&tfChild, (struct trapframe *) tf, sizeof(struct trapframe));
+	kfree(tf);
+	mips_usermode(&tfChild);
+	(void) addrspace;
+}
+
 ////////////////////////////////////////////////////////////
 
 /*

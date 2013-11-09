@@ -47,7 +47,13 @@
 #include <current.h>
 #include <addrspace.h>
 #include <vnode.h>
+#include "opt-A2.h"
 
+#if OPT_A2
+#include <kern/errno.h>
+#include <mips/trapframe.h>
+#include <limits.h>
+#endif
 /*
  * The process for the kernel; this holds all the kernel-only threads.
  */
@@ -56,10 +62,8 @@ struct proc *kproc;
 /*
  * Create a proc structure.
  */
-static
-struct proc *
-proc_create(const char *name)
-{
+static struct proc *
+proc_create(const char *name) {
 	struct proc *proc;
 
 	proc = kmalloc(sizeof(*proc));
@@ -90,9 +94,7 @@ proc_create(const char *name)
  * Note: nothing currently calls this. Your wait/exit code will
  * probably want to do so.
  */
-void
-proc_destroy(struct proc *proc)
-{
+void proc_destroy(struct proc *proc) {
 	/*
 	 * You probably want to destroy and null out much of the
 	 * process (particularly the address space) at exit time if
@@ -146,9 +148,18 @@ proc_destroy(struct proc *proc)
 /*
  * Create the process structure for the kernel.
  */
-void
-proc_bootstrap(void)
-{
+void proc_bootstrap(void) {
+#if OPT_A2
+// Initialize process table
+//EDIT: dynamically change pid table size
+	procArraySize = 300;
+	procArray = kmalloc(sizeof(struct proc*) * procArraySize);
+	for (int i = __PID_MIN; i < procArraySize; i++) {
+		procArray[i] = NULL;
+	}
+	forkLock = lock_create("forkLock");
+#endif
+
 	kproc = proc_create("[kernel]");
 	if (kproc == NULL) {
 		panic("proc_create for kproc failed\n");
@@ -156,6 +167,7 @@ proc_bootstrap(void)
 #if OPT_A1
 	kprintf("kproc = %p\n", kproc);
 #endif
+
 }
 
 /*
@@ -165,8 +177,7 @@ proc_bootstrap(void)
  * process's (that is, the kernel menu's) current directory.
  */
 struct proc *
-proc_create_runprogram(const char *name)
-{
+proc_create_runprogram(const char *name) {
 	struct proc *proc;
 
 	proc = proc_create(name);
@@ -195,9 +206,7 @@ proc_create_runprogram(const char *name)
  * Add a thread to a process. Either the thread or the process might
  * or might not be current.
  */
-int
-proc_addthread(struct proc *proc, struct thread *t)
-{
+int proc_addthread(struct proc *proc, struct thread *t) {
 	int result;
 
 	KASSERT(t->t_proc == NULL);
@@ -216,9 +225,7 @@ proc_addthread(struct proc *proc, struct thread *t)
  * Remove a thread from its process. Either the thread or the process
  * might or might not be current.
  */
-void
-proc_remthread(struct thread *t)
-{
+void proc_remthread(struct thread *t) {
 	struct proc *proc;
 	unsigned i, num;
 
@@ -227,7 +234,7 @@ proc_remthread(struct thread *t)
 	spinlock_acquire(&proc->p_lock);
 	/* ugh: find the thread in the array */
 	num = threadarray_num(&proc->p_threads);
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (threadarray_get(&proc->p_threads, i) == t) {
 			threadarray_remove(&proc->p_threads, i);
 			spinlock_release(&proc->p_lock);
@@ -246,13 +253,12 @@ proc_remthread(struct thread *t)
  * set up a refcount scheme or some other method to make this safe.
  */
 struct addrspace *
-curproc_getas(void)
-{
+curproc_getas(void) {
 	struct addrspace *as;
 #ifdef UW
-        /* Until user processes are created, threads used in testing 
-         * (i.e., kernel threads) have no process or address space.
-         */
+	/* Until user processes are created, threads used in testing
+	 * (i.e., kernel threads) have no process or address space.
+	 */
 	if (curproc == NULL) {
 		return NULL;
 	}
@@ -269,8 +275,7 @@ curproc_getas(void)
  * one.
  */
 struct addrspace *
-curproc_setas(struct addrspace *newas)
-{
+curproc_setas(struct addrspace *newas) {
 	struct addrspace *oldas;
 	struct proc *proc = curproc;
 
@@ -280,3 +285,67 @@ curproc_setas(struct addrspace *newas)
 	spinlock_release(&proc->p_lock);
 	return oldas;
 }
+
+#if OPT_A2
+pid_t childProc_create(const char *name, struct trapframe *tf) {
+	struct proc *childProc;
+
+	childProc = kmalloc(sizeof(struct proc));
+	if (childProc == NULL) {
+		return ENOMEM;
+	}
+	childProc->p_name = kstrdup(name);
+	if (childProc->p_name == NULL) {
+		kfree(childProc);
+		return ENOMEM;
+	}
+
+	//Copy trapframe onto kernel heap
+	struct trapframe *childtf = kmalloc(sizeof(struct trapframe));
+	if (childtf == NULL) {
+		kfree(childProc->p_name);
+		kfree(childProc);
+		return ENOMEM;
+	}
+	//copy_trapframe(tf, childtf);
+	memcpy(childtf, tf, sizeof(struct trapframe));
+
+	//Initialize threadarray?
+	threadarray_init(&childProc->p_threads);
+	spinlock_init(&childProc->p_lock);
+
+	//Copy addrspace
+	struct addrspace *childas;
+	if (ENOMEM == as_copy(curproc_getas(), &childas)) {
+		kfree(childProc->p_name);
+		kfree(childProc);
+		kfree(childtf);
+		return ENOMEM;
+	};
+
+	//Copy CWD
+	childProc->p_cwd = curthread->t_proc->p_cwd;
+
+	//Get PID
+	int pidinit = 0;
+	for (int i = __PID_MIN; i < procArraySize; i++) {
+		if (procArray[i] == NULL) {
+			childProc->p_pid = i;
+			procArray[i] = childProc;
+			pidinit = i;
+			break;
+		}
+	}
+	if (pidinit == 0) {
+		//No free space in process table
+		//EDIT: Need better handling. No panicing.
+		return ENPROC;
+	}
+
+	//Fork child thread (tf, addrspace)
+	thread_fork("childThread", childProc, childPrep, (void *) childtf,
+			(unsigned long) childas);
+
+	return (pid_t) pidinit;
+}
+#endif

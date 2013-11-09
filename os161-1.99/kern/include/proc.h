@@ -40,6 +40,13 @@
 #include <thread.h> /* required for struct threadarray */
 #include <file_desc.h>
 #include <kern/limits.h>
+#include "opt-A2.h"
+
+#ifdef OPT_A2
+#include <mips/trapframe.h>
+#include <synch.h>
+struct lock *forkLock;
+#endif
 
 struct addrspace;
 struct vnode;
@@ -54,7 +61,7 @@ struct semaphore *RaceConditionSem; //to be used in menu.c
  */
 struct proc {
 
-	pid_t p_id; /* process id */
+	pid_t p_pid; /* process id */
 	char *p_name; /* Name of this process */
 	struct spinlock p_lock; /* Lock for this structure */
 	struct threadarray p_threads; /* Threads in this process */
@@ -69,6 +76,14 @@ struct proc {
 
 /* add more material here as needed */
 };
+
+#if OPT_A2
+/**
+ * Process Table
+ */
+struct proc **procArray;
+int procArraySize;
+#endif
 
 /* This is the process structure for the kernel and for kernel-only threads. */
 extern struct proc *kproc;
@@ -93,5 +108,8 @@ struct addrspace *curproc_getas(void);
 
 /* Change the address space of the current process, and return the old one. */
 struct addrspace *curproc_setas(struct addrspace *);
+
+/* Create child process: heavy lifting is done here */
+pid_t childProc_create(const char *name, struct trapframe *tf);
 
 #endif /* _PROC_H_ */
