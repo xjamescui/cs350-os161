@@ -170,16 +170,17 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	//check if filename is a valid pointer
 	if (filename != "con:") {
 
-		//check ptr is from userspace
-		if ((uint32_t) filename > 0x7fffffff) {
+		/**
+		 * Pretty much see if we can copy this string from current userspace into kernel space;
+		 * the copycheck function inside copyinstr will return an err if the pointer is invalid.
+		 */
+		char kfilename[MAX_LEN_FILENAME];
+		size_t actual;
+		if (copyinstr((const_userptr_t) filename, kfilename,
+		MAX_LEN_FILENAME, &actual)) {
 			return EFAULT;
 		}
 
-		if ((uint32_t) filename == 0x40000000 || filename == NULL
-				|| strlen(filename) > MAX_LEN_FILENAME
-				|| (uint32_t) filename % 4 != 0) {
-			return EFAULT;
-		}
 	}
 
 	//check if flags is valid
