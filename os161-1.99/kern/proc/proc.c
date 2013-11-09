@@ -52,6 +52,7 @@
 #if OPT_A2
 #include <kern/errno.h>
 #include <mips/trapframe.h>
+#include <spl.h>
 #include <limits.h>
 #endif
 /*
@@ -288,9 +289,9 @@ curproc_setas(struct addrspace *newas) {
 
 #if OPT_A2
 pid_t childProc_create(const char *name, struct trapframe *tf) {
- int oldspl = splhigh();
+	int oldspl = splhigh();
 	struct proc *childProc;
- 
+
 	childProc = kmalloc(sizeof(struct proc));
 	if (childProc == NULL) {
 		return ENOMEM;
@@ -310,8 +311,8 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	}
 	//copy_trapframe(tf, childtf);
 	memcpy(childtf, tf, sizeof(struct trapframe));
- childtf->tf_k0 = 0;
- childtf->tf_k1 = 0;
+	childtf->tf_k0 = 0;
+	childtf->tf_k1 = 0;
 	//Initialize threadarray?
 	threadarray_init(&childProc->p_threads);
 	spinlock_init(&childProc->p_lock);
@@ -326,10 +327,21 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	};
 
 	//Copy CWD
-	//childProc->p_cwd = curthread->t_proc->p_cwd;
+	childProc->p_cwd = curproc->p_cwd;
+	childProc->p_cwd->vn_refcount++;
 
- //Copy over fd table
+	//Copy over fd table
+	for (int i = 0; i < MAX_OPEN_COUNT; i++) {
+		childProc->fd_table[i] = curproc->fd_table[i];
+	}
 
+	for (int i = 3; i < MAX_OPEN_COUNT; i++) {
+
+		//double file ref count (now both child and parent share the fd_table)
+		if (childProc->fd_table[i] != NULL) {
+			childProc->fd_table[i]->f_vn->vn_refcount *= 2;
+		}
+	}
 
 	//Get PID
 	int pidinit = 0;
@@ -346,7 +358,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 		//EDIT: Need better handling. No panicing.
 		return ENPROC;
 	}
- splx(oldspl);
+	splx(oldspl);
 	//Fork child thread (tf, addrspace)
 	thread_fork("childThread", childProc, childPrep, (void *) childtf,
 			(unsigned long) childas);
