@@ -146,7 +146,6 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	//setup uio to write to file
 	uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset, UIO_WRITE);
 
-
 	//writing....
 	if ((errno = VOP_WRITE(file->f_vn, &uio_W))) {
 		DEBUG(DB_A2, "error in VOP_WRITE\n");
@@ -155,7 +154,6 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 	wroteBytes = nbytes - uio_W.uio_resid;
 	file->f_offset = uio_W.uio_offset;
-
 
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
@@ -169,20 +167,23 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	struct file_desc** table = curthread->t_proc->fd_table;
 	struct vnode* openedVnode = NULL;
 
+	if (fd >= 3) {
+//		DEBUG(DB_A2, "stack base is %p\n", &(curproc_getas()->as_stackpbase));
+	}
+
 	//check if filename is a valid pointer
-	if ((uint32_t) filename % 4 != 0) {
-		DEBUG(DB_A2, "filename is not a valid pointer\n");
+	if (filename == NULL || (uint32_t) filename % 4 != 0) {
 		return EFAULT;
 	}
 
 	//check if flags is valid
-//	if (flags != O_RDONLY && flags != O_WRONLY && flags != O_RDWR) {
-//		return EINVAL;
-//	}
+	if (flags < 0 || flags > 64) {
+		DEBUG(DB_A2, "invalid flag\n");
+		return EINVAL;
+	}
 
 	//check if filename is of correct size/format
-	if (strlen(filename) > MAX_LEN_FILENAME || filename == ""
-			|| strlen(filename) == 0) {
+	if (strlen(filename) > MAX_LEN_FILENAME) {
 		DEBUG(DB_A2, "filename is of invalid size (too small/toobig)\n");
 		return EBADF;
 	}
@@ -216,7 +217,6 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 		while (fd < MAX_OPEN_COUNT && table[fd] != NULL) {
 			fd++;
 		}
-
 		//check to see if the row we found is valid
 		if (fd >= MAX_OPEN_COUNT) {
 			return EMFILE;
@@ -270,8 +270,8 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 
 		DEBUG(DB_A2,
 				"%s created on fd = %d and vnode = %p and has opencount = %d vn_refcount = %d\n",
-				table[fd]->f_name, fd, table[fd]->f_vn, table[fd]->f_vn->vn_opencount,
-				table[fd]->f_vn->vn_refcount);
+				table[fd]->f_name, fd, table[fd]->f_vn,
+				table[fd]->f_vn->vn_opencount, table[fd]->f_vn->vn_refcount);
 	}
 
 	*retval = (int32_t) fd;
@@ -283,7 +283,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 int sys_close(int fd) {
 	int dbflags = DB_A2;
 
-	//make sure the file is in table
+//make sure the file is in table
 	KASSERT(curthread->t_curspl == 0);
 
 	if (fd < 0 || fd >= MAX_OPEN_COUNT) {
@@ -312,7 +312,7 @@ int sys_close(int fd) {
 	}
 	DEBUG(DB_A2, "closed file %s\n", file->f_name);
 
-	//clean up row in the table
+//clean up row in the table
 	file->f_vn = NULL;
 	curthread->t_proc->fd_table[fd] = NULL;
 	KASSERT(file != NULL);
