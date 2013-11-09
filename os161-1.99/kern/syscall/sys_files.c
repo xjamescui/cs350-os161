@@ -97,8 +97,9 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	*retval = readBytes;
 	KASSERT(curthread->t_curspl == 0);
 
-	//we do not forget to copyout and update the value at the correct userspace addr
+	//we do not forget to copyout and update the content at the correct userspace addr
 	copyout((const void *) kernbuf, (userptr_t) buf, nbytes);
+	kfree(kernbuf);
 
 	return 0;
 }
@@ -184,8 +185,9 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
 
-	//we do not forget to copyout and update the value at the correct userspace addr
+	//we do not forget to copyout and update the content at the correct userspace addr
 	copyout((const void *) kernbuf, (userptr_t) buf, nbytes);
+	kfree(kernbuf);
 
 	return 0;
 }
@@ -314,7 +316,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
  * sys_close
  */
 int sys_close(int fd) {
-	int dbflags = DB_A2;
+//	int dbflags = DB_A2;
 
 //make sure the file is in table
 	KASSERT(curthread->t_curspl == 0);
@@ -343,7 +345,7 @@ int sys_close(int fd) {
 		//decr the ref count
 		vnode_decref(file->f_vn);
 	}
-	DEBUG(DB_A2, "closed file %s\n", file->f_name);
+//	DEBUG(DB_A2, "closed file %s\n", file->f_name);
 
 //clean up row in the table
 	file->f_vn = NULL;
