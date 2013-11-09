@@ -23,7 +23,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 
 	//turn off interrupts
 	//int old_spl = splhigh();
- lock_acquire(forkLock);
+ //lock_acquire(forkLock);
  //Create new process
  *retval = childProc_create("childProc", tf);
  //EDIT: Copy file table
@@ -40,7 +40,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	//return
 	//(void) parent;
  //*retval = childProc->p_pid;
- lock_release(forkLock);
+ //lock_release(forkLock);
  //splx(old_spl);
  KASSERT(curthread->t_curspl == 0);
 

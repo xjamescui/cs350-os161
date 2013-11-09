@@ -288,6 +288,7 @@ curproc_setas(struct addrspace *newas) {
 
 #if OPT_A2
 pid_t childProc_create(const char *name, struct trapframe *tf) {
+ int oldspl = splhigh();
 	struct proc *childProc;
  
 	childProc = kmalloc(sizeof(struct proc));
@@ -327,6 +328,9 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	//Copy CWD
 	//childProc->p_cwd = curthread->t_proc->p_cwd;
 
+ //Copy over fd table
+
+
 	//Get PID
 	int pidinit = 0;
 	for (int i = __PID_MIN; i < procArraySize; i++) {
@@ -342,7 +346,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 		//EDIT: Need better handling. No panicing.
 		return ENPROC;
 	}
-
+ splx(oldspl);
 	//Fork child thread (tf, addrspace)
 	thread_fork("childThread", childProc, childPrep, (void *) childtf,
 			(unsigned long) childas);
