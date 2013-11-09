@@ -167,25 +167,26 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	struct file_desc** table = curthread->t_proc->fd_table;
 	struct vnode* openedVnode = NULL;
 
-	if (fd >= 3) {
-//		DEBUG(DB_A2, "stack base is %p\n", &(curproc_getas()->as_stackpbase));
-	}
-
 	//check if filename is a valid pointer
-	if (filename == NULL || (uint32_t) filename % 4 != 0) {
-		return EFAULT;
+	if (filename != "con:") {
+
+		/**
+		 * Pretty much see if we can copy this string from current userspace into kernel space;
+		 * the copycheck function inside copyinstr will return an err if the pointer is invalid.
+		 */
+		char kfilename[MAX_LEN_FILENAME];
+		size_t actual;
+		if (copyinstr((const_userptr_t) filename, kfilename,
+		MAX_LEN_FILENAME, &actual)) {
+			return EFAULT;
+		}
+
 	}
 
 	//check if flags is valid
 	if (flags < 0 || flags > 64) {
 		DEBUG(DB_A2, "invalid flag\n");
 		return EINVAL;
-	}
-
-	//check if filename is of correct size/format
-	if (strlen(filename) > MAX_LEN_FILENAME) {
-		DEBUG(DB_A2, "filename is of invalid size (too small/toobig)\n");
-		return EBADF;
 	}
 
 	//if file is the console: stdin, stdout, stderr
