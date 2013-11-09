@@ -172,8 +172,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	}
 
 	//check if filename is a valid pointer
-	if (filename == NULL || filename == "" || strlen(filename) == 0 || (uint32_t) filename == 0x40000000
-			|| (uint32_t) filename % 4 != 0) {
+	if (filename == NULL || (uint32_t) filename % 4 != 0) {
 		return EFAULT;
 	}
 
@@ -184,7 +183,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	}
 
 	//check if filename is of correct size/format
-	if (strlen(filename) > MAX_LEN_FILENAME ) {
+	if (strlen(filename) > MAX_LEN_FILENAME) {
 		DEBUG(DB_A2, "filename is of invalid size (too small/toobig)\n");
 		return EBADF;
 	}
