@@ -154,6 +154,7 @@ void proc_bootstrap(void) {
 // Initialize process table
 //EDIT: dynamically change pid table size
 	procArraySize = 300;
+	numProc = 1;
 	procArray = kmalloc(sizeof(struct proc*) * procArraySize);
 	for (int i = __PID_MIN; i < procArraySize; i++) {
 		procArray[i] = NULL;
@@ -350,6 +351,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 			childProc->p_pid = i;
 			procArray[i] = childProc;
 			pidinit = i;
+			numProc++;
 			break;
 		}
 	}
@@ -359,7 +361,9 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 		return ENPROC;
 	}
 	splx(oldspl);
+ 	KASSERT(curthread->t_curspl == 0);
 	//Fork child thread (tf, addrspace)
+
 	thread_fork("childThread", childProc, childPrep, (void *) childtf,
 			(unsigned long) childas);
 

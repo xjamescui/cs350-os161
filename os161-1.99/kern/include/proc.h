@@ -55,7 +55,6 @@ struct file_desc;
 #define MAX_OPEN_COUNT __OPEN_MAX
 
 struct semaphore *RaceConditionSem; //to be used in menu.c
-
 /*
  * Process structure.
  */
@@ -83,7 +82,9 @@ struct proc {
  */
 struct proc **procArray;
 int procArraySize;
+volatile int numProc;
 #endif
+
 
 /* This is the process structure for the kernel and for kernel-only threads. */
 extern struct proc *kproc;

@@ -29,8 +29,10 @@ void sys__exit(int exitcode) {
 	curthread->t_proc = NULL;
 
 	//tell the "interested" party about my exit
-
-	V(RaceConditionSem);
+	if(numProc == 1) {
+		V(RaceConditionSem);
+	}
+	numProc--;
 	thread_exit();
 
 }
