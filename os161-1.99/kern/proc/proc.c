@@ -289,7 +289,7 @@ curproc_setas(struct addrspace *newas) {
 #if OPT_A2
 pid_t childProc_create(const char *name, struct trapframe *tf) {
 	struct proc *childProc;
-
+ 
 	childProc = kmalloc(sizeof(struct proc));
 	if (childProc == NULL) {
 		return ENOMEM;
@@ -316,7 +316,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 
 	//Copy addrspace
 	struct addrspace *childas;
-	if (ENOMEM == as_copy(curproc_getas(), &childas)) {
+	if (0 != as_copy(curproc_getas(), &childas)) {
 		kfree(childProc->p_name);
 		kfree(childProc);
 		kfree(childtf);

@@ -170,7 +170,7 @@ int
 main(int argc, char *argv[])
 {
 	int nowait=1;
-
+ printf("%d\n",argc);
 	if (argc==2 && !strcmp(argv[1], "-w")) {
 		nowait=1;
 	}
