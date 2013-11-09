@@ -289,7 +289,7 @@ curproc_setas(struct addrspace *newas) {
 #if OPT_A2
 pid_t childProc_create(const char *name, struct trapframe *tf) {
 	struct proc *childProc;
-
+ 
 	childProc = kmalloc(sizeof(struct proc));
 	if (childProc == NULL) {
 		return ENOMEM;
@@ -309,14 +309,15 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	}
 	//copy_trapframe(tf, childtf);
 	memcpy(childtf, tf, sizeof(struct trapframe));
-
+ childtf->tf_k0 = 0;
+ childtf->tf_k1 = 0;
 	//Initialize threadarray?
 	threadarray_init(&childProc->p_threads);
 	spinlock_init(&childProc->p_lock);
 
 	//Copy addrspace
 	struct addrspace *childas;
-	if (ENOMEM == as_copy(curproc_getas(), &childas)) {
+	if (0 != as_copy(curproc_getas(), &childas)) {
 		kfree(childProc->p_name);
 		kfree(childProc);
 		kfree(childtf);
@@ -324,7 +325,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	};
 
 	//Copy CWD
-	childProc->p_cwd = curthread->t_proc->p_cwd;
+	//childProc->p_cwd = curthread->t_proc->p_cwd;
 
 	//Get PID
 	int pidinit = 0;
