@@ -309,7 +309,8 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	}
 	//copy_trapframe(tf, childtf);
 	memcpy(childtf, tf, sizeof(struct trapframe));
-
+ childtf->tf_k0 = 0;
+ childtf->tf_k1 = 0;
 	//Initialize threadarray?
 	threadarray_init(&childProc->p_threads);
 	spinlock_init(&childProc->p_lock);
@@ -324,7 +325,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	};
 
 	//Copy CWD
-	childProc->p_cwd = curthread->t_proc->p_cwd;
+	//childProc->p_cwd = curthread->t_proc->p_cwd;
 
 	//Get PID
 	int pidinit = 0;

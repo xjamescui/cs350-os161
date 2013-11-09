@@ -167,7 +167,7 @@ int common_prog(int nargs, char **args) {
 
 #if OPT_A2
 	P(RaceConditionSem);
-	sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
+	//sem_destroy(RaceConditionSem); //remove the sem and continue (not needed any more)
 #endif
 
 	return 0;

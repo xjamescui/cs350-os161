@@ -8,7 +8,7 @@
 void sys__exit(int exitcode) {
 	struct proc *cur_process = curthread->t_proc;
 
-	KASSERT(cur_process != NULL);
+	//KASSERT(cur_process != NULL);
 
 	//detach all threads used by this process
 	int processThreadCount = threadarray_num(&cur_process->p_threads);
