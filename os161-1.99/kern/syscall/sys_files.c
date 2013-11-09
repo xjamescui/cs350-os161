@@ -38,16 +38,24 @@
  */
 int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
-//	int dbflags = DB_A2;
+	int dbflags = DB_A2;
 	int readBytes = 0;
 	struct file_desc* file;
 	struct iovec iov;
 	struct uio uio_R; //uio for reading
 	int errno = -1;
+//	void* kernbuf = kmalloc(nbytes * sizeof(*buf)); //kernbuf to copy buf into, and also serves as a testimony for buf's validity
+
 
 	//check for valid fd
 	if (fd < 0 || fd > MAX_OPEN_COUNT - 1) {
+		DEBUG(DB_A2, "BADD\n");
 		return EBADF;
+	}
+
+	//check buf
+	if (buf == NULL) {
+		return EFAULT;
 	}
 
 	//reading from stdin
@@ -79,9 +87,6 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	readBytes = nbytes - uio_R.uio_resid;
 	file->f_offset = uio_R.uio_offset;
 
-//	DEBUG(DB_A2, "buf is %d at %p\n", *((int* )buf), buf);
-//	DEBUG(DB_A2, "readBytes is %d\n", readBytes);
-
 	*retval = readBytes;
 	KASSERT(curthread->t_curspl == 0);
 	return 0;
@@ -103,14 +108,23 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	struct file_desc* file = NULL; //file
 	struct iovec iov;
 	struct uio uio_W; //uio for writing
+	void* kernbuf = kmalloc(nbytes * sizeof(*buf)); //kernbuf to copy buf into, and also serves as a testimony for buf's validity
 
 	//check for valid fd
 	if (fd < 0 || fd > MAX_OPEN_COUNT - 1) {
 		return EBADF;
 	}
 
-	//check for valid buffer
-	if (buf == NULL) {
+	/**
+	 * Check that buf is a valid ptr
+	 *
+	 * Make use of the copycheck function available inside copyin
+	 * just copy buf into kernel space and work with the kernel version of it ( we know if
+	 * copy in is successful then buf is valid)
+	 *
+	 * Don't forget to copyout when done (to update value at the original userspace location)
+	 */
+	if (copyin(buf, kernbuf, nbytes)) {
 		return EFAULT;
 	}
 
@@ -144,7 +158,8 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	}
 
 	//setup uio to write to file
-	uio_kinit(&iov, &uio_W, (void *) buf, nbytes, file->f_offset, UIO_WRITE);
+	uio_kinit(&iov, &uio_W, (void *) kernbuf, nbytes, file->f_offset,
+			UIO_WRITE);
 
 	//writing....
 	if ((errno = VOP_WRITE(file->f_vn, &uio_W))) {
@@ -157,6 +172,9 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
+
+	//we do not forget to copyout and update the value at the correct userspace addr
+	copyout((const void *) kernbuf, (userptr_t) buf, nbytes);
 
 	return 0;
 }
@@ -267,13 +285,13 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	KASSERT(table[fd]->f_vn->vn_opencount >= 1);
 	KASSERT(table[fd]->f_vn->vn_refcount >= 1);
 
-	if (fd >= 3) {
-
-		DEBUG(DB_A2,
-				"%s created on fd = %d and vnode = %p and has opencount = %d vn_refcount = %d\n",
-				table[fd]->f_name, fd, table[fd]->f_vn,
-				table[fd]->f_vn->vn_opencount, table[fd]->f_vn->vn_refcount);
-	}
+//	if (fd >= 3) {
+//
+//		DEBUG(DB_A2,
+//				"%s created on fd = %d and vnode = %p and has opencount = %d vn_refcount = %d\n",
+//				table[fd]->f_name, fd, table[fd]->f_vn,
+//				table[fd]->f_vn->vn_opencount, table[fd]->f_vn->vn_refcount);
+//	}
 
 	*retval = (int32_t) fd;
 	KASSERT(curthread->t_curspl == 0);
@@ -281,6 +299,9 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	return 0;
 }
 
+/**
+ * sys_close
+ */
 int sys_close(int fd) {
 	int dbflags = DB_A2;
 
