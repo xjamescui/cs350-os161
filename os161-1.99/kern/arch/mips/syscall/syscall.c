@@ -93,7 +93,6 @@ void syscall(struct trapframe *tf) {
 	 * deal with it except for calls that return other values,
 	 * like write.
 	 */
-
 	retval = 0;
 
 	switch (callno) {
@@ -121,6 +120,7 @@ void syscall(struct trapframe *tf) {
 		break;
 
 	case SYS_open:
+
 		err = sys_open((const char *) tf->tf_a0, tf->tf_a1, tf->tf_a2, &retval);
 		break;
 
