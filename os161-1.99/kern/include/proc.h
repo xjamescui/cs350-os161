@@ -60,18 +60,21 @@ struct semaphore *RaceConditionSem; //to be used in menu.c
  */
 struct proc {
 
+#if OPT_A2
 	pid_t p_pid; /* process id */
+	int p_exitcode; /* exit code */
+	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this process */
+#endif
+
 	char *p_name; /* Name of this process */
 	struct spinlock p_lock; /* Lock for this structure */
 	struct threadarray p_threads; /* Threads in this process */
-	int p_exitcode; /* exit code */
 
 	/* VM */
 	struct addrspace *p_addrspace; /* virtual address space */
 
 	/* VFS */
 	struct vnode *p_cwd; /* current working directory */
-	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this thread */
 
 /* add more material here as needed */
 };
@@ -84,7 +87,6 @@ struct proc **procArray;
 int procArraySize;
 volatile int numProc;
 #endif
-
 
 /* This is the process structure for the kernel and for kernel-only threads. */
 extern struct proc *kproc;
@@ -110,7 +112,9 @@ struct addrspace *curproc_getas(void);
 /* Change the address space of the current process, and return the old one. */
 struct addrspace *curproc_setas(struct addrspace *);
 
+#if OPT_A2
 /* Create child process: heavy lifting is done here */
 pid_t childProc_create(const char *name, struct trapframe *tf);
+#endif
 
 #endif /* _PROC_H_ */

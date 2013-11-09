@@ -100,7 +100,7 @@ void cmd_progthread(void *ptr, unsigned long nargs) {
 
 #if OPT_A2
 
-	if (nargs > 2) {
+	if (nargs > 1) {
 		//kprintf("Calling runprogram with cmdline params\n");
 		result = runprogram2(progname, nargs, args, RaceConditionSem);
 	} else {

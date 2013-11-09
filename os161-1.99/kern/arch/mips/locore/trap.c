@@ -39,7 +39,7 @@
 #include <vm.h>
 #include <mainbus.h>
 #include <syscall.h>
-
+#include "opt-A2.h"
 
 /* in exception.S */
 extern void asm_usermode(struct trapframe *tf);
@@ -47,63 +47,50 @@ extern void asm_usermode(struct trapframe *tf);
 /* called only from assembler, so not declared in a header */
 void mips_trap(struct trapframe *tf);
 
-
 /* Names for trap codes */
 #define NTRAPCODES 13
-static const char *const trapcodenames[NTRAPCODES] = {
-	"Interrupt",
-	"TLB modify trap",
-	"TLB miss on load",
-	"TLB miss on store",
-	"Address error on load",
-	"Address error on store",
-	"Bus error on code",
-	"Bus error on data",
-	"System call",
-	"Break instruction",
-	"Illegal instruction",
-	"Coprocessor unusable",
-	"Arithmetic overflow",
-};
+static const char * const trapcodenames[NTRAPCODES] = { "Interrupt",
+		"TLB modify trap", "TLB miss on load", "TLB miss on store",
+		"Address error on load", "Address error on store", "Bus error on code",
+		"Bus error on data", "System call", "Break instruction",
+		"Illegal instruction", "Coprocessor unusable", "Arithmetic overflow", };
 
 /*
  * Function called when user-level code hits a fatal fault.
  */
 static
-void
-kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
-{
+void kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr) {
 	int sig = 0;
 
 	KASSERT(code < NTRAPCODES);
 	switch (code) {
-	    case EX_IRQ:
-	    case EX_IBE:
-	    case EX_DBE:
-	    case EX_SYS:
+	case EX_IRQ:
+	case EX_IBE:
+	case EX_DBE:
+	case EX_SYS:
 		/* should not be seen */
 		KASSERT(0);
 		sig = SIGABRT;
 		break;
-	    case EX_MOD:
-	    case EX_TLBL:
-	    case EX_TLBS:
+	case EX_MOD:
+	case EX_TLBL:
+	case EX_TLBS:
 		sig = SIGSEGV;
 		break;
-	    case EX_ADEL:
-	    case EX_ADES:
+	case EX_ADEL:
+	case EX_ADES:
 		sig = SIGBUS;
 		break;
-	    case EX_BP:
+	case EX_BP:
 		sig = SIGTRAP;
 		break;
-	    case EX_RI:
+	case EX_RI:
 		sig = SIGILL;
 		break;
-	    case EX_CPU:
+	case EX_CPU:
 		sig = SIGSEGV;
 		break;
-	    case EX_OVF:
+	case EX_OVF:
 		sig = SIGFPE;
 		break;
 	}
@@ -112,8 +99,8 @@ kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
 	 * You will probably want to change this.
 	 */
 
-	kprintf("Fatal user mode trap %u sig %d (%s, epc 0x%x, vaddr 0x%x)\n",
-		code, sig, trapcodenames[code], epc, vaddr);
+	kprintf("Fatal user mode trap %u sig %d (%s, epc 0x%x, vaddr 0x%x)\n", code,
+			sig, trapcodenames[code], epc, vaddr);
 	panic("I don't know how to handle this\n");
 }
 
@@ -122,15 +109,13 @@ kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
  * This is called by the assembly-language exception handler once
  * the trapframe has been set up.
  */
-void
-mips_trap(struct trapframe *tf)
-{
+void mips_trap(struct trapframe *tf) {
 	uint32_t code;
 	bool isutlb, iskern;
 	int spl;
 
 	/* The trap frame is supposed to be 37 registers long. */
-	KASSERT(sizeof(struct trapframe)==(37*4));
+	KASSERT(sizeof(struct trapframe) == (37 * 4));
 
 	/*
 	 * Extract the exception code info from the register fields.
@@ -143,9 +128,8 @@ mips_trap(struct trapframe *tf)
 
 	/* Make sure we haven't run off our stack */
 	if (curthread != NULL && curthread->t_stack != NULL) {
-		KASSERT((vaddr_t)tf > (vaddr_t)curthread->t_stack);
-		KASSERT((vaddr_t)tf < (vaddr_t)(curthread->t_stack
-						+ STACK_SIZE));
+		KASSERT((vaddr_t )tf > (vaddr_t )curthread->t_stack);
+		KASSERT((vaddr_t )tf < (vaddr_t )(curthread->t_stack + STACK_SIZE));
 	}
 
 	/* Interrupt? Call the interrupt handler and return. */
@@ -179,8 +163,7 @@ mips_trap(struct trapframe *tf)
 			curthread->t_curspl = IPL_HIGH;
 			curthread->t_iplhigh_count++;
 			doadjust = true;
-		}
-		else {
+		} else {
 			doadjust = false;
 		}
 
@@ -217,8 +200,8 @@ mips_trap(struct trapframe *tf)
 		KASSERT(curthread->t_curspl == 0);
 		KASSERT(curthread->t_iplhigh_count == 0);
 
-		DEBUG(DB_SYSCALL, "syscall: #%d, args %x %x %x %x\n", 
-		      tf->tf_v0, tf->tf_a0, tf->tf_a1, tf->tf_a2, tf->tf_a3);
+		DEBUG(DB_SYSCALL, "syscall: #%d, args %x %x %x %x\n", tf->tf_v0,
+				tf->tf_a0, tf->tf_a1, tf->tf_a2, tf->tf_a3);
 
 		syscall(tf);
 		goto done;
@@ -231,17 +214,17 @@ mips_trap(struct trapframe *tf)
 	 */
 	switch (code) {
 	case EX_MOD:
-		if (vm_fault(VM_FAULT_READONLY, tf->tf_vaddr)==0) {
+		if (vm_fault(VM_FAULT_READONLY, tf->tf_vaddr) == 0) {
 			goto done;
 		}
 		break;
 	case EX_TLBL:
-		if (vm_fault(VM_FAULT_READ, tf->tf_vaddr)==0) {
+		if (vm_fault(VM_FAULT_READ, tf->tf_vaddr) == 0) {
 			goto done;
 		}
 		break;
 	case EX_TLBS:
-		if (vm_fault(VM_FAULT_WRITE, tf->tf_vaddr)==0) {
+		if (vm_fault(VM_FAULT_WRITE, tf->tf_vaddr) == 0) {
 			goto done;
 		}
 		break;
@@ -296,8 +279,7 @@ mips_trap(struct trapframe *tf)
 	 * from the exception handler.
 	 */
 
-	if (curthread != NULL &&
-	    curthread->t_machdep.tm_badfaultfunc != NULL) {
+	if (curthread != NULL && curthread->t_machdep.tm_badfaultfunc != NULL) {
 		tf->tf_epc = (vaddr_t) curthread->t_machdep.tm_badfaultfunc;
 		goto done;
 	}
@@ -307,19 +289,19 @@ mips_trap(struct trapframe *tf)
 	 */
 
 	kprintf("panic: Fatal exception %u (%s) in kernel mode\n", code,
-		trapcodenames[code]);
-	kprintf("panic: EPC 0x%x, exception vaddr 0x%x\n", 
-		tf->tf_epc, tf->tf_vaddr);
+			trapcodenames[code]);
+	kprintf("panic: EPC 0x%x, exception vaddr 0x%x\n", tf->tf_epc,
+			tf->tf_vaddr);
 
 	panic("I can't handle this... I think I'll just die now...\n");
 
- done:
+	done:
 	/*
 	 * Turn interrupts off on the processor, without affecting the
 	 * stored interrupt state.
 	 */
 	cpu_irqoff();
- done2:
+	done2:
 
 	/*
 	 * The boot thread can get here (e.g. on interrupt return) but
@@ -331,8 +313,8 @@ mips_trap(struct trapframe *tf)
 		return;
 	}
 
-	cputhreads[curcpu->c_number] = (vaddr_t)curthread;
-	cpustacks[curcpu->c_number] = (vaddr_t)curthread->t_stack + STACK_SIZE;
+	cputhreads[curcpu->c_number] = (vaddr_t) curthread;
+	cpustacks[curcpu->c_number] = (vaddr_t) curthread->t_stack + STACK_SIZE;
 
 	/*
 	 * This assertion will fail if either
@@ -343,7 +325,7 @@ mips_trap(struct trapframe *tf)
 	 * kernel will (most likely) hang the system, so it's better
 	 * to find out now.
 	 */
-	KASSERT(SAME_STACK(cpustacks[curcpu->c_number]-1, (vaddr_t)tf));
+	KASSERT(SAME_STACK(cpustacks[curcpu->c_number] - 1, (vaddr_t )tf));
 }
 
 /*
@@ -363,9 +345,7 @@ mips_trap(struct trapframe *tf)
  *    - enter_new_process, for use by exec and equivalent.
  *    - enter_forked_process, in syscall.c, for use by fork.
  */
-void
-mips_usermode(struct trapframe *tf)
-{
+void mips_usermode(struct trapframe *tf) {
 
 	/*
 	 * Interrupts should be off within the kernel while entering
@@ -376,8 +356,8 @@ mips_usermode(struct trapframe *tf)
 	spl0();
 	cpu_irqoff();
 
-	cputhreads[curcpu->c_number] = (vaddr_t)curthread;
-	cpustacks[curcpu->c_number] = (vaddr_t)curthread->t_stack + STACK_SIZE;
+	cputhreads[curcpu->c_number] = (vaddr_t) curthread;
+	cpustacks[curcpu->c_number] = (vaddr_t) curthread->t_stack + STACK_SIZE;
 
 	/*
 	 * This assertion will fail if either
@@ -394,7 +374,7 @@ mips_usermode(struct trapframe *tf)
 	 * either another thread's stack or in the kernel heap.
 	 * (Exercise: why?)
 	 */
-	KASSERT(SAME_STACK(cpustacks[curcpu->c_number]-1, (vaddr_t)tf));
+	KASSERT(SAME_STACK(cpustacks[curcpu->c_number] - 1, (vaddr_t )tf));
 
 	/*
 	 * This actually does it. See exception.S.
@@ -414,9 +394,7 @@ mips_usermode(struct trapframe *tf)
  *
  * Works by creating an ersatz trapframe.
  */
-void
-enter_new_process(int argc, userptr_t argv, vaddr_t stack, vaddr_t entry)
-{
+void enter_new_process(int argc, userptr_t argv, vaddr_t stack, vaddr_t entry) {
 	struct trapframe tf;
 
 	bzero(&tf, sizeof(tf));
@@ -424,7 +402,7 @@ enter_new_process(int argc, userptr_t argv, vaddr_t stack, vaddr_t entry)
 	tf.tf_status = CST_IRQMASK | CST_IEp | CST_KUp;
 	tf.tf_epc = entry;
 	tf.tf_a0 = argc;
-	tf.tf_a1 = (vaddr_t)argv;
+	tf.tf_a1 = (vaddr_t) argv;
 	tf.tf_sp = stack;
 
 	mips_usermode(&tf);
