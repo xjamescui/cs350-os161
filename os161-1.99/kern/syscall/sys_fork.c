@@ -42,7 +42,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
  //*retval = childProc->p_pid;
  //lock_release(forkLock);
  //splx(old_spl);
- KASSERT(curthread->t_curspl == 0);
+ //KASSERT(curthread->t_curspl == 0);
 
 	return 0;
 }
