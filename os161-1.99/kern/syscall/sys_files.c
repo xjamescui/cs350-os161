@@ -44,18 +44,25 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	struct iovec iov;
 	struct uio uio_R; //uio for reading
 	int errno = -1;
-//	void* kernbuf = kmalloc(nbytes * sizeof(*buf)); //kernbuf to copy buf into, and also serves as a testimony for buf's validity
+	void* kernbuf = kmalloc(nbytes * sizeof(*buf)); //kernbuf to copy buf into, and also serves as a testimony for buf's validity
 
+	/**
+	 * Check that buf is a valid ptr
+	 *
+	 * Make use of the copycheck function available inside copyin
+	 * just copy buf into kernel space and work with the kernel version of it ( we know if
+	 * copyin is successful then buf is valid)
+	 *
+	 * Don't forget to copyout when done (to update value at the original userspace location)
+	 */
+	if (copyin(buf, kernbuf, nbytes)) {
+		return EFAULT;
+	}
 
 	//check for valid fd
 	if (fd < 0 || fd > MAX_OPEN_COUNT - 1) {
 		DEBUG(DB_A2, "BADD\n");
 		return EBADF;
-	}
-
-	//check buf
-	if (buf == NULL) {
-		return EFAULT;
 	}
 
 	//reading from stdin
@@ -78,7 +85,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 	}
 
 	//setup uio to read
-	uio_kinit(&iov, &uio_R, buf, nbytes, file->f_offset, UIO_READ);
+	uio_kinit(&iov, &uio_R, kernbuf, nbytes, file->f_offset, UIO_READ);
 
 	//Reading...
 	if ((errno = VOP_READ(file->f_vn, &uio_R))) {
@@ -89,6 +96,10 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
 	*retval = readBytes;
 	KASSERT(curthread->t_curspl == 0);
+
+	//we do not forget to copyout and update the value at the correct userspace addr
+	copyout((const void *) kernbuf, (userptr_t) buf, nbytes);
+
 	return 0;
 }
 
@@ -120,7 +131,7 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	 *
 	 * Make use of the copycheck function available inside copyin
 	 * just copy buf into kernel space and work with the kernel version of it ( we know if
-	 * copy in is successful then buf is valid)
+	 * copyin is successful then buf is valid)
 	 *
 	 * Don't forget to copyout when done (to update value at the original userspace location)
 	 */
