@@ -62,8 +62,11 @@ struct proc {
 
 #if OPT_A2
 	pid_t p_pid; /* process id */
+	pid_t p_parentpid; /* parent process id*/
+	bool hasExited; /* did this proc exit */
 	int p_exitcode; /* exit code */
 	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this process */
+	struct semaphore* p_waitsem; /*used on "interested" parties waiting for its exit code  */
 #endif
 
 	char *p_name; /* Name of this process */
