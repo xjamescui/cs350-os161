@@ -52,7 +52,6 @@
 //#include "../include/types.h"
 //#include "../include/vnode.h"
 //#include "opt-A2.h"
-
 #include <types.h>
 #include <proc.h>
 #include <current.h>
@@ -94,10 +93,11 @@ proc_create(const char *name) {
 #if OPT_A2
 	proc->p_parentpid = -1; //(kernel process has no parent)
 	proc->p_pid = __PID_MIN;
+	proc->p_waitingFor = -1;
 	proc->p_hasExited = false;
-	proc->p_exitcode=0;
+	proc->p_exitcode = 0;
 	proc->p_sem_waitforcode = sem_create(proc->p_name, 0);
-	proc->p_sem_gotcode =sem_create(proc->p_name, 0);
+	proc->p_sem_gotcode = sem_create(proc->p_name, 0);
 	procArray[__PID_MIN] = proc;
 #endif
 
@@ -106,8 +106,6 @@ proc_create(const char *name) {
 
 	/* VFS fields */
 	proc->p_cwd = NULL;
-
-
 
 	return proc;
 }
@@ -157,7 +155,16 @@ void proc_destroy(struct proc *proc) {
 		struct addrspace *as;
 
 		as_deactivate();
+#if OPT_A2
+		if (proc->p_addrspace != curproc_getas()) {
+			as = proc->p_addrspace;
+			proc->p_addrspace = NULL;
+		} else {
+			as = curproc_setas(NULL);
+		}
+#else
 		as = curproc_setas(NULL);
+#endif
 		as_destroy(as);
 	}
 
@@ -349,6 +356,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	threadarray_init(&childProc->p_threads);
 	spinlock_init(&childProc->p_lock);
 	childProc->p_parentpid = curproc->p_pid;
+	childProc->p_waitingFor = -1;
 	childProc->p_exitcode = 0;
 	childProc->p_sem_gotcode = sem_create(childProc->p_name, 0);
 	childProc->p_sem_waitforcode = sem_create(childProc->p_name, 0);
