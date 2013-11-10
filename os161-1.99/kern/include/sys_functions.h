@@ -14,6 +14,6 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval);
  */
 
 void sys__exit(int exitcode);
-pid_t sys_waitpid(pid_t pid, int *status, int options);
+pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval);
 pid_t sys_fork(struct trapframe *tf, int32_t *retval);
 pid_t sys_getpid(void);

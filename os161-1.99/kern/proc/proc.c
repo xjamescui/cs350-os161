@@ -42,6 +42,17 @@
  * process that will have more than one thread is the kernel process.
  */
 
+//#include "../include/proc.h"
+//
+//#include "../compile/ASST2/includelinks/machine/current.h"
+//#include "../compile/ASST2/opt-A1.h"
+//#include "../include/addrspace.h"
+//#include "../include/current.h"
+//#include "../include/lib.h"
+//#include "../include/types.h"
+//#include "../include/vnode.h"
+//#include "opt-A2.h"
+
 #include <types.h>
 #include <proc.h>
 #include <current.h>
@@ -79,6 +90,13 @@ proc_create(const char *name) {
 
 	threadarray_init(&proc->p_threads);
 	spinlock_init(&proc->p_lock);
+
+#if OPT_A2
+	proc->p_parentpid = -1; //(kernel process has no parent)
+	proc->hasExited = false;
+	proc->p_exitcode=0;
+	proc->p_waitsem = sem_create(proc->p_name, 0);
+#endif
 
 	/* VM fields */
 	proc->p_addrspace = NULL;
@@ -140,6 +158,10 @@ void proc_destroy(struct proc *proc) {
 
 	threadarray_cleanup(&proc->p_threads);
 	spinlock_cleanup(&proc->p_lock);
+
+#if OPT_A2
+	sem_destroy(proc->p_waitsem);
+#endif
 
 	kfree(proc->p_name);
 	kfree(proc);
@@ -293,10 +315,13 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	int oldspl = splhigh();
 	struct proc *childProc;
 
+	//initialize a child process
 	childProc = kmalloc(sizeof(struct proc));
 	if (childProc == NULL) {
 		return ENOMEM;
 	}
+
+	//set the name for the child
 	childProc->p_name = kstrdup(name);
 	if (childProc->p_name == NULL) {
 		kfree(childProc);
@@ -312,11 +337,15 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	}
 	//copy_trapframe(tf, childtf);
 	memcpy(childtf, tf, sizeof(struct trapframe));
-	childtf->tf_k0 = 0;
-	childtf->tf_k1 = 0;
+	//childtf->tf_k0 = 0;
+	//childtf->tf_k1 = 0;
+
 	//Initialize threadarray?
 	threadarray_init(&childProc->p_threads);
 	spinlock_init(&childProc->p_lock);
+	childProc->p_parentpid = curproc->p_pid;
+	childProc->p_exitcode = 0;
+	childProc->p_waitsem = sem_create(childProc->p_name, 0);
 
 	//Copy addrspace
 	struct addrspace *childas;
@@ -361,7 +390,7 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 		return ENPROC;
 	}
 	splx(oldspl);
- 	KASSERT(curthread->t_curspl == 0);
+	KASSERT(curthread->t_curspl == 0);
 	//Fork child thread (tf, addrspace)
 
 	thread_fork("childThread", childProc, childPrep, (void *) childtf,
