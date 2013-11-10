@@ -17,15 +17,11 @@ void sys__exit(int exitcode) {
 
 	if (parent_pid >= KERNEL_PID && procArray[parent_pid] != NULL) { //if process has a parent
 
-//		DEBUG(DB_A2, " I am a child with id %d and my parent is %d\n",
-//				cur_process->p_pid, parent_pid);
 		struct proc *parent_process = procArray[parent_pid];
 
 		//did parent exit already? (i.e. before child)
 		if (!parent_process->p_hasExited) {
 
-			//current process is adopted by the kernel process
-			//cur_process->p_parentpid = KERNEL_PID;
 			//set encoded exitcode onto current process
 			cur_process->p_exitcode = _MKWAIT_EXIT(exitcode);
 
@@ -33,15 +29,9 @@ void sys__exit(int exitcode) {
 			cur_process->p_exitcode = exitcode;
 			V(cur_process->p_sem_waitforcode);
 
-			//then let waitpid capture the exitcode....
-//		DEBUG(DB_A2, "stuck waiting...%d\n", cur_process->p_pid);
-//		P(parent_process->p_sem_gotcode);
-//		DEBUG(DB_A2, "not stuck waiting...%d\n", cur_process->p_pid);
 		}
 
 	} else {
-//		DEBUG(DB_A2, "I am a child with id %d and no parent\n",
-//				cur_process->p_pid);
 		/**
 		 * proceed to destroy process
 		 */

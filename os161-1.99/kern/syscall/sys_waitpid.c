@@ -45,7 +45,11 @@ pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 	//set the exit status
 	*status = childProc->p_exitcode;
 
-	//detach all threads used by this process
+	/**
+	 * Clean up child process
+	 */
+
+	//detach all threads used by the child process
 	int processThreadCount = threadarray_num(&childProc->p_threads);
 
 	for (int i = 0; i < processThreadCount; i++) {
@@ -53,16 +57,12 @@ pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 	}
 	KASSERT(threadarray_num(&childProc->p_threads) == 0);
 
-	//destroy process
+	//destroy child process
 	KASSERT(childProc != NULL);
 	procArray[childProc->p_pid] = NULL;
 	childProc->p_hasExited = true;
 	proc_destroy(childProc);
 	numProc--;
-
-	//allow sys_exit to cleanup child process
-//	V(curproc->p_sem_gotcode);
-//	KASSERT(curproc->p_sem_gotcode->sem_count == 1);
 
 	//returns the process id whose exit status is reported in status. In OS/161, this is always the value of pid.
 	*retval = pid;
