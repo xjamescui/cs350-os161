@@ -3,32 +3,55 @@
 #include <lib.h>
 #include <kern/wait.h>
 #include <proc.h>
+#include <copyinout.h>
 #include <kern/errno.h>
 #include <sys_functions.h>
 
 pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 
-	struct proc* childProc = procArray[pid]; //the process we are waiting on
+	struct proc* runningProc = procArray[pid]; //the process we are waiting on
 	int dbflags = DB_A2;
 
 	//check if pid argument named a nonexistent process.
-	if (childProc == NULL) {
+	if (pid < __PID_MIN || pid > __PID_MAX || runningProc == NULL) {
 		DEBUG(DB_A2, "A problem\n");
 		return ESRCH;
 	}
 
-	//check if pid argument named a process that the current process
-	//was not interested in or that has not yet exited.
-	if (pid == (pid_t) curthread->t_proc->p_pid) {
+	/**
+	 * 	check if pid argument named a process that the current process
+	 * 	was not interested in or that has not yet exited.
+	 *
+	 *  cases:
+	 *  - cant wait on urself
+	 *  - cant wait on someone that is not your child
+	 *  - cant wait on siblings
+	 */
+
+	if (pid == (pid_t) curthread->t_proc->p_pid
+			|| runningProc->p_parentpid != (pid_t) curthread->t_proc->p_pid) {
 		DEBUG(DB_A2, "B problem\n");
 		return ECHILD;
 	}
 
-	//check status
-	if (status == NULL || ((uint32_t) status % 4 != 0)) {
-		DEBUG(DB_A2, "C problem\n");
+	//check that we are not waiting on siblings
+	if (runningProc->p_parentpid == curthread->t_proc->p_parentpid) {
+		DEBUG(DB_A2, "waiting for siblings\n");
+		return ECHILD;
+	}
+
+	//check for proper alignment
+	if ((uint32_t) status % 4 != 0) {
 		return EFAULT;
 	}
+
+	//check status
+	//if we can copy ptr to kernel space successfully then it is a valid pointer
+	int *kstatus = kmalloc(sizeof(int*));
+	if (copyin((const_userptr_t) status, kstatus, sizeof(status))) {
+		return EFAULT;
+	}
+	kfree(kstatus);
 
 	//check options
 	if (options != 0) {
@@ -37,31 +60,31 @@ pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 	}
 
 	//wait while targetProc is still running
-	if (!childProc->p_hasExited) {
-		P(childProc->p_sem_waitforcode);
-		KASSERT(childProc->p_sem_waitforcode->sem_count == 0);
+	if (!runningProc->p_hasExited) {
+		P(runningProc->p_sem_waitforcode);
+		KASSERT(runningProc->p_sem_waitforcode->sem_count == 0);
 	}
 
 	//set the exit status
-	*status = childProc->p_exitcode;
+	*status = runningProc->p_exitcode;
 
 	/**
-	 * Clean up child process
+	 * Clean up exited process
 	 */
 
 	//detach all threads used by the child process
-	int processThreadCount = threadarray_num(&childProc->p_threads);
+	int processThreadCount = threadarray_num(&runningProc->p_threads);
 
 	for (int i = 0; i < processThreadCount; i++) {
-		threadarray_remove(&childProc->p_threads, i);
+		threadarray_remove(&runningProc->p_threads, i);
 	}
-	KASSERT(threadarray_num(&childProc->p_threads) == 0);
+	KASSERT(threadarray_num(&runningProc->p_threads) == 0);
 
 	//destroy child process
-	KASSERT(childProc != NULL);
-	procArray[childProc->p_pid] = NULL;
-	childProc->p_hasExited = true;
-	proc_destroy(childProc);
+	KASSERT(runningProc != NULL);
+	procArray[runningProc->p_pid] = NULL;
+	runningProc->p_hasExited = true;
+	proc_destroy(runningProc);
 	numProc--;
 
 	//returns the process id whose exit status is reported in status. In OS/161, this is always the value of pid.
