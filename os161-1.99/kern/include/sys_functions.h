@@ -17,3 +17,4 @@ void sys__exit(int exitcode);
 pid_t sys_waitpid(pid_t pid, int *status, int options);
 pid_t sys_fork(struct trapframe *tf, int32_t *retval);
 pid_t sys_getpid(void);
+int sys_execv(char *program, char **args);
