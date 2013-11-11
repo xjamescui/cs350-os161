@@ -96,7 +96,6 @@ proc_create(const char *name) {
 	proc->p_hasExited = false;
 	proc->p_exitcode = 0;
 	proc->p_sem_waitforcode = sem_create(proc->p_name, 0);
-	proc->p_sem_gotcode = sem_create(proc->p_name, 0);
 	procArray[__PID_MIN] = proc;
 #endif
 
@@ -171,7 +170,6 @@ void proc_destroy(struct proc *proc) {
 	spinlock_cleanup(&proc->p_lock);
 
 #if OPT_A2
-	sem_destroy(proc->p_sem_gotcode);
 	sem_destroy(proc->p_sem_waitforcode);
 #endif
 	kfree(proc->p_name);
@@ -356,7 +354,6 @@ pid_t childProc_create(const char *name, struct trapframe *tf) {
 	spinlock_init(&childProc->p_lock);
 	childProc->p_parentpid = curproc->p_pid;
 	childProc->p_exitcode = 0;
-	childProc->p_sem_gotcode = sem_create(childProc->p_name, 0);
 	childProc->p_sem_waitforcode = sem_create(childProc->p_name, 0);
 
 	//Copy addrspace
