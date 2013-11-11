@@ -45,7 +45,7 @@
 #ifdef OPT_A2
 #include <mips/trapframe.h>
 #include <synch.h>
-struct lock *forkLock;
+//struct lock *forkLock;
 #endif
 
 struct addrspace;

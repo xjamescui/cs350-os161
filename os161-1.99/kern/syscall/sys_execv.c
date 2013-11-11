@@ -52,13 +52,11 @@ int sys_execv(char *progname, char **args) {
 		}
 	}
 
-	//kprintf("Program Name is : %s\n", progname);
 
 	char ** kargs = kmalloc(argc*sizeof(char*));
 	char * kernProgName = kmalloc(len*sizeof(char));
 	size_t got;
 	copyinstr((const_userptr_t)progname, kernProgName, len, &got);
-	//kprintf("Copied name : %s\n", kernProgName);
 
 	for(int a = 0 ; a < argc ; a++) {
 		kargs[a] = kmalloc(argslen[a]+1*sizeof(char));
@@ -66,18 +64,9 @@ int sys_execv(char *progname, char **args) {
 	}
 	kargs[argc] = NULL;
 
-	//kprintf("Argc=%d\n", argc);
-	/*
-	for(int a = 0 ; a < argc ; a++) {
-		kprintf("%s     Args[%d] are : %s\n",kernProgName, a, kargs[a]);
-		kprintf("argg len is : %d\n", argslen[a]);
-	}
-	kprintf("\n\n");
-	*/
 
 	as = curproc_getas();
 	as_destroy(as);
 	curproc_setas(NULL);
-	//kprintf("CALLING RUNPROGRAM");
 	return runprogram2(kernProgName, (unsigned long)argc, kargs, NULL);
 }

@@ -174,13 +174,13 @@ void proc_bootstrap(void) {
 #if OPT_A2
 // Initialize process table
 //EDIT: dynamically change pid table size
-	procArraySize = 300;
+	procArraySize = __PID_MAX;
 	numProc = 1;
 	procArray = kmalloc(sizeof(struct proc*) * procArraySize);
 	for (int i = __PID_MIN; i < procArraySize; i++) {
 		procArray[i] = NULL;
 	}
-	forkLock = lock_create("forkLock");
+//	forkLock = lock_create("forkLock");
 #endif
 
 	kproc = proc_create("[kernel]");

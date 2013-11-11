@@ -21,6 +21,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	//initialize a child process
 	childProc = kmalloc(sizeof(struct proc));
 	if (childProc == NULL) {
+		splx(oldspl);
 		return ENOMEM;
 	}
 
@@ -28,6 +29,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	childProc->p_name = kstrdup("childProc");
 	if (childProc->p_name == NULL) {
 		kfree(childProc);
+		splx(oldspl);
 		return ENOMEM;
 	}
 
@@ -36,12 +38,13 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	if (childtf == NULL) {
 		kfree(childProc->p_name);
 		kfree(childProc);
+		splx(oldspl);
 		return ENOMEM;
 	}
 	//copy_trapframe(tf, childtf);
 	memcpy(childtf, tf, sizeof(struct trapframe));
 
-	//Initialize threadarray?
+	//Initialize
 	threadarray_init(&childProc->p_threads);
 	spinlock_init(&childProc->p_lock);
 	childProc->p_parentpid = curproc->p_pid;
@@ -54,6 +57,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 		kfree(childProc->p_name);
 		kfree(childProc);
 		kfree(childtf);
+		splx(oldspl);
 		return ENOMEM;
 	};
 
@@ -77,6 +81,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	//Get PID
 	int pidinit = 0;
 	for (int i = __PID_MIN; i < procArraySize; i++) {
+		//once an available pid is found, point it to the child process
 		if (procArray[i] == NULL) {
 			childProc->p_pid = i;
 			procArray[i] = childProc;
@@ -85,11 +90,15 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 			break;
 		}
 	}
+
+	//if no pid is found then the max number of processes has been reached
 	if (pidinit == 0) {
 		//No free space in process table
-		//EDIT: Need better handling. No panicing.
+		splx(oldspl);
 		return ENPROC;
 	}
+
+	//return child's pid
 	*retval = pidinit;
 
 	//lock_release(forkLock);
