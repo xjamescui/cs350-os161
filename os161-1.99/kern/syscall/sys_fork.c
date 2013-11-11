@@ -14,7 +14,7 @@ pid_t sys_getpid(void) {
 
 pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 
-	//int oldspl = splhigh();
+//	int oldspl = splhigh();
 	lock_acquire(forkLock);
 	struct proc *childProc;
 
@@ -93,7 +93,7 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	*retval = pidinit;
 
 	lock_release(forkLock);
-	//splx(oldspl);
+//	splx(oldspl);
 	KASSERT(curthread->t_curspl == 0);
 	//Fork child thread (tf, addrspace)
 
