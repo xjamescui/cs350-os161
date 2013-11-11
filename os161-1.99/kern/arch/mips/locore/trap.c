@@ -293,6 +293,8 @@ void mips_trap(struct trapframe *tf) {
 			tf->tf_vaddr);
 #if OPT_A2
 	sys__exit(-1);
+	//panic (next line) will be called only if sys__exit() has failed to perform.
+	//in which case it is appropriate to call panic
 #endif
 
 	panic("I can't handle this... I think I'll just die now...\n");

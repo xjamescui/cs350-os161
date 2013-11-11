@@ -42,16 +42,6 @@
  * process that will have more than one thread is the kernel process.
  */
 
-//#include "../include/proc.h"
-//
-//#include "../compile/ASST2/includelinks/machine/current.h"
-//#include "../compile/ASST2/opt-A1.h"
-//#include "../include/addrspace.h"
-//#include "../include/current.h"
-//#include "../include/lib.h"
-//#include "../include/types.h"
-//#include "../include/vnode.h"
-//#include "opt-A2.h"
 #include <types.h>
 #include <proc.h>
 #include <current.h>
@@ -319,92 +309,3 @@ curproc_setas(struct addrspace *newas) {
 	return oldas;
 }
 
-#if OPT_A2
-pid_t childProc_create(const char *name, struct trapframe *tf) {
-	int oldspl = splhigh();
-	struct proc *childProc;
-
-	//initialize a child process
-	childProc = kmalloc(sizeof(struct proc));
-	if (childProc == NULL) {
-		return ENOMEM;
-	}
-
-	//set the name for the child
-	childProc->p_name = kstrdup(name);
-	if (childProc->p_name == NULL) {
-		kfree(childProc);
-		return ENOMEM;
-	}
-
-	//Copy trapframe onto kernel heap
-	struct trapframe *childtf = kmalloc(sizeof(struct trapframe));
-	if (childtf == NULL) {
-		kfree(childProc->p_name);
-		kfree(childProc);
-		return ENOMEM;
-	}
-	//copy_trapframe(tf, childtf);
-	memcpy(childtf, tf, sizeof(struct trapframe));
-	//childtf->tf_k0 = 0;
-	//childtf->tf_k1 = 0;
-
-	//Initialize threadarray?
-	threadarray_init(&childProc->p_threads);
-	spinlock_init(&childProc->p_lock);
-	childProc->p_parentpid = curproc->p_pid;
-	childProc->p_exitcode = 0;
-	childProc->p_sem_waitforcode = sem_create(childProc->p_name, 0);
-
-	//Copy addrspace
-	struct addrspace *childas;
-	if (0 != as_copy(curproc_getas(), &childas)) {
-		kfree(childProc->p_name);
-		kfree(childProc);
-		kfree(childtf);
-		return ENOMEM;
-	};
-
-	//Copy CWD
-	childProc->p_cwd = curproc->p_cwd;
-	childProc->p_cwd->vn_refcount++;
-
-	//Copy over fd table
-	for (int i = 0; i < MAX_OPEN_COUNT; i++) {
-		childProc->fd_table[i] = curproc->fd_table[i];
-	}
-
-	for (int i = 3; i < MAX_OPEN_COUNT; i++) {
-
-		//double file ref count (now both child and parent share the fd_table)
-		if (childProc->fd_table[i] != NULL) {
-			childProc->fd_table[i]->f_vn->vn_refcount *= 2;
-		}
-	}
-
-	//Get PID
-	int pidinit = 0;
-	for (int i = __PID_MIN; i < procArraySize; i++) {
-		if (procArray[i] == NULL) {
-			childProc->p_pid = i;
-			procArray[i] = childProc;
-			pidinit = i;
-			numProc++;
-			break;
-		}
-	}
-	if (pidinit == 0) {
-		//No free space in process table
-		//EDIT: Need better handling. No panicing.
-		return ENPROC;
-	}
-	splx(oldspl);
-	KASSERT(curthread->t_curspl == 0);
-	//Fork child thread (tf, addrspace)
-
-	thread_fork("childThread", childProc, childPrep, (void *) childtf,
-			(unsigned long) childas);
-
-	return (pid_t) pidinit;
-}
-#endif
