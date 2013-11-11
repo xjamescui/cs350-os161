@@ -24,7 +24,7 @@ void sys__exit(int exitcode) {
 			//set encoded exitcode onto current process
 			cur_process->p_exitcode = _MKWAIT_EXIT(exitcode);
 
-			//tell the "interested" party about my exit
+			//tell parent about my exit
 			cur_process->p_exitcode = exitcode;
 			V(cur_process->p_sem_waitforcode);
 

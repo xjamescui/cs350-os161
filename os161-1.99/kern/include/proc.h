@@ -115,9 +115,4 @@ struct addrspace *curproc_getas(void);
 /* Change the address space of the current process, and return the old one. */
 struct addrspace *curproc_setas(struct addrspace *);
 
-#if OPT_A2
-/* Create child process: heavy lifting is done here */
-pid_t childProc_create(const char *name, struct trapframe *tf);
-#endif
-
 #endif /* _PROC_H_ */

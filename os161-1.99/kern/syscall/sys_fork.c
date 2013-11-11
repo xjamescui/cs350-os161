@@ -9,47 +9,13 @@
 #include <vnode.h>
 
 pid_t sys_getpid(void) {
-  return curthread->t_proc->p_pid;
+	return curthread->t_proc->p_pid;
 }
 
 pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 
-	/**
-	 * Note: child should be "born" with the same state as the parent
-	 *
-	 * child's address space = copy of(parent's address space)
-	 * return child_pid to parent
-	 * return 0 to child_pid
-	 * child_pid != parent_pid
-	 */
-
-	//struct proc* parent = curthread->t_proc;
-
-	//turn off interrupts
-	//int old_spl = splhigh();
- //lock_acquire(forkLock);
- //Create new process
- //*retval = childProc_create("childProc", tf);
- //EDIT: Copy file table
-	/**
-	 * copy parent's fd_table to child
-	 * Note: However, the file handle objects the file tables point to are shared,
-	 * so, for instance, calls to lseek in one process can affect the other.
-	 */
-
-	//turn interrupts back on
-	//splx(old_spl);
-	//KASSERT(curthread->t_curspl == 0);
-
-	//return
-	//(void) parent;
- //*retval = childProc->p_pid;
- //lock_release(forkLock);
- //splx(old_spl);
- //KASSERT(curthread->t_curspl == 0);
-
 	//int oldspl = splhigh();
- lock_acquire(forkLock);
+	lock_acquire(forkLock);
 	struct proc *childProc;
 
 	//initialize a child process
@@ -74,8 +40,6 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 	}
 	//copy_trapframe(tf, childtf);
 	memcpy(childtf, tf, sizeof(struct trapframe));
-	//childtf->tf_k0 = 0;
-	//childtf->tf_k1 = 0;
 
 	//Initialize threadarray?
 	threadarray_init(&childProc->p_threads);
@@ -126,17 +90,15 @@ pid_t sys_fork(struct trapframe *tf, int32_t *retval) {
 		//EDIT: Need better handling. No panicing.
 		return ENPROC;
 	}
- *retval = pidinit;
+	*retval = pidinit;
 
- lock_release(forkLock);
+	lock_release(forkLock);
 	//splx(oldspl);
 	KASSERT(curthread->t_curspl == 0);
 	//Fork child thread (tf, addrspace)
 
 	thread_fork("childThread", childProc, childPrep, (void *) childtf,
 			(unsigned long) childas);
-
-
 
 	return 0;
 }

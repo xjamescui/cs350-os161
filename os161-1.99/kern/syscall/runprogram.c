@@ -55,24 +55,10 @@ int runprogram2(char *progname, unsigned long nargs, char **args, struct semapho
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
 	int result;
-	//int dbflags = DB_A2;
 	(void)progThreadSem; //TODO fix later
 	int argc = (int) nargs;
-//	kprintf("Value of argc is: %d\n", argc);
 	(void) args;
-	/*
-	 kprintf(args[0]);
-	 kprintf(args[1]);
-	 kprintf(args[2]);
-	 kprintf(args[3]);
-	 
-//	DEBUG(DB_A2, "\nPrinting orig args\n");
 
-	for (int a = 0; a < argc; a++) {
-		kprintf("%s\n", args[a]);
-	}
-	DEBUG(DB_A2, "\n\n\n");
-	*/
 	/* Open the file. */
 	result = vfs_open(progname, O_RDONLY, 0, &v);
 	if (result) {
@@ -116,12 +102,10 @@ int runprogram2(char *progname, unsigned long nargs, char **args, struct semapho
 	userptr_t tempptr = (userptr_t) stackptr;
 
 	//copy args
-	//kprintf("Copying args\n");
 	for (int a = argc - 1; a >= 0; a--) {
 		tempptr -= (strlen(args[a]) + 1);
 		pointers[a] = tempptr;
 		copyoutstr(args[a], tempptr, strlen(args[a]) + 1, NULL);
-		//kprintf("Copied: %s\n", (char*) tempptr);
 	}
 	pointers[argc] = 0x00000000;
 
@@ -135,17 +119,6 @@ int runprogram2(char *progname, unsigned long nargs, char **args, struct semapho
 	//align to 8
 	tempptr = (userptr_t) ((unsigned int) arrStart & 0xFFFFFFF8);
 	stackptr = (vaddr_t) tempptr;
-
-	//kprintf("Printing args\nargc = %d :", argc);
-	/*
-	for (int a = 0; a < argc; a++) {
-		kprintf("%s ", (char*) pointers[a]);
-	}
-	kprintf("\n%s", (char*) pointers[argc]);
-	kprintf("\nEnter new process\n");
-	*/
-	//increase semaphore count to avoid race condition
-	//V(progThreadSem);
 
 	/* Warp to user mode. */
 	enter_new_process(argc /*argc*/,

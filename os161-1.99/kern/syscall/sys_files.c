@@ -38,7 +38,6 @@
  */
 int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
-	int dbflags = DB_A2;
 	int readBytes = 0;
 	struct file_desc* file;
 	struct iovec iov;
@@ -61,7 +60,6 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
 
 	//check for valid fd
 	if (fd < 0 || fd > MAX_OPEN_COUNT - 1) {
-		DEBUG(DB_A2, "BADD\n");
 		return EBADF;
 	}
 
@@ -114,7 +112,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int32_t *retval) {
  *  In most cases, one should loop to make sure that all output has actually been written.
  */
 int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
-	int dbflags = DB_A2;
+
 	int wroteBytes = 0;
 	int errno = -1;
 	struct file_desc* file = NULL; //file
@@ -143,13 +141,11 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 	switch (fd) {
 	case STDOUT_FILENO:
 		if ((errno = sys_open("con:", O_WRONLY, MODE_STDOUT, &fd))) {
-			DEBUG(DB_A2, "ERROR WRITING TO STDOUT code is %d!\n", errno);
 			return errno;
 		}
 		break;
 	case STDERR_FILENO:
 		if ((errno = sys_open("con:", O_WRONLY, MODE_STDERR, &fd))) {
-			DEBUG(DB_A2, "ERROR WRITING TO STDERR!\n");
 			return errno;
 		}
 		break;
@@ -175,7 +171,6 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 	//writing....
 	if ((errno = VOP_WRITE(file->f_vn, &uio_W))) {
-		DEBUG(DB_A2, "error in VOP_WRITE\n");
 		return errno;
 	}
 
@@ -193,7 +188,7 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 }
 
 int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
-	int dbflags = DB_A2;
+
 	int fd = -1; //filehandle to be returned
 	struct file_desc** table = curthread->t_proc->fd_table;
 	struct vnode* openedVnode = NULL;
@@ -216,7 +211,6 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 
 	//check if flags is valid
 	if (flags < 0 || flags > 64) {
-		DEBUG(DB_A2, "invalid flag\n");
 		return EINVAL;
 	}
 
@@ -298,14 +292,6 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	KASSERT(table[fd]->f_vn->vn_opencount >= 1);
 	KASSERT(table[fd]->f_vn->vn_refcount >= 1);
 
-//	if (fd >= 3) {
-//
-//		DEBUG(DB_A2,
-//				"%s created on fd = %d and vnode = %p and has opencount = %d vn_refcount = %d\n",
-//				table[fd]->f_name, fd, table[fd]->f_vn,
-//				table[fd]->f_vn->vn_opencount, table[fd]->f_vn->vn_refcount);
-//	}
-
 	*retval = (int32_t) fd;
 	KASSERT(curthread->t_curspl == 0);
 
@@ -317,7 +303,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
  */
 int sys_close(int fd) {
 
-//make sure the file is in table
+	//make sure the file is in table
 	KASSERT(curthread->t_curspl == 0);
 
 	if (fd < 0 || fd >= MAX_OPEN_COUNT) {
@@ -345,7 +331,7 @@ int sys_close(int fd) {
 		vnode_decref(file->f_vn);
 	}
 
-//clean up row in the table
+	//clean up row in the table
 	file->f_vn = NULL;
 	curthread->t_proc->fd_table[fd] = NULL;
 	KASSERT(file != NULL);
