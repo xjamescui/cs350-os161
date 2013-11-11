@@ -67,7 +67,6 @@ struct proc {
 	int p_exitcode; /* exit code */
 	struct file_desc *fd_table[MAX_OPEN_COUNT]; /* File Descriptor Table for this process */
 	struct semaphore* p_sem_waitforcode; /* used when waiting for exit */
-	struct semaphore* p_sem_gotcode; /*used when exitcode has been retrieved and sys_exit can finish cleaning up the child proc */
 #endif
 
 	char *p_name; /* Name of this process */
