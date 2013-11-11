@@ -169,7 +169,6 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 		return EBADF;
 	}
 
-	spinlock_acquire(&file->f_spinlock);
 	//setup uio to write to file
 	uio_kinit(&iov, &uio_W, (void *) kernbuf, nbytes, file->f_offset,
 			UIO_WRITE);
@@ -182,8 +181,6 @@ int sys_write(int fd, const void *buf, size_t nbytes, int32_t *retval) {
 
 	wroteBytes = nbytes - uio_W.uio_resid;
 	file->f_offset = uio_W.uio_offset;
-
-	spinlock_release(&file->f_spinlock);
 
 	*retval = wroteBytes;
 	KASSERT(curthread->t_curspl == 0);
@@ -293,7 +290,6 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 	//open a new file
 	if (table[fd] == NULL) {
 		table[fd] = kmalloc(sizeof(struct file_desc));
-		spinlock_init(&table[fd]->f_spinlock);
 	}
 	table[fd]->f_vn = openFile;
 	table[fd]->f_name = (char *) filename;
@@ -320,7 +316,6 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
  * sys_close
  */
 int sys_close(int fd) {
-//	int dbflags = DB_A2;
 
 //make sure the file is in table
 	KASSERT(curthread->t_curspl == 0);
@@ -349,11 +344,9 @@ int sys_close(int fd) {
 		//decr the ref count
 		vnode_decref(file->f_vn);
 	}
-//	DEBUG(DB_A2, "closed file %s\n", file->f_name);
 
 //clean up row in the table
 	file->f_vn = NULL;
-	spinlock_cleanup(&file->f_spinlock);
 	curthread->t_proc->fd_table[fd] = NULL;
 	KASSERT(file != NULL);
 	kfree(file);

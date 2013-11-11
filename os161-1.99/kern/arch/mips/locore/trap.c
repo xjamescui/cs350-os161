@@ -291,6 +291,9 @@ void mips_trap(struct trapframe *tf) {
 			trapcodenames[code]);
 	kprintf("panic: EPC 0x%x, exception vaddr 0x%x\n", tf->tf_epc,
 			tf->tf_vaddr);
+#if OPT_A2
+	sys__exit(-1);
+#endif
 
 	panic("I can't handle this... I think I'll just die now...\n");
 

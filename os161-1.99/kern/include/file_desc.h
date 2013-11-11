@@ -10,7 +10,6 @@ struct file_desc {
 
 	char* f_name;
 	off_t f_offset;
-	struct spinlock f_spinlock;
 	struct vnode* f_vn;
 	int f_flags;
 

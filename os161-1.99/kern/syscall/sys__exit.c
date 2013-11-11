@@ -12,7 +12,6 @@
 void sys__exit(int exitcode) {
 	struct proc *cur_process = curthread->t_proc;
 	pid_t parent_pid = cur_process->p_parentpid;
-//	int dbflags = DB_A2;
 	int old_spl = splhigh();
 
 	if (parent_pid >= KERNEL_PID && procArray[parent_pid] != NULL) { //if process has a parent

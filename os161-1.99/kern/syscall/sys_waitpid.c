@@ -10,11 +10,9 @@
 pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 
 	struct proc* runningProc = procArray[pid]; //the process we are waiting on
-	int dbflags = DB_A2;
 
 	//check if pid argument named a nonexistent process.
 	if (pid < __PID_MIN || pid > __PID_MAX || runningProc == NULL) {
-		DEBUG(DB_A2, "A problem\n");
 		return ESRCH;
 	}
 
@@ -30,13 +28,11 @@ pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 
 	if (pid == (pid_t) curthread->t_proc->p_pid
 			|| runningProc->p_parentpid != (pid_t) curthread->t_proc->p_pid) {
-		DEBUG(DB_A2, "B problem\n");
 		return ECHILD;
 	}
 
 	//check that we are not waiting on siblings
 	if (runningProc->p_parentpid == curthread->t_proc->p_parentpid) {
-		DEBUG(DB_A2, "waiting for siblings\n");
 		return ECHILD;
 	}
 
@@ -55,7 +51,6 @@ pid_t sys_waitpid(pid_t pid, int *status, int options, int32_t *retval) {
 
 	//check options
 	if (options != 0) {
-		DEBUG(DB_A2, "D problem\n");
 		return EINVAL;
 	}
 
