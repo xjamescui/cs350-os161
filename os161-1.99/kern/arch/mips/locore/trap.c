@@ -100,6 +100,13 @@ void kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr) {
 	 */
 	kprintf("Fatal user mode trap %u sig %d (%s, epc 0x%x, vaddr 0x%x)\n", code,
 			sig, trapcodenames[code], epc, vaddr);
+
+#if OPT_A2
+	sys__exit(-1);
+	//panic (next line) will be called only if sys__exit() has failed to perform.
+	//in which case it is appropriate to call panic
+#endif
+
 	panic("I don't know how to handle this\n");
 }
 
@@ -291,11 +298,6 @@ void mips_trap(struct trapframe *tf) {
 			trapcodenames[code]);
 	kprintf("panic: EPC 0x%x, exception vaddr 0x%x\n", tf->tf_epc,
 			tf->tf_vaddr);
-#if OPT_A2
-	sys__exit(-1);
-	//panic (next line) will be called only if sys__exit() has failed to perform.
-	//in which case it is appropriate to call panic
-#endif
 
 	panic("I can't handle this... I think I'll just die now...\n");
 
