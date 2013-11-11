@@ -21,7 +21,19 @@ int sys_execv(char *progname, char **args) {
 
 	struct addrspace *as;
 
+	if(progname == NULL)	{
+		return EFAULT; 	
+	}
+
 	int len = strlen(progname);
+
+	if (len > MAX_LEN_FILENAME) {
+		return EFAULT;
+	}
+
+	if (len == 0) {
+		return EISDIR;
+	}
 
 	int counter = 0;
 	while (args[counter] != NULL) {
@@ -31,6 +43,9 @@ int sys_execv(char *progname, char **args) {
 	int argc = counter;
 	int argslen[argc];
 	for(int a = 0 ; a < argc ; a++) {
+		if((unsigned int)args[a] < 0x40000000 || (unsigned int)args[a] > 0x7fffffff) {
+			return EFAULT;
+		}
 		if(args[a] != NULL) {
 			argslen[a] = strlen(args[a]) +1;
 		}
