@@ -1,6 +1,6 @@
 cd ./conf/
-./config ASST2
-cd ../compile/ASST2
+./config ASST3
+cd ../compile/ASST3
 bmake depend
 bmake
 bmake install
