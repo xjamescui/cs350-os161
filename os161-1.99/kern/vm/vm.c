@@ -27,6 +27,8 @@
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
+static unsigned int next_victim = 0;
+
 #endif
 
 void vm_bootstrap(void) {
@@ -94,12 +96,30 @@ void vm_tlbshootdown(const struct tlbshootdown *ts) {
 #endif
 }
 
+/**
+ * Given algorithm as replacement policy in TLB
+ */
+int tlb_get_rr_victim() {
+	int victim = next_victim;
+	next_victim = (next_victim + 1) % NUM_TLB;
+	return victim;
+}
+
+/**
+ * vm_fault should avoid anything that involves touching virtual addresses
+ * in the application's part of the virtual address space,
+ * since those attempts might generate faults, depending on what's in the TLB.
+ * Functions like copyin and copyout are examples of functions that touch
+ * application virtual addresses.
+ */
 int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 #if OPT_A3
 	vaddr_t vbase1, vtop1, vbase2, vtop2, stackbase, stacktop;
 	paddr_t paddr;
+//	int dbflags = DB_A3;
 	int i;
+	int victim_index;
 	uint32_t ehi, elo;
 	struct addrspace *as;
 	int spl;
@@ -113,7 +133,10 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		/* We always create pages read-write, so we can't get this */
 		panic("dumbvm: got VM_FAULT_READONLY\n");
 	case VM_FAULT_READ:
+//		DEBUG(DB_A3, "this is a VM_FAULT_READ\n");
+//		break;
 	case VM_FAULT_WRITE:
+//		DEBUG(DB_A3, "this is a VM_FAULT_WRITE\n");
 		break;
 	default:
 		return EINVAL;
@@ -186,6 +209,17 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		splx(spl);
 		return 0;
 	}
+
+	//all tlb entries are valid, time to do "replacement" i.e. to make room
+	victim_index = tlb_get_rr_victim();
+	tlb_write(TLBHI_INVALID(victim_index), TLBLO_INVALID(), victim_index);
+
+	//write to the victim's entry we just invalidated
+	ehi = faultaddress;
+	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+	tlb_write(ehi, elo, i);
+	splx(spl);
+	return 0;
 
 	kprintf("dumbvm: Ran out of TLB entries - cannot handle page fault\n");
 	splx(spl);

@@ -90,6 +90,7 @@
 #define DB_KMALLOC     0x800
 #define DB_CATMOUSE	   0x900
 #define DB_A2		   0x904
+#define DB_A3		   0x908
 
 extern uint32_t dbflags;
 
