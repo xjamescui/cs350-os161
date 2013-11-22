@@ -18,6 +18,7 @@
 #include <kern/errno.h>
 #include <mips/tlb.h>
 #include <spinlock.h>
+#include <uw-vmstats.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
@@ -49,7 +50,7 @@ paddr_t getppages(unsigned long npages) {
 	return addr;
 #else
 	/* Adapt code form dumbvm or implement something new */
-	(void)npages;
+	(void) npages;
 	panic("Not implemented yet.\n");
 	return (paddr_t) NULL;
 #endif
@@ -129,16 +130,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
-	case VM_FAULT_READONLY:
+		case VM_FAULT_READONLY:
 		/* We always create pages read-write, so we can't get this */
 		panic("dumbvm: got VM_FAULT_READONLY\n");
-	case VM_FAULT_READ:
+		case VM_FAULT_READ:
 //		DEBUG(DB_A3, "this is a VM_FAULT_READ\n");
 //		break;
-	case VM_FAULT_WRITE:
+		case VM_FAULT_WRITE:
 //		DEBUG(DB_A3, "this is a VM_FAULT_WRITE\n");
 		break;
-	default:
+		default:
 		return EINVAL;
 	}
 
@@ -218,6 +219,10 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	ehi = faultaddress;
 	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 	tlb_write(ehi, elo, i);
+
+	//stats update: TLB replace
+	vmstats_inc(VMSTAT_TLB_FAULT_REPLACE);
+
 	splx(spl);
 	return 0;
 

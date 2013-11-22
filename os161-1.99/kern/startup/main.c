@@ -52,6 +52,11 @@
 #include "autoconf.h"  // for pseudoconfig
 #include "opt-A0.h"
 #include "opt-A1.h"
+#include "opt-A3.h"
+
+#if OPT_A3
+#include <uw-vmstats.h>
+#endif
 
 /*
  * These two pieces of data are maintained by the makefiles and build system.
@@ -134,6 +139,10 @@ boot(void)
 	/* Default bootfs - but ignore failure, in case emu0 doesn't exist */
 	vfs_setbootfs("emu0");
 
+#if OPT_A3
+	/* init statistics analysis	 */
+	vmstats_init();
+#endif
 
 	/*
 	 * Make sure various things aren't screwed up.
@@ -151,7 +160,9 @@ shutdown(void)
 {
 
 	kprintf("Shutting down.\n");
-	
+#if OPT_A3
+	vmstats_print();
+#endif
 	vfs_clearbootfs();
 	vfs_clearcurdir();
 	vfs_unmountall();

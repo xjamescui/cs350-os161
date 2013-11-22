@@ -40,10 +40,10 @@
 #include "opt-A3.h"
 
 #if OPT_A3 //dumbvm implementation of as_* functions just to start A3
+#include <uw-vmstats.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
-
 
 struct addrspace *
 as_create(void) {
@@ -85,7 +85,8 @@ void as_activate(void) {
 	for (i = 0; i < NUM_TLB; i++) {
 		tlb_write(TLBHI_INVALID(i), TLBLO_INVALID(), i);
 	}
-
+	//stats update: entire TLB has been invalidated
+	vmstats_inc(VMSTAT_TLB_INVALIDATE);
 	splx(spl);
 }
 
