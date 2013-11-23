@@ -8,8 +8,8 @@ struct pte {
 };
 
 struct pt {
-	//the base physical address
-	paddr_t base;	
+
+	paddr_t pt_base;	//the base physical address
 	struct pte * table;
 };
 

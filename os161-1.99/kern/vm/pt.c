@@ -12,7 +12,7 @@ int getPTE(vaddr_t addr) {
 	
 	//boundary checking?
 
-	//for every pte, check if page number * pagesize <= addr <= page number +1 * pagesize
+	//for every pte, check if page number * pagesize <= addr < page number +1 * pagesize
 	
 	(void) addr;
 	return 0; //change this later
