@@ -36,7 +36,6 @@
  * You'll probably want to add stuff here.
  */
 
-
 #include <machine/vm.h>
 #include "opt-A3.h"
 
@@ -45,7 +44,6 @@
 #define VM_FAULT_WRITE       1    /* A write was attempted */
 #define VM_FAULT_READONLY    2    /* A write to a readonly page was attempted*/
 
-
 #if OPT_A3
 
 bool vmInitialized;
@@ -53,15 +51,20 @@ bool vmInitialized;
 paddr_t getppages(unsigned long npages);
 
 //alloc methods
-vaddr_t alloc_page(void);
-
-vaddr_t alloc_pages(int npages);
-
+paddr_t alloc_page(void);
+paddr_t alloc_pages(int npages);
 void free_page(vaddr_t addr);
 
+#define FREE 0
+#define FIXED 1
+#define CLEAN 2
+#define DIRTY 3
+
 /* a physical page (frame) for coremap */
-struct page{
+struct page {
 	struct addrspace * as;
+
+	//the vaddr the frame is mapped to
 	vaddr_t vaddr;
 	paddr_t paddr;
 	int vpn;
@@ -73,16 +76,15 @@ struct page{
 	int blocksAllocated;
 
 	/**
-  	 * 0 = free
+	 * 0 = free
 	 * 1 = fixed
 	 * 2 = clean
 	 * 3 = dirty
 	 **/
-	byte state;
-}
+	int state;
+};
 
 #endif
-
 
 /* Initialization function */
 void vm_bootstrap(void);
@@ -97,6 +99,5 @@ void free_kpages(vaddr_t addr);
 /* TLB shootdown handling called from interprocessor_interrupt */
 void vm_tlbshootdown_all(void);
 void vm_tlbshootdown(const struct tlbshootdown *);
-
 
 #endif /* _VM_H_ */

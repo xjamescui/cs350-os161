@@ -224,12 +224,12 @@ void mips_trap(struct trapframe *tf) {
 			goto done;
 		}
 		break;
-	case EX_TLBL:
+	case EX_TLBL: //TLB miss on load
 		if (vm_fault(VM_FAULT_READ, tf->tf_vaddr) == 0) {
 			goto done;
 		}
 		break;
-	case EX_TLBS:
+	case EX_TLBS: //TLB miss on store
 		if (vm_fault(VM_FAULT_WRITE, tf->tf_vaddr) == 0) {
 			goto done;
 		}

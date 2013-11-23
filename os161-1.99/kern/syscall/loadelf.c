@@ -59,6 +59,7 @@
 #include <addrspace.h>
 #include <vnode.h>
 #include <elf.h>
+#include "opt-A3.h"
 
 /*
  * Load a segment at virtual address VADDR. The segment in memory
@@ -159,6 +160,8 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 	struct iovec iov;
 	struct uio ku;
 	struct addrspace *as;
+	int dbflags = DB_A3;
+
 
 	as = curproc_getas();
 
@@ -217,6 +220,9 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 	 * to find where the phdr starts.
 	 */
 
+#if OPT_A3
+	DEBUG(DB_A3, "it is %d\n", eh.e_phnum);
+#endif
 	for (i=0; i<eh.e_phnum; i++) {
 		off_t offset = eh.e_phoff + i*eh.e_phentsize;
 		uio_kinit(&iov, &ku, &ph, sizeof(ph), offset, UIO_READ);

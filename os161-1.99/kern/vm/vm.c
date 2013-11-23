@@ -32,94 +32,141 @@ static unsigned int next_victim = 0;
 
 #endif
 
-#if OPT_A3
+//#if OPT_A3
 
 struct lock * coremapLock;
 
 struct page * coremap;
 
-int NUM_PAGES= -1;
+//total number of pages in physical memory
+int NUM_PAGES = -1;
 
-vmInitialized = 0;
-/*
+//whether or not vm has been bootstrapped
+bool vmInitialized = false;
+
 paddr_t alloc_page(void) {
+
 	//FIFO algo
-	if(vmInitialized == 1) {
+	if (vmInitialized) {
 		lock_acquire(coremapLock);
-		
+
 		//add stuff here
-		for(int a = 0 ; a < NUM_PAGES ; a++) {
-			if(coremap[a].state == 0) {
+		for (int a = 0; a < NUM_PAGES; a++) {
+			if (coremap[a].state == FREE) {
 				//do something	
-			}	
-		}	
+
+				return coremap[a].vaddr;
+			}
+		}
 		lock_release(coremapLock);
 	}
+
+	return -1;
 }
 
 paddr_t alloc_pages(int npages) {
-	if(vmInitialized == 1) {
+
+	(void) npages;
+
+	if (vmInitialized) {
 		lock_acquire(coremapLock);
-		
+
 		//add stuff here	
 		lock_release(coremapLock);
 	}
+	return -1;
 }
 
 void free_page(vaddr_t addr) {
-	if(vmInitialized == 1) {
+
+	(void) addr;
+
+	if (vmInitialized == 1) {
 		lock_acquire(coremapLock);
-		
+
 		//add stuff here	
 		lock_release(coremapLock);
 	}
 }
 */
 
-#endif
+//#endif
 
 void vm_bootstrap(void) {
 	/* May need to add code. */
-	#if OPT_A3	
-	paddr_t* first;
-	paddr_t* last;
+//#if OPT_A3
+	paddr_t p_first; //lowest physical address in RAM (bottom)
+	paddr_t p_last; //highest physical address in RAM (top)
+
+	//region allocated for coremap
+	paddr_t cm_low;
+	paddr_t cm_high; //also the beginning of free memory i RAM
+
+	int dbflags = DB_A3;
+
 	coremapLock = lock_create("coremapLock");
 	//TODO maybe add check to see if we got a lock
-	if(coremapLock == NULL) {
+
+	if (coremapLock == NULL) {
 		panic("Cannot get coremapLock!");
-	}	
+	}
 
-	ram_getsize(first,last);
+	ram_getsize(&p_first, &p_last);
 
-	//we are setting the start of coremap tot eh first available mem spot specified in first
-	coremap = (struct page *) PADDR_TO_KVADDR(first);
-	
-	//paddr_t origFirst = *first;	
+	KASSERT(p_last > p_first);
 
-	//now the first free mem page is shifted from page by the size of the coremap
-	first = first + (struct page *) numPages * sizeof(struct page);
+	//record total number of pages in physical memory
+	NUM_PAGES = (p_last - p_first) / PAGE_SIZE;
 
-	//4K page size
-	NUM_PAGES = (first-last)/4096;
+	DEBUG(DB_A3, "NUM_PAGES is %d\n", NUM_PAGES);
 
-	//initialize a dummy page	
-	struct page * pg;
+	/**
+	 * Allocate space needed for our coremap
+	 * i.e.
+	 * first to firstFree = coremap
+	 * firstFree to last = free memory in RAM
+	 */
+
+	cm_low = p_first;
+	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
+	cm_high = p_first + NUM_PAGES * sizeof(struct page);
+
+	/**
+	 * Initialize contents in coremap
+	 */
+
+	//dummy page
+	struct page pg;
 	pg.as = NULL;
-	pg.paddr = NULL;
-	pg.vaddr = NULL;
+	pg.paddr = 0;
+	pg.vaddr = 0;
 	pg.vpn = -1;
 	pg.state = 0; //state should still be free
 	pg.blocksAllocated = -1;
 
-	//init coremap
-	for (int a = 0 ; a < NUM_PAGES ; a++) {
+	KASSERT(NUM_PAGES > 0);
+	for (int a = 0; a < NUM_PAGES; a++) {
+
+		//mark pages between cm_high to top as FREE, else FIXED
+		if (((unsigned int)a >= (cm_high - cm_low) / PAGE_SIZE) && a < NUM_PAGES) {
+			pg.state = FREE;
+		}
+		else{
+			pg.state = FIXED;
+		}
+
 		coremap[a] = pg;
 	}
 
-	//we initialized the vm
-	vmInitialized = 1;
+	for (int a = 0; a < NUM_PAGES; a++) {
 
-	#endif
+		DEBUG(DB_A3, "coremap[%d].state=%d\n", a, coremap[a].state);
+	}
+
+	//we initialized the vm
+	vmInitialized = true;
+
+//#endif
 }
 
 //#if 0
@@ -196,9 +243,9 @@ paddr_t getppages(unsigned long npages) {
 vaddr_t alloc_kpages(int npages) {
 #if OPT_A3
 	paddr_t pa;
-	
+
 	pa = getppages(npages);
-	
+
 	if (pa == 0) {
 		return 0;
 	}
@@ -278,16 +325,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
-		case VM_FAULT_READONLY:
+	case VM_FAULT_READONLY:
 		/* We always create pages read-write, so we can't get this */
 		panic("dumbvm: got VM_FAULT_READONLY\n");
-		case VM_FAULT_READ:
+	case VM_FAULT_READ:
 //		DEBUG(DB_A3, "this is a VM_FAULT_READ\n");
 //		break;
-		case VM_FAULT_WRITE:
+	case VM_FAULT_WRITE:
 //		DEBUG(DB_A3, "this is a VM_FAULT_WRITE\n");
 		break;
-		default:
+	default:
 		return EINVAL;
 	}
 
