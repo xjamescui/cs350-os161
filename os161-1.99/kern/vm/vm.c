@@ -41,7 +41,7 @@ struct page * coremap;
 int NUM_PAGES= -1;
 
 vmInitialized = 0;
-
+/*
 paddr_t alloc_page(void) {
 	//FIFO algo
 	if(vmInitialized == 1) {
@@ -74,6 +74,7 @@ void free_page(vaddr_t addr) {
 		lock_release(coremapLock);
 	}
 }
+*/
 
 #endif
 
@@ -108,6 +109,7 @@ void vm_bootstrap(void) {
 	pg.vaddr = NULL;
 	pg.vpn = -1;
 	pg.state = 0; //state should still be free
+	pg.blocksAllocated = -1;
 
 	//init coremap
 	for (int a = 0 ; a < NUM_PAGES ; a++) {
@@ -122,17 +124,65 @@ void vm_bootstrap(void) {
 
 //#if 0
 /* You will need to call this at some point */
+
+/*
+
+py code for testing
+
+def fn (n):
+    lst = [1,0,1,0,0,1,1,0,0,0,1,0,1,0,0,0,0]
+    count = 0
+    for i in range(len(lst)):
+        if lst[i] == 0:
+            count+=1
+        else:
+            count=0
+        if count == n:
+            for j in range(i-count+1,i+1):
+                lst[j] = 2
+            print(i-count+1)
+            print(lst)
+            return
+    print("cannot find block large enough!")
+
+
+*/
+
 paddr_t getppages(unsigned long npages) {
 #if OPT_A3
-	paddr_t addr;
+	if(vmInitialized) {
+		unsigned long counter = 0;
+		for(int a = 0 ; a < NUM_PAGES ; a++) {
+			if(coremap[a].state == 0) {
+				counter++;
+			}
+			else {
+				counter = 0;
+			}
+			if(counter == npages) {
+				coremap[b].blocksAllocated = (int)npages;
+				for(int b = a - counter +1; b < a+1 ; b++) {
+					coremap[b].state = 2;
+					//clean
+				}
+				return (paddr_t)coremap[a-counter+1].paddr;
+				//set pages to be used
+			}
+		}
+		return NULL; //cannot get a block of n contigous pages
+	}
+	else {
+		//TODO instead of this, we call our mem allocator
 
-	spinlock_acquire(&stealmem_lock);
+		paddr_t addr;
+
+		spinlock_acquire(&stealmem_lock);
 	
-	//TODO instead of this, we call our mem allocator
-	addr = ram_stealmem(npages);
+		addr = ram_stealmem(npages);
 
-	spinlock_release(&stealmem_lock);
-	return addr;
+		spinlock_release(&stealmem_lock);
+		return addr;
+	}
 #else
 	/* Adapt code form dumbvm or implement something new */
 	(void) npages;
@@ -163,7 +213,18 @@ vaddr_t alloc_kpages(int npages) {
 
 void free_kpages(vaddr_t addr) {
 	/* nothing - leak the memory. */
-
+	for(int a = 0 ; a< NUM_PAGES ; a++) {
+		//bitwise and addr with 0xfffff000 to align by 4kB
+		if(coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
+			for(int b = a; b < a+coremap[a].blocksAllocated ; b++) {
+				coremap[b].paddr = NULL;
+				coremap[b].state == 0;	
+				//need to ameks ure state is not fixed	
+				//addr neded to be aligned by 4k
+			}
+			
+		}
+	}
 	(void) addr;
 }
 

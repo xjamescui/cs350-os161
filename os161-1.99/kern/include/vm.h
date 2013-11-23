@@ -65,6 +65,12 @@ struct page{
 	vaddr_t vaddr;
 	paddr_t paddr;
 	int vpn;
+	
+	/**
+	 * n for n block allocated and this is the first block
+ 	 * -1 otherwise
+	 **/
+	int blocksAllocated;
 
 	/**
   	 * 0 = free
