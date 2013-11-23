@@ -60,6 +60,9 @@ as_create(void) {
 	as->as_npages2 = 0;
 	as->as_stackpbase = 0;
 
+
+	//init page table for this address space
+
 	return as;
 }
 
@@ -92,6 +95,8 @@ void as_activate(void) {
 
 void as_deactivate(void) {
 	/* nothing */
+
+	//invalidate/clean page table?
 }
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,

@@ -63,6 +63,8 @@ void free_page(vaddr_t addr);
 /* a physical page (frame) for coremap */
 struct page {
 	struct addrspace * as;
+
+	//the vaddr the frame is mapped to
 	vaddr_t vaddr;
 	paddr_t paddr;
 	int vpn;

@@ -38,6 +38,7 @@ struct lock * coremapLock;
 
 struct page * coremap;
 
+//total number of pages in physical memory
 int NUM_PAGES = -1;
 
 //whether or not vm has been bootstrapped
@@ -93,11 +94,14 @@ void free_page(vaddr_t addr) {
 void vm_bootstrap(void) {
 	/* May need to add code. */
 //#if OPT_A3
-	paddr_t* first;
-	paddr_t* firstFree;
-	paddr_t* last;
+	paddr_t p_first; //lowest physical address in RAM (bottom)
+	paddr_t p_last; //highest physical address in RAM (top)
 
-	(void) firstFree;
+	//region allocated for coremap
+	paddr_t cm_low;
+	paddr_t cm_high; //also the beginning of free memory i RAM
+
+	int dbflags = DB_A3;
 
 	coremapLock = lock_create("coremapLock");
 	//TODO maybe add check to see if we got a lock
@@ -106,27 +110,54 @@ void vm_bootstrap(void) {
 		panic("Cannot get coremapLock!");
 	}
 
-	ram_getsize(first, last);
+	ram_getsize(&p_first, &p_last);
 
-	//we are setting the start of coremap to the first available mem spot specified in first
-	coremap = (struct page *) PADDR_TO_KVADDR(first);
+	KASSERT(p_last > p_first);
 
-	NUM_PAGES = (last - first) / PAGE_SIZE;
+	//record total number of pages in physical memory
+	NUM_PAGES = (p_last - p_first) / PAGE_SIZE;
 
-	//now the first free mem page is shifted from page by the size of the coremap
-//	*first = *first + (struct page *) NUM_PAGES * sizeof(struct page);
+	DEBUG(DB_A3, "NUM_PAGES is %d\n", NUM_PAGES);
 
-	//initialize a dummy page
+	/**
+	 * Allocate space needed for our coremap
+	 * i.e.
+	 * first to firstFree = coremap
+	 * firstFree to last = free memory in RAM
+	 */
+
+	cm_low = p_first;
+	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
+	cm_high = p_first + NUM_PAGES * sizeof(struct page);
+
+	/**
+	 * Initialize contents in coremap
+	 */
+
+	//dummy page
 	struct page pg;
 	pg.as = NULL;
 	pg.paddr = 0;
 	pg.vaddr = 0;
 	pg.vpn = -1;
-	pg.state = 0; //state should still be free
 
-	//init coremap
+	KASSERT(NUM_PAGES > 0);
 	for (int a = 0; a < NUM_PAGES; a++) {
+
+		//mark pages between cm_high to top as FREE, else FIXED
+		if (((unsigned int)a >= (cm_high - cm_low) / PAGE_SIZE) && a < NUM_PAGES) {
+			pg.state = FREE;
+		}
+		else{
+			pg.state = FIXED;
+		}
+
 		coremap[a] = pg;
+	}
+
+	for (int a = 0; a < NUM_PAGES; a++) {
+
+		DEBUG(DB_A3, "coremap[%d].state=%d\n", a, coremap[a].state);
 	}
 
 	//we initialized the vm
@@ -232,16 +263,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
-		case VM_FAULT_READONLY:
+	case VM_FAULT_READONLY:
 		/* We always create pages read-write, so we can't get this */
 		panic("dumbvm: got VM_FAULT_READONLY\n");
-		case VM_FAULT_READ:
+	case VM_FAULT_READ:
 //		DEBUG(DB_A3, "this is a VM_FAULT_READ\n");
 //		break;
-		case VM_FAULT_WRITE:
+	case VM_FAULT_WRITE:
 //		DEBUG(DB_A3, "this is a VM_FAULT_WRITE\n");
 		break;
-		default:
+	default:
 		return EINVAL;
 	}
 
