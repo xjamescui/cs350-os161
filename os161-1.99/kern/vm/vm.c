@@ -161,10 +161,6 @@ void vm_bootstrap(void) {
 	//we initialized the vm
 	vmInitialized = true;
 
-	DEBUG(DB_A3, "total RAM size available is %d\n", (p_last - p_first));
-	DEBUG(DB_A3, "remain RAM size available is %d\n",
-			(p_last - p_first) - sizeof(coremap));
-
 //#endif
 }
 
@@ -260,16 +256,22 @@ vaddr_t alloc_kpages(int npages) {
 
 void free_kpages(vaddr_t addr) {
 	/* nothing - leak the memory. */
+
+	/**
+	 * TODO: remember to invalidate in coremap AND owner thread's page table
+	 */
 	for (int a = 0; a < NUM_PAGES; a++) {
 		//bitwise and addr with 0xfffff000 to align by 4kB
 		if (coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
 			for (int b = a; b < a + coremap[a].blocksAllocated; b++) {
-				coremap[b].paddr = (paddr_t) NULL;
-				coremap[b].state = 0;
-				//need to ameks ure state is not fixed	
-				//addr neded to be aligned by 4k
-			}
 
+				//need to make sure state is not fixed
+				if (coremap[b].state != FIXED) {
+					coremap[b].paddr = (paddr_t) NULL;
+					coremap[b].state = FREE;
+					//addr needed to be aligned by 4k
+				}
+			}
 		}
 	}
 	(void) addr;

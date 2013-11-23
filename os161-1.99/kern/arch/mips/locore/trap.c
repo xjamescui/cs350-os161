@@ -328,6 +328,10 @@ void mips_trap(struct trapframe *tf) {
 	cputhreads[curcpu->c_number] = (vaddr_t) curthread;
 	cpustacks[curcpu->c_number] = (vaddr_t) curthread->t_stack + STACK_SIZE;
 
+	int dbflags = DB_A3;
+	DEBUG(DB_A3, "cpustack.. = %x, tf = %x\n", cpustacks[curcpu->c_number] - 1,
+			(vaddr_t )tf);
+
 	/*
 	 * This assertion will fail if either
 	 *   (1) curthread->t_stack is corrupted, or
