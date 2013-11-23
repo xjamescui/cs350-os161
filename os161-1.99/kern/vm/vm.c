@@ -32,92 +32,107 @@ static unsigned int next_victim = 0;
 
 #endif
 
-#if OPT_A3
+//#if OPT_A3
 
 struct lock * coremapLock;
 
 struct page * coremap;
 
-int NUM_PAGES= -1;
+int NUM_PAGES = -1;
 
-vmInitialized = 0;
+//whether or not vm has been bootstrapped
+bool vmInitialized = false;
 
 paddr_t alloc_page(void) {
+
 	//FIFO algo
-	if(vmInitialized == 1) {
+	if (vmInitialized) {
 		lock_acquire(coremapLock);
-		
+
 		//add stuff here
-		for(int a = 0 ; a < NUM_PAGES ; a++) {
-			if(coremap[a].state == 0) {
+		for (int a = 0; a < NUM_PAGES; a++) {
+			if (coremap[a].state == FREE) {
 				//do something	
-			}	
-		}	
+
+				return coremap[a].vaddr;
+			}
+		}
 		lock_release(coremapLock);
 	}
+
+	return -1;
 }
 
 paddr_t alloc_pages(int npages) {
-	if(vmInitialized == 1) {
+
+	(void) npages;
+
+	if (vmInitialized) {
 		lock_acquire(coremapLock);
-		
+
 		//add stuff here	
 		lock_release(coremapLock);
 	}
+	return -1;
 }
 
 void free_page(vaddr_t addr) {
-	if(vmInitialized == 1) {
+
+	(void) addr;
+
+	if (vmInitialized == 1) {
 		lock_acquire(coremapLock);
-		
+
 		//add stuff here	
 		lock_release(coremapLock);
 	}
 }
 
-#endif
+//#endif
 
 void vm_bootstrap(void) {
 	/* May need to add code. */
-	#if OPT_A3	
+//#if OPT_A3
 	paddr_t* first;
+	paddr_t* firstFree;
 	paddr_t* last;
+
+	(void) firstFree;
+
 	coremapLock = lock_create("coremapLock");
 	//TODO maybe add check to see if we got a lock
-	if(coremapLock == NULL) {
+
+	if (coremapLock == NULL) {
 		panic("Cannot get coremapLock!");
-	}	
+	}
 
-	ram_getsize(first,last);
+	ram_getsize(first, last);
 
-	//we are setting the start of coremap tot eh first available mem spot specified in first
+	//we are setting the start of coremap to the first available mem spot specified in first
 	coremap = (struct page *) PADDR_TO_KVADDR(first);
-	
-	//paddr_t origFirst = *first;	
+
+	NUM_PAGES = (last - first) / PAGE_SIZE;
 
 	//now the first free mem page is shifted from page by the size of the coremap
-	first = first + (struct page *) numPages * sizeof(struct page);
+//	*first = *first + (struct page *) NUM_PAGES * sizeof(struct page);
 
-	//4K page size
-	NUM_PAGES = (first-last)/4096;
-
-	//initialize a dummy page	
-	struct page * pg;
+	//initialize a dummy page
+	struct page pg;
 	pg.as = NULL;
-	pg.paddr = NULL;
-	pg.vaddr = NULL;
+	pg.paddr = 0;
+	pg.vaddr = 0;
 	pg.vpn = -1;
 	pg.state = 0; //state should still be free
 
 	//init coremap
-	for (int a = 0 ; a < NUM_PAGES ; a++) {
+	for (int a = 0; a < NUM_PAGES; a++) {
 		coremap[a] = pg;
 	}
 
 	//we initialized the vm
-	vmInitialized = 1;
+	vmInitialized = true;
 
-	#endif
+//#endif
 }
 
 //#if 0
@@ -127,7 +142,7 @@ paddr_t getppages(unsigned long npages) {
 	paddr_t addr;
 
 	spinlock_acquire(&stealmem_lock);
-	
+
 	//TODO instead of this, we call our mem allocator
 	addr = ram_stealmem(npages);
 
@@ -146,9 +161,9 @@ paddr_t getppages(unsigned long npages) {
 vaddr_t alloc_kpages(int npages) {
 #if OPT_A3
 	paddr_t pa;
-	
+
 	pa = getppages(npages);
-	
+
 	if (pa == 0) {
 		return 0;
 	}
