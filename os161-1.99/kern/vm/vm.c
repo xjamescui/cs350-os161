@@ -13,6 +13,7 @@
 
 #if OPT_A3
 #include <spl.h>
+#include <mips/vm.h>
 #include <current.h>
 #include <proc.h>
 #include <kern/errno.h>
@@ -45,54 +46,53 @@ int NUM_PAGES = -1;
 bool vmInitialized = false;
 
 /*
-paddr_t alloc_page(void) {
+ paddr_t alloc_page(void) {
 
-	//FIFO algo
-	if (vmInitialized) {
-		lock_acquire(coremapLock);
+ //FIFO algo
+ if (vmInitialized) {
+ lock_acquire(coremapLock);
 
-		//add stuff here
-		for (int a = 0; a < NUM_PAGES; a++) {
-			if (coremap[a].state == FREE) {
-				//do something	
+ //add stuff here
+ for (int a = 0; a < NUM_PAGES; a++) {
+ if (coremap[a].state == FREE) {
+ //do something
 
-				return coremap[a].vaddr;
-			}
-		}
-		lock_release(coremapLock);
-	}
+ return coremap[a].vaddr;
+ }
+ }
+ lock_release(coremapLock);
+ }
 
-	return -1;
-}
+ return -1;
+ }
 
-paddr_t alloc_pages(int npages) {
+ paddr_t alloc_pages(int npages) {
 
-	(void) npages;
+ (void) npages;
 
-	if (vmInitialized) {
-		lock_acquire(coremapLock);
+ if (vmInitialized) {
+ lock_acquire(coremapLock);
 
-		//add stuff here	
-		lock_release(coremapLock);
-	}
-	return -1;
-}
+ //add stuff here
+ lock_release(coremapLock);
+ }
+ return -1;
+ }
 
-void free_page(vaddr_t addr) {
+ void free_page(vaddr_t addr) {
 
-	(void) addr;
+ (void) addr;
 
-	if (vmInitialized == 1) {
-		lock_acquire(coremapLock);
+ if (vmInitialized == 1) {
+ lock_acquire(coremapLock);
 
-		//add stuff here	
-		lock_release(coremapLock);
-	}
-}
-*/
+ //add stuff here
+ lock_release(coremapLock);
+ }
+ }
+ */
 
 //#endif
-
 void vm_bootstrap(void) {
 	/* May need to add code. */
 //#if OPT_A3
@@ -119,8 +119,6 @@ void vm_bootstrap(void) {
 	//record total number of pages in physical memory
 	NUM_PAGES = (p_last - p_first) / PAGE_SIZE;
 
-	DEBUG(DB_A3, "NUM_PAGES is %d\n", NUM_PAGES);
-
 	/**
 	 * Allocate space needed for our coremap
 	 * i.e.
@@ -129,6 +127,7 @@ void vm_bootstrap(void) {
 	 */
 
 	cm_low = p_first;
+	DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
 	cm_high = p_first + NUM_PAGES * sizeof(struct page);
 
@@ -136,32 +135,27 @@ void vm_bootstrap(void) {
 	 * Initialize contents in coremap
 	 */
 
-	//dummy page
-	struct page pg;
-	pg.as = NULL;
-	pg.paddr = 0;
-	pg.vaddr = 0;
-	pg.vpn = -1;
-	pg.state = 0; //state should still be free
-	pg.blocksAllocated = -1;
-
 	KASSERT(NUM_PAGES > 0);
 	for (int a = 0; a < NUM_PAGES; a++) {
 
+		coremap[a].as = NULL;
+		coremap[a].vaddr = (vaddr_t) &coremap[a];
+		coremap[a].paddr = (paddr_t) &coremap[a] - MIPS_KSEG0;
+		coremap[a].vpn = -1;
+		coremap[a].blocksAllocated = -1;
 		//mark pages between cm_high to top as FREE, else FIXED
-		if (((unsigned int)a >= (cm_high - cm_low) / PAGE_SIZE) && a < NUM_PAGES) {
-			pg.state = FREE;
+		if (((unsigned int) a >= (cm_high - cm_low) / PAGE_SIZE)
+				&& a < NUM_PAGES) {
+			coremap[a].state = FREE;
+		} else {
+			coremap[a].state = FIXED;
 		}
-		else{
-			pg.state = FIXED;
-		}
-
-		coremap[a] = pg;
 	}
 
 	for (int a = 0; a < NUM_PAGES; a++) {
 
-		DEBUG(DB_A3, "coremap[%d].state=%d\n", a, coremap[a].state);
+		DEBUG(DB_A3, "coremap[%d].state=%d, address =%x, paddr = %x\n", a,
+				coremap[a].state, coremap[a].vaddr, coremap[a].paddr);
 	}
 
 	//we initialized the vm
@@ -175,57 +169,57 @@ void vm_bootstrap(void) {
 
 /*
 
-py code for testing
+ py code for testing
 
-def fn (n):
-    lst = [1,0,1,0,0,1,1,0,0,0,1,0,1,0,0,0,0]
-    count = 0
-    for i in range(len(lst)):
-        if lst[i] == 0:
-            count+=1
-        else:
-            count=0
-        if count == n:
-            for j in range(i-count+1,i+1):
-                lst[j] = 2
-            print(i-count+1)
-            print(lst)
-            return
-    print("cannot find block large enough!")
+ def fn (n):
+ lst = [1,0,1,0,0,1,1,0,0,0,1,0,1,0,0,0,0]
+ count = 0
+ for i in range(len(lst)):
+ if lst[i] == 0:
+ count+=1
+ else:
+ count=0
+ if count == n:
+ for j in range(i-count+1,i+1):
+ lst[j] = 2
+ print(i-count+1)
+ print(lst)
+ return
+ print("cannot find block large enough!")
 
 
-*/
+ */
 
 paddr_t getppages(unsigned long npages) {
 #if OPT_A3
-	if(vmInitialized) {
+	int dbflags = DB_A3;
+	if (vmInitialized) {
 		unsigned long counter = 0;
-		for(int a = 0 ; a < NUM_PAGES ; a++) {
-			if(coremap[a].state == 0) {
+		for (int a = 0; a < NUM_PAGES; a++) {
+			if (coremap[a].state == FREE) {
 				counter++;
-			}
-			else {
+			} else {
 				counter = 0;
 			}
-			if(counter == npages) {
-				coremap[a-counter+1].blocksAllocated = (int)npages;
-				for(int b = a - counter +1; b < a+1 ; b++) {
-					coremap[b].state = 2;
+			if (counter == npages) {
+				coremap[a - counter + 1].blocksAllocated = (int) npages;
+				for (int b = a - counter + 1; b < a + 1; b++) {
+					coremap[b].state = CLEAN;
 					//clean
 				}
-				return (paddr_t)coremap[a-counter+1].paddr;
+				return (paddr_t) coremap[a - counter + 1].paddr;
 				//set pages to be used
 			}
 		}
-		return (paddr_t)NULL; //cannot get a block of n contigous pages
-	}
-	else {
+		DEBUG(DB_A3, "cant get a block of n contiguous pages :(\n");
+		return (paddr_t) NULL; //cannot get a block of n contigous pages
+	} else {
 		//TODO instead of this, we call our mem allocator
 
 		paddr_t addr;
 
 		spinlock_acquire(&stealmem_lock);
-	
+
 		addr = ram_stealmem(npages);
 
 		spinlock_release(&stealmem_lock);
@@ -244,9 +238,10 @@ paddr_t getppages(unsigned long npages) {
 vaddr_t alloc_kpages(int npages) {
 #if OPT_A3
 	paddr_t pa;
+	int dbflags = DB_A3;
 
 	pa = getppages(npages);
-
+	DEBUG(DB_A3, "pa is %x\n", pa);
 	if (pa == 0) {
 		return 0;
 	}
@@ -261,16 +256,22 @@ vaddr_t alloc_kpages(int npages) {
 
 void free_kpages(vaddr_t addr) {
 	/* nothing - leak the memory. */
-	for(int a = 0 ; a< NUM_PAGES ; a++) {
+
+	/**
+	 * TODO: remember to invalidate in coremap AND owner thread's page table
+	 */
+	for (int a = 0; a < NUM_PAGES; a++) {
 		//bitwise and addr with 0xfffff000 to align by 4kB
-		if(coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
-			for(int b = a; b < a+coremap[a].blocksAllocated ; b++) {
-				coremap[b].paddr = (paddr_t)NULL;
-				coremap[b].state = 0;	
-				//need to ameks ure state is not fixed	
-				//addr neded to be aligned by 4k
+		if (coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
+			for (int b = a; b < a + coremap[a].blocksAllocated; b++) {
+
+				//need to make sure state is not fixed
+				if (coremap[b].state != FIXED) {
+					coremap[b].paddr = (paddr_t) NULL;
+					coremap[b].state = FREE;
+					//addr needed to be aligned by 4k
+				}
 			}
-			
 		}
 	}
 	(void) addr;

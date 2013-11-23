@@ -162,6 +162,7 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 	struct addrspace *as;
 	int dbflags = DB_A3;
 
+	DEBUG(DB_A3, "load elf\n");
 
 	as = curproc_getas();
 

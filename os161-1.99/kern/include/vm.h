@@ -70,7 +70,7 @@ struct page {
 	int vpn;
 	
 	/**
-	 * n for n block allocated and this is the first block
+	 * n for n consecutive blocks allocated and this is the first block
  	 * -1 otherwise
 	 **/
 	int blocksAllocated;

@@ -75,6 +75,7 @@ struct proc {
 
 	/* VM */
 	struct addrspace *p_addrspace; /* virtual address space */
+	struct pt* p_page_table;
 
 	/* VFS */
 	struct vnode *p_cwd; /* current working directory */
