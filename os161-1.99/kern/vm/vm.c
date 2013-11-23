@@ -32,8 +32,92 @@ static unsigned int next_victim = 0;
 
 #endif
 
+#if OPT_A3
+
+struct lock * coremapLock;
+
+struct page * coremap;
+
+int NUM_PAGES= -1;
+
+vmInitialized = 0;
+
+paddr_t alloc_page(void) {
+	//FIFO algo
+	if(vmInitialized == 1) {
+		lock_acquire(coremapLock);
+		
+		//add stuff here
+		for(int a = 0 ; a < NUM_PAGES ; a++) {
+			if(coremap[a].state == 0) {
+				//do something	
+			}	
+		}	
+		lock_release(coremapLock);
+	}
+}
+
+paddr_t alloc_pages(int npages) {
+	if(vmInitialized == 1) {
+		lock_acquire(coremapLock);
+		
+		//add stuff here	
+		lock_release(coremapLock);
+	}
+}
+
+void free_page(vaddr_t addr) {
+	if(vmInitialized == 1) {
+		lock_acquire(coremapLock);
+		
+		//add stuff here	
+		lock_release(coremapLock);
+	}
+}
+
+#endif
+
 void vm_bootstrap(void) {
 	/* May need to add code. */
+	#if OPT_A3	
+	paddr_t* first;
+	paddr_t* last;
+	coremapLock = lock_create("coremapLock");
+	//TODO maybe add check to see if we got a lock
+	if(coremapLock == NULL) {
+		panic("Cannot get coremapLock!");
+	}	
+
+	ram_getsize(first,last);
+
+	//we are setting the start of coremap tot eh first available mem spot specified in first
+	coremap = (struct page *) PADDR_TO_KVADDR(first);
+	
+	//paddr_t origFirst = *first;	
+
+	//now the first free mem page is shifted from page by the size of the coremap
+	first = first + (struct page *) numPages * sizeof(struct page);
+
+	//4K page size
+	NUM_PAGES = (first-last)/4096;
+
+	//initialize a dummy page	
+	struct page * pg;
+	pg.as = NULL;
+	pg.paddr = NULL;
+	pg.vaddr = NULL;
+	pg.vpn = -1;
+	pg.state = 0; //state should still be free
+
+	//init coremap
+	for (int a = 0 ; a < NUM_PAGES ; a++) {
+		coremap[a] = pg;
+	}
+
+	//we initialized the vm
+	vmInitialized = 1;
+
+	#endif
 }
 
 //#if 0
@@ -43,7 +127,8 @@ paddr_t getppages(unsigned long npages) {
 	paddr_t addr;
 
 	spinlock_acquire(&stealmem_lock);
-
+	
+	//TODO instead of this, we call our mem allocator
 	addr = ram_stealmem(npages);
 
 	spinlock_release(&stealmem_lock);
@@ -61,7 +146,9 @@ paddr_t getppages(unsigned long npages) {
 vaddr_t alloc_kpages(int npages) {
 #if OPT_A3
 	paddr_t pa;
+	
 	pa = getppages(npages);
+	
 	if (pa == 0) {
 		return 0;
 	}

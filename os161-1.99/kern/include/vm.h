@@ -47,8 +47,36 @@
 
 
 #if OPT_A3
+
+bool vmInitialized;
+
 paddr_t getppages(unsigned long npages);
+
+//alloc methods
+vaddr_t alloc_page(void);
+
+vaddr_t alloc_pages(int npages);
+
+void free_page(vaddr_t addr);
+
+/* a physical page (frame) for coremap */
+struct page{
+	struct addrspace * as;
+	vaddr_t vaddr;
+	paddr_t paddr;
+	int vpn;
+
+	/**
+  	 * 0 = free
+	 * 1 = fixed
+	 * 2 = clean
+	 * 3 = dirty
+	 **/
+	byte state;
+}
+
 #endif
+
 
 /* Initialization function */
 void vm_bootstrap(void);
