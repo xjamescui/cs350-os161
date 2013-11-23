@@ -44,6 +44,7 @@ int NUM_PAGES = -1;
 //whether or not vm has been bootstrapped
 bool vmInitialized = false;
 
+/*
 paddr_t alloc_page(void) {
 
 	//FIFO algo
@@ -207,7 +208,7 @@ paddr_t getppages(unsigned long npages) {
 				counter = 0;
 			}
 			if(counter == npages) {
-				coremap[b].blocksAllocated = (int)npages;
+				coremap[a-counter+1].blocksAllocated = (int)npages;
 				for(int b = a - counter +1; b < a+1 ; b++) {
 					coremap[b].state = 2;
 					//clean
@@ -216,7 +217,7 @@ paddr_t getppages(unsigned long npages) {
 				//set pages to be used
 			}
 		}
-		return NULL; //cannot get a block of n contigous pages
+		return (paddr_t)NULL; //cannot get a block of n contigous pages
 	}
 	else {
 		//TODO instead of this, we call our mem allocator
@@ -264,8 +265,8 @@ void free_kpages(vaddr_t addr) {
 		//bitwise and addr with 0xfffff000 to align by 4kB
 		if(coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
 			for(int b = a; b < a+coremap[a].blocksAllocated ; b++) {
-				coremap[b].paddr = NULL;
-				coremap[b].state == 0;	
+				coremap[b].paddr = (paddr_t)NULL;
+				coremap[b].state = 0;	
 				//need to ameks ure state is not fixed	
 				//addr neded to be aligned by 4k
 			}
