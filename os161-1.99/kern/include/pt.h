@@ -1,21 +1,22 @@
 #include <types.h>
 
 struct pte {
-	int frameNum;
+	paddr_t paddr;
 	//add protection flags here
 	bool valid;
 	bool readOnly;
 };
 
 struct pt {
-
-	paddr_t pt_base;	//the base physical address
-	struct pte * table;
+	struct pte ** text;
+	struct pte ** data;
 };
 
-void initPT (void);
+void initPT (struct pt * pageTable);
 
-int getPTE(vaddr_t addr);
+paddr_t getPTE(vaddr_t addr);
+
+/* vaddr_t to paddr_t */
 
 /*
 
@@ -24,3 +25,4 @@ replacePage?
 makePageAvail?
 
 */
+
