@@ -308,14 +308,14 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	if (faultaddress >= vbase1 && faultaddress < vtop1) {
-		//paddr = (faultaddress - vbase1) + as->as_pbase1;
-		paddr = getPTE(as->pgTable, faultaddress);
+		paddr = (faultaddress - vbase1) + as->as_pbase1;
+//		paddr = getPTE(as->pgTable, faultaddress);
 	} else if (faultaddress >= vbase2 && faultaddress < vtop2) {
-		//paddr = (faultaddress - vbase2) + as->as_pbase2;
-		paddr = getPTE(as->pgTable, faultaddress);
+		paddr = (faultaddress - vbase2) + as->as_pbase2;
+//		paddr = getPTE(as->pgTable, faultaddress);
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
-		//paddr = (faultaddress - stackbase) + as->as_stackpbase;
-		paddr = getPTE(as->pgTable, faultaddress);
+		paddr = (faultaddress - stackbase) + as->as_stackpbase;
+//		paddr = getPTE(as->pgTable, faultaddress);
 	} else {
 		return EFAULT;
 	}
