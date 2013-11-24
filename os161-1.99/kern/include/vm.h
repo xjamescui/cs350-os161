@@ -46,7 +46,11 @@
 
 #if OPT_A3
 
+//whether or not vm has been bootstrapped
 bool vmInitialized;
+
+//total number of pages in physical memory
+int NUM_PAGES;
 
 paddr_t getppages(unsigned long npages);
 

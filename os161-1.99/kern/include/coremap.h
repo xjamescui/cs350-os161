@@ -1,6 +1,7 @@
+#include <types.h>
+
 //alloc methods
-paddr_t alloc_page(void);
-paddr_t alloc_pages(int npages);
+paddr_t cm_alloc_pages(unsigned long npages);
 void free_page(vaddr_t addr);
 
 #define FREE 0

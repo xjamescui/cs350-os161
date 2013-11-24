@@ -34,19 +34,10 @@ static unsigned int next_victim = 0;
 
 #endif
 
-#if OPT_A3
-
-//total number of pages in physical memory
-int NUM_PAGES = -1;
-
-//whether or not vm has been bootstrapped
-bool vmInitialized = false;
-
-#endif
-
 void vm_bootstrap(void) {
 	/* May need to add code. */
 #if OPT_A3
+	vmInitialized = false;
 	paddr_t p_first; //lowest physical address in RAM (bottom)
 	paddr_t p_last; //highest physical address in RAM (top)
 
@@ -55,7 +46,7 @@ void vm_bootstrap(void) {
 	paddr_t cm_high; //also the beginning of free memory i RAM
 
 	int dbflags = DB_A3;
-
+	NUM_PAGES = -1;
 	//TODO maybe add check to see if we got a lock
 
 	ram_getsize(&p_first, &p_last);
@@ -143,28 +134,12 @@ void vm_bootstrap(void) {
  */
 
 paddr_t getppages(unsigned long npages) {
+
 #if OPT_A3
 	if (vmInitialized) {
-		lock_acquire(coremapLock);
-		unsigned long counter = 0;
-		for (int a = 0; a < NUM_PAGES; a++) {
-			if (coremap[a].state == FREE || coremap[a].state == CLEAN) {
-				counter++;
-			} else {
-				counter = 0;
-			}
-			if (counter == npages) {
-				coremap[a - counter + 1].blocksAllocated = (int) npages;
-				for (int b = a - counter + 1; b < a + 1; b++) {
-					coremap[b].state = DIRTY;
-				}
-				lock_release(coremapLock);
-				return (paddr_t) coremap[a - counter + 1].paddr;
-				//set pages to be used
-			}
-		}
-		lock_release(coremapLock);
-		return (paddr_t) NULL; //cannot get a block of n contigous pages
+//		lock_acquire(coremapLock);
+		return cm_alloc_pages(npages); //use the coremap interface to handle physical pages
+//		lock_release(coremapLock);
 	} else {
 		//TODO instead of this, we call our mem allocator
 

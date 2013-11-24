@@ -2,48 +2,44 @@
 #include <lib.h>
 #include <mips/vm.h>
 #include <vm.h>
+#include <synch.h>
 
 #include "opt-A3.h"
 
 #if OPT_A3
 
 /**
- * find an available page in coremap and allocate it for use
+ * allocate npages of available pages in the coremap
+ * - synchronized
  */
-paddr_t alloc_page(void) {
+paddr_t cm_alloc_pages(unsigned long npages) {
 
-	//FIFO algo
 	if (vmInitialized) {
 		lock_acquire(coremapLock);
 
-		//add stuff here
-		for (int a = 0; a < NUM_PAGES; a++) {
-			if (coremap[a].state == FREE) {
-				//do something
+		unsigned long counter = 0;
+		KASSERT(NUM_PAGES >= 0);
 
-				return coremap[a].vaddr;
+		for (int a = 0; a < NUM_PAGES; a++) {
+			if (coremap[a].state == FREE || coremap[a].state == CLEAN) {
+				counter++;
+			} else {
+				counter = 0;
+			}
+			if (counter == npages) {
+				coremap[a - counter + 1].blocksAllocated = (int) npages;
+				for (int b = a - counter + 1; b < a + 1; b++) {
+					coremap[b].state = DIRTY;
+				}
+				lock_release(coremapLock);
+				return (paddr_t) coremap[a - counter + 1].paddr;
+				//set pages to be used
 			}
 		}
+
 		lock_release(coremapLock);
 	}
-
-	return -1;
-}
-
-/**
- * allocate npages of avaialable pages in the coremap
- */
-paddr_t alloc_pages(int npages) {
-
-	(void) npages;
-
-	if (vmInitialized) {
-		lock_acquire(coremapLock);
-
-		//add stuff here
-		lock_release(coremapLock);
-	}
-	return -1;
+	return -1; //cannot get continuous blocks of avaialable pages
 }
 
 void free_page(vaddr_t addr) {
@@ -57,6 +53,5 @@ void free_page(vaddr_t addr) {
 		lock_release(coremapLock);
 	}
 }
-
 
 #endif
