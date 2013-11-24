@@ -3,9 +3,26 @@
 void initPT(struct pt * pageTable) {
 	//find out how many pages the proc needs
 	
+	int numTextPages;	
+	int numDataPages;
+	const int numStackPages = 12;	
 	//create a pt
 
+	//should we use kmalloc?
+	pageTable->text = (struct pte *) kmalloc (numTextPages * sizeof(struct pte));
+	pageTable->data = (struct pte *) kmalloc (numDataPages * sizeof(struct pte));
+	
+	//should we have one for the stack? what's going on here?
+	//pageTable->text = (struct pte *) kmalloc (12 * sizeof(struct pte));
+
 	//for every page that it needs, create a pte and init appropriate fields
+	for (int a = 0 ; a < numTextPages ; a++) {
+		//init the ptes here
+	}
+
+	for (int a = 0 ; a < numDataPages ; a++) {
+		//init the ptes here
+	}
 }
 
 paddr_t getPTE(vaddr_t addr) {
