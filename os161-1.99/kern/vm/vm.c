@@ -13,6 +13,7 @@
 
 #if OPT_A3
 #include <spl.h>
+#include <coremap.h>
 #include <mips/vm.h>
 #include <current.h>
 #include <proc.h>
@@ -33,7 +34,7 @@ static unsigned int next_victim = 0;
 
 #endif
 
-//#if OPT_A3
+#if OPT_A3
 
 //total number of pages in physical memory
 int NUM_PAGES = -1;
@@ -41,57 +42,11 @@ int NUM_PAGES = -1;
 //whether or not vm has been bootstrapped
 bool vmInitialized = false;
 
-/*
- paddr_t alloc_page(void) {
+#endif
 
- //FIFO algo
- if (vmInitialized) {
- lock_acquire(coremapLock);
-
- //add stuff here
- for (int a = 0; a < NUM_PAGES; a++) {
- if (coremap[a].state == FREE) {
- //do something
-
- return coremap[a].vaddr;
- }
- }
- lock_release(coremapLock);
- }
-
- return -1;
- }
-
- paddr_t alloc_pages(int npages) {
-
- (void) npages;
-
- if (vmInitialized) {
- lock_acquire(coremapLock);
-
- //add stuff here
- lock_release(coremapLock);
- }
- return -1;
- }
-
- void free_page(vaddr_t addr) {
-
- (void) addr;
-
- if (vmInitialized == 1) {
- lock_acquire(coremapLock);
-
- //add stuff here
- lock_release(coremapLock);
- }
- }
- */
-
-//#endif
 void vm_bootstrap(void) {
 	/* May need to add code. */
-//#if OPT_A3
+#if OPT_A3
 	paddr_t p_first; //lowest physical address in RAM (bottom)
 	paddr_t p_last; //highest physical address in RAM (top)
 
@@ -131,8 +86,7 @@ void vm_bootstrap(void) {
 	for (int a = 0; a < NUM_PAGES; a++) {
 
 		coremap[a].as = NULL;
-//		coremap[a].vaddr = (vaddr_t) a*PAGE_SIZE;
-		coremap[a].paddr = (paddr_t) a*PAGE_SIZE;
+		coremap[a].paddr = (paddr_t) a * PAGE_SIZE;
 		coremap[a].vpn = -1;
 		coremap[a].blocksAllocated = -1;
 		//mark pages between cm_high to top as FREE, else FIXED
@@ -143,7 +97,13 @@ void vm_bootstrap(void) {
 		}
 	}
 
-	showCoremap();
+	for (int a = 0; a < NUM_PAGES; a++) {
+
+		DEBUG(DB_A3,
+				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
+				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr,
+				coremap[a].paddr, coremap[a].blocksAllocated);
+	}
 
 	//we initialized the vm
 	vmInitialized = true;
@@ -153,18 +113,7 @@ void vm_bootstrap(void) {
 		panic("Cannot get coremapLock!");
 	}
 
-//#endif
-}
-
-void showCoremap(void) {
-	int dbflags = DB_A3;
-	for (int a = 0; a < NUM_PAGES; a++) {
-
-		DEBUG(DB_A3,
-				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
-				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr, coremap[a].paddr,
-				coremap[a].blocksAllocated);
-	}
+#endif
 }
 
 //#if 0

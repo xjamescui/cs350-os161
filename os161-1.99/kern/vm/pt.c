@@ -1,22 +1,21 @@
+#include <types.h>
+#include <lib.h>
 #include <pt.h>
 #include <mips/vm.h>
 
 void initPT(struct pt * pageTable) {
-	(void) pageTable;
 	//find out how many pages the proc needs
-<<<<<<< HEAD
 	
 	int numTextPages;	
 	int numDataPages;
 	const int numStackPages = 12;	
-=======
+	(void ) numStackPages;
 
->>>>>>> 43ff101925b782a18db2d137e33cb3d9e7e5cf4f
 	//create a pt
 
 	//should we use kmalloc?
-	pageTable->text = (struct pte *) kmalloc (numTextPages * sizeof(struct pte));
-	pageTable->data = (struct pte *) kmalloc (numDataPages * sizeof(struct pte));
+	pageTable->text = kmalloc (numTextPages * sizeof(struct pte));
+	pageTable->data = kmalloc (numDataPages * sizeof(struct pte));
 	
 	//should we have one for the stack? what's going on here?
 	//pageTable->text = (struct pte *) kmalloc (12 * sizeof(struct pte));
