@@ -47,6 +47,7 @@
 
 #include "opt-A2.h"
 
+#include <vm.h>
 /*
  * In-kernel menu and command dispatcher.
  */
@@ -586,7 +587,7 @@ int cmd_dispatch(char *cmd) {
 
 			kprintf("Operation took %lu.%09lu seconds\n", (unsigned long) secs,
 					(unsigned long) nsecs);
-
+			showCoremap();
 			return result;
 		}
 	}

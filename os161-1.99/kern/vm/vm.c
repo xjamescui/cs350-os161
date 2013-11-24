@@ -35,10 +35,6 @@ static unsigned int next_victim = 0;
 
 //#if OPT_A3
 
-struct lock * coremapLock;
-
-struct page * coremap;
-
 //total number of pages in physical memory
 int NUM_PAGES = -1;
 
@@ -105,19 +101,14 @@ void vm_bootstrap(void) {
 
 	int dbflags = DB_A3;
 
-	coremapLock = lock_create("coremapLock");
 	//TODO maybe add check to see if we got a lock
-
-	if (coremapLock == NULL) {
-		panic("Cannot get coremapLock!");
-	}
 
 	ram_getsize(&p_first, &p_last);
 
 	KASSERT(p_last > p_first);
 
 	//record total number of pages in physical memory
-	NUM_PAGES = (p_last - p_first) / PAGE_SIZE;
+	NUM_PAGES = (p_last) / PAGE_SIZE;
 
 	/**
 	 * Allocate space needed for our coremap
@@ -130,6 +121,7 @@ void vm_bootstrap(void) {
 	DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
 	cm_high = p_first + NUM_PAGES * sizeof(struct page);
+	DEBUG(DB_A3, "cm_high is %x\n", cm_high);
 
 	/**
 	 * Initialize contents in coremap
@@ -139,29 +131,40 @@ void vm_bootstrap(void) {
 	for (int a = 0; a < NUM_PAGES; a++) {
 
 		coremap[a].as = NULL;
-		coremap[a].vaddr = (vaddr_t) &coremap[a];
-		coremap[a].paddr = (paddr_t) &coremap[a] - MIPS_KSEG0;
+//		coremap[a].vaddr = (vaddr_t) a*PAGE_SIZE;
+		coremap[a].paddr = (paddr_t) a*PAGE_SIZE;
 		coremap[a].vpn = -1;
 		coremap[a].blocksAllocated = -1;
 		//mark pages between cm_high to top as FREE, else FIXED
-		if (((unsigned int) a >= (cm_high - cm_low) / PAGE_SIZE)
-				&& a < NUM_PAGES) {
+		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
 			coremap[a].state = FREE;
 		} else {
 			coremap[a].state = FIXED;
 		}
 	}
 
-	for (int a = 0; a < NUM_PAGES; a++) {
-
-		DEBUG(DB_A3, "coremap[%d].state=%d, address =%x, paddr = %x\n", a,
-				coremap[a].state, coremap[a].vaddr, coremap[a].paddr);
-	}
+	showCoremap();
 
 	//we initialized the vm
 	vmInitialized = true;
+	coremapLock = lock_create("coremapLock");
+
+	if (coremapLock == NULL) {
+		panic("Cannot get coremapLock!");
+	}
 
 //#endif
+}
+
+void showCoremap(void) {
+	int dbflags = DB_A3;
+	for (int a = 0; a < NUM_PAGES; a++) {
+
+		DEBUG(DB_A3,
+				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
+				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr, coremap[a].paddr,
+				coremap[a].blocksAllocated);
+	}
 }
 
 //#if 0
@@ -192,11 +195,11 @@ void vm_bootstrap(void) {
 
 paddr_t getppages(unsigned long npages) {
 #if OPT_A3
-	int dbflags = DB_A3;
 	if (vmInitialized) {
+		lock_acquire(coremapLock);
 		unsigned long counter = 0;
 		for (int a = 0; a < NUM_PAGES; a++) {
-			if (coremap[a].state == FREE) {
+			if (coremap[a].state == FREE || coremap[a].state == CLEAN) {
 				counter++;
 			} else {
 				counter = 0;
@@ -204,14 +207,14 @@ paddr_t getppages(unsigned long npages) {
 			if (counter == npages) {
 				coremap[a - counter + 1].blocksAllocated = (int) npages;
 				for (int b = a - counter + 1; b < a + 1; b++) {
-					coremap[b].state = CLEAN;
-					//clean
+					coremap[b].state = DIRTY;
 				}
+				lock_release(coremapLock);
 				return (paddr_t) coremap[a - counter + 1].paddr;
 				//set pages to be used
 			}
 		}
-		DEBUG(DB_A3, "cant get a block of n contiguous pages :(\n");
+		lock_release(coremapLock);
 		return (paddr_t) NULL; //cannot get a block of n contigous pages
 	} else {
 		//TODO instead of this, we call our mem allocator
