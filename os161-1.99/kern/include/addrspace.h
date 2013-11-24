@@ -65,7 +65,7 @@ struct addrspace {
 	size_t as_npages2; /* size ( in pages) of data segment */
 	paddr_t as_stackpbase; /* base physical address of stack */
 
-
+	struct pt * pgTable;
 
 #endif
 };

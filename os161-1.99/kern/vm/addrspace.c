@@ -41,6 +41,7 @@
 
 #if OPT_A3 //dumbvm implementation of as_* functions just to start A3
 #include <uw-vmstats.h>
+#include <pt.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
@@ -62,6 +63,7 @@ as_create(void) {
 
 
 	//init page table for this address space
+	initPT(as->pgTable);
 
 	return as;
 }

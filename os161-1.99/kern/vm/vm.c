@@ -21,6 +21,7 @@
 #include <mips/tlb.h>
 #include <spinlock.h>
 #include <uw-vmstats.h>
+#include <pt.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
@@ -40,7 +41,7 @@ void vm_bootstrap(void) {
 	vmInitialized = false;
 	paddr_t p_first; //lowest physical address in RAM (bottom)
 	paddr_t p_last; //highest physical address in RAM (top)
-
+	//test
 	//region allocated for coremap
 	paddr_t cm_low;
 	paddr_t cm_high; //also the beginning of free memory i RAM
@@ -307,18 +308,32 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	if (faultaddress >= vbase1 && faultaddress < vtop1) {
-		paddr = (faultaddress - vbase1) + as->as_pbase1;
+		//paddr = (faultaddress - vbase1) + as->as_pbase1;
+		paddr = getPTE(as->pgTable, faultaddress);
 	} else if (faultaddress >= vbase2 && faultaddress < vtop2) {
-		paddr = (faultaddress - vbase2) + as->as_pbase2;
+		//paddr = (faultaddress - vbase2) + as->as_pbase2;
+		paddr = getPTE(as->pgTable, faultaddress);
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
-		paddr = (faultaddress - stackbase) + as->as_stackpbase;
+		//paddr = (faultaddress - stackbase) + as->as_stackpbase;
+		paddr = getPTE(as->pgTable, faultaddress);
 	} else {
+		return EFAULT;
+	}
+
+	//getPTE encountered a vaddr outside of segment range
+	if(paddr == EFAULT) {
 		return EFAULT;
 	}
 
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);
 
+	/* DAVIS 
+	 * CALL PAGE TABLE FAULT FUNCTIONS HERE
+	 * no up there
+	 */
+	//getPTE(as->pgTable, faultaddress);
+	
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
 
