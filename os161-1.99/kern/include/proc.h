@@ -80,6 +80,9 @@ struct proc {
 	/* VFS */
 	struct vnode *p_cwd; /* current working directory */
 
+	/* ELF */
+	struct vnode *p_elf;
+
 /* add more material here as needed */
 };
 
