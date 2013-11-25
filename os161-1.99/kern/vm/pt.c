@@ -1,6 +1,8 @@
 #include <types.h>
 #include <lib.h>
 #include <pt.h>
+#include <proc.h>
+#include <addrspace.h>
 #include <mips/vm.h>
 #include <kern/errno.h>
 #include <coremap.h>
@@ -33,6 +35,8 @@ void initPT(struct pt * pgTable) {
 }
 
 paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
+
+	KASSERT(curproc_getas() != NULL);
 
 	//text segment
 	vaddr_t textBegin = curproc_getas()->as_vbase_text;
@@ -92,6 +96,9 @@ paddr_t loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
 
 	//we only need one page
 	paddr_t paddr = cm_alloc_pages(1);
+
+
+
 	//copy paddr over to page table
 	int vpn = ((vaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
