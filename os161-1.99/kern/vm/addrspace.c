@@ -63,7 +63,7 @@ as_create(void) {
 
 
 	//init page table for this address space
-//	initPT(as->pgTable);
+	initPT(as->pgTable);
 
 	return as;
 }
@@ -162,6 +162,10 @@ int as_prepare_load(struct addrspace *as) {
 	if (as->as_stackpbase == 0) {
 		return ENOMEM;
 	}
+
+	//initialize/setup page table
+//	initPT(as->pgTable);
+
 
 //	as_zero_region(as->as_pbase1, as->as_npages1);
 //	as_zero_region(as->as_pbase2, as->as_npages2);

@@ -137,13 +137,15 @@ void vm_bootstrap(void) {
 paddr_t getppages(unsigned long npages) {
 
 #if OPT_A3
+	int dbflags = DB_A3;
 	if (vmInitialized) {
+		DEBUG(DB_A3, "vmInitialized = %d\n", vmInitialized);
 //		lock_acquire(coremapLock);
 		return cm_alloc_pages(npages); //use the coremap interface to handle physical pages
 //		lock_release(coremapLock);
 	} else {
 		//TODO instead of this, we call our mem allocator
-
+		DEBUG(DB_A3, "BAD \n");
 		paddr_t addr;
 
 		spinlock_acquire(&stealmem_lock);
@@ -243,7 +245,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 #if OPT_A3
 	vaddr_t vbase_text, vtop_text, vbase_data, vtop_data, stackbase, stacktop;
 	paddr_t paddr;
-//	int dbflags = DB_A3;
+	int dbflags = DB_A3;
 	int i;
 	int victim_index;
 	uint32_t ehi, elo;
@@ -305,27 +307,27 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stackbase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
 	stacktop = USERSTACK;
 
+	KASSERT(as->pgTable != NULL);
+	DEBUG(DB_A3, "as->pgTable is not empty: that is good!\n");
+
 	if (faultaddress >= vbase_text && faultaddress < vtop_text) {
-//		paddr = (faultaddress - vbase1) + as->as_pbase_text;
 		paddr = getPTE(as->pgTable, faultaddress);
 	} else if (faultaddress >= vbase_data && faultaddress < vtop_data) {
-//		paddr = (faultaddress - vbase2) + as->as_pbase_data;
 		paddr = getPTE(as->pgTable, faultaddress);
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
-//		paddr = (faultaddress - stackbase) + as->as_stackpbase;
 		paddr = getPTE(as->pgTable, faultaddress);
 	} else {
 		return EFAULT;
 	}
 
 	//getPTE encountered a vaddr outside of segment range
-	if(paddr == EFAULT) {
+	if (paddr == EFAULT) {
 		return EFAULT;
 	}
 
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);
-	
+
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
 

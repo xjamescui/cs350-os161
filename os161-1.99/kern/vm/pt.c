@@ -1,6 +1,8 @@
 #include <types.h>
 #include <lib.h>
 #include <pt.h>
+#include <proc.h>
+#include <addrspace.h>
 #include <mips/vm.h>
 #include <kern/errno.h>
 #include <coremap.h>
@@ -8,31 +10,43 @@
 void initPT(struct pt * pgTable) {
 	//find out how many pages the proc needs
 
-	int numTextPages;
-	int numDataPages;
-	const int numStackPages = 12;
-	(void) numStackPages;
+//	int numTextPages = curproc_getas()->as_npages_text;
+//	int numDataPages = curproc_getas()->as_npages_data;
+//	const int numStackPages = 12;
+//	(void) numStackPages;
 
 	//create a pt
+//	pgTable = kmalloc(sizeof(struct pt));
 
 	//should we use kmalloc?
-	pgTable->text = kmalloc(numTextPages * sizeof(struct pte));
-	pgTable->data = kmalloc(numDataPages * sizeof(struct pte));
+	pgTable->text = array_create();
+	pgTable->data = array_create();
 
 	//should we have one for the stack? what's going on here?
 	//pageTable->text = (struct pte *) kmalloc (12 * sizeof(struct pte));
 
 	//for every page that it needs, create a pte and init appropriate fields
-	for (int a = 0; a < numTextPages; a++) {
-		//init the ptes here
-	}
 
-	for (int a = 0; a < numDataPages; a++) {
-		//init the ptes here
-	}
+//	for (int a = 0; a < numTextPages; a++) {
+//		//load vaddr part only
+//		pgTable->text[a] = kmalloc(sizeof(struct pte));
+//		pgTable->text[a]->valid = false;
+//		pgTable->text[a]->readOnly = false;
+//		pgTable->text[a]->paddr = (paddr_t) NULL;
+//	}
+//
+//	for (int a = 0; a < numDataPages; a++) {
+//		pgTable->data[a] = kmalloc(sizeof(struct pte));
+//		pgTable->data[a]->valid = false;
+//		pgTable->data[a]->readOnly = false;
+//		pgTable->data[a]->paddr = (paddr_t) NULL;
+//
+//	}
 }
 
 paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
+
+	int dbflags = DB_A3;
 
 	//text segment
 	vaddr_t textBegin = curproc_getas()->as_vbase_text;
@@ -47,6 +61,8 @@ paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
 	KASSERT(dataEnd > dataBegin);
 
 	int vpn;
+	//the entry we are looking into
+	struct pte* entry = NULL;
 
 	//not in either segments
 	if (!((textBegin <= addr && addr <= textEnd)
@@ -58,26 +74,33 @@ paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
 	//in text segment
 	else if (textBegin <= addr && addr <= textEnd) {
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
-
-		if (pgTable->text[vpn]->valid) {
+		entry = (struct pte*)array_get(pgTable->text, vpn);
+		if (entry->valid) {
 			//add mapping to tlb, evict victim if necessary
 			//reexecute instruction
-			return pgTable->text[vpn]->paddr;
+
+			DEBUG(DB_A3, "addr is in text segment\n");
+
+			return entry->paddr;
 		} else {
 			//page fault
 			//get from swapfile or elf file
+			DEBUG(DB_A3, "page fault: addr is in text segment \n");
 			return loadPTE(pgTable, addr, 1, textBegin);
 		}
 	}
 	//in data segment
 	else if (dataBegin <= addr && addr <= dataEnd) {
 		vpn = ((addr - dataBegin) & PAGE_FRAME) / PAGE_SIZE;
+		entry = (struct pte*)array_get(pgTable->data, vpn);
 
-		if (pgTable->data[vpn]->valid) {
+		if (entry->valid) {
 			//add mapping to tlb, evict victim if necessary
 			//reexecute instruction
-			return pgTable->data[vpn]->paddr;
+			DEBUG(DB_A3, "addr is in data segment\n");
+			return entry->paddr;
 		} else {
+			DEBUG(DB_A3, "page fault: addr is in data segment \n");
 			return loadPTE(pgTable, addr, 0, dataBegin);
 		}
 	}
@@ -96,9 +119,9 @@ paddr_t loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
 	int vpn = ((vaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
 	if (inText) {
-		pgTable->text[vpn]->paddr = paddr;
+		((struct pte*)array_get(pgTable->text, vpn))->paddr = paddr;
 	} else {
-		pgTable->data[vpn]->paddr = paddr;
+		((struct pte*)array_get(pgTable->data, vpn))->paddr = paddr;
 	}
 
 	//something has gone wrong!
