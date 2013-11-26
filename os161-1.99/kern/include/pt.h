@@ -10,11 +10,11 @@ struct pte {
 
 struct pt {
 	//have two "mini" page tables for each segment
-	struct array* text;
-	struct array* data;
+	struct pte** text;
+	struct pte** data;
 };
 
-void initPT(struct pt * pgTable);
+void initPT(struct pt * pgTable, int numTextPages, int numDataPages);
 
 paddr_t getPTE(struct pt * pgTable, vaddr_t addr);
 

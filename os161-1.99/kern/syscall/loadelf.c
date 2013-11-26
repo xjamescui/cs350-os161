@@ -27,7 +27,6 @@
  * SUCH DAMAGE.
  */
 
-
 /*
  * Code to load an ELF-format executable into the current address space.
  *
@@ -60,6 +59,10 @@
 #include <vnode.h>
 #include <elf.h>
 #include "opt-A3.h"
+
+#if OPT_A3
+#include <pt.h>
+#endif
 
 /*
  * Load a segment at virtual address VADDR. The segment in memory
@@ -145,17 +148,14 @@
 //
 //	return result;
 //}
-
 /*
  * Load an ELF executable user program into the current address space.
  *
  * Returns the entry point (initial PC) for the program in ENTRYPOINT.
  */
-int
-load_elf(struct vnode *v, vaddr_t *entrypoint)
-{
-	Elf_Ehdr eh;   /* Executable header */
-	Elf_Phdr ph;   /* "Program header" = segment header */
+int load_elf(struct vnode *v, vaddr_t *entrypoint) {
+	Elf_Ehdr eh; /* Executable header */
+	Elf_Phdr ph; /* "Program header" = segment header */
 	int result, i;
 	struct iovec iov;
 	struct uio ku;
@@ -193,16 +193,13 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 	 * which were not in the original elf spec.)
 	 */
 
-	if (eh.e_ident[EI_MAG0] != ELFMAG0 ||
-	    eh.e_ident[EI_MAG1] != ELFMAG1 ||
-	    eh.e_ident[EI_MAG2] != ELFMAG2 ||
-	    eh.e_ident[EI_MAG3] != ELFMAG3 ||
-	    eh.e_ident[EI_CLASS] != ELFCLASS32 ||
-	    eh.e_ident[EI_DATA] != ELFDATA2MSB ||
-	    eh.e_ident[EI_VERSION] != EV_CURRENT ||
-	    eh.e_version != EV_CURRENT ||
-	    eh.e_type!=ET_EXEC ||
-	    eh.e_machine!=EM_MACHINE) {
+	if (eh.e_ident[EI_MAG0] != ELFMAG0 || eh.e_ident[EI_MAG1] != ELFMAG1
+			|| eh.e_ident[EI_MAG2] != ELFMAG2 || eh.e_ident[EI_MAG3] != ELFMAG3
+			|| eh.e_ident[EI_CLASS] != ELFCLASS32
+			|| eh.e_ident[EI_DATA] != ELFDATA2MSB
+			|| eh.e_ident[EI_VERSION] != EV_CURRENT
+			|| eh.e_version != EV_CURRENT || eh.e_type != ET_EXEC
+			|| eh.e_machine != EM_MACHINE) {
 		return ENOEXEC;
 	}
 
@@ -221,8 +218,8 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 	 * to find where the phdr starts.
 	 */
 
-	for (i=0; i<eh.e_phnum; i++) {
-		off_t offset = eh.e_phoff + i*eh.e_phentsize;
+	for (i = 0; i < eh.e_phnum; i++) {
+		off_t offset = eh.e_phoff + i * eh.e_phentsize;
 		uio_kinit(&iov, &ku, &ph, sizeof(ph), offset, UIO_READ);
 
 		result = VOP_READ(v, &ku);
@@ -237,31 +234,35 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 		}
 
 		switch (ph.p_type) {
-		    case PT_NULL: /* skip */ continue;
-		    case PT_PHDR: /* skip */ continue;
-		    case PT_MIPS_REGINFO: /* skip */ continue;
-		    case PT_LOAD: break;
-		    default:
-			kprintf("loadelf: unknown segment type %d\n", 
-				ph.p_type);
+		case PT_NULL: /* skip */
+			continue;
+		case PT_PHDR: /* skip */
+			continue;
+		case PT_MIPS_REGINFO: /* skip */
+			continue;
+		case PT_LOAD:
+			break;
+		default:
+			kprintf("loadelf: unknown segment type %d\n", ph.p_type);
 			return ENOEXEC;
 		}
 
-		result = as_define_region(as,
-					  ph.p_vaddr, ph.p_memsz,
-					  ph.p_flags & PF_R,
-					  ph.p_flags & PF_W,
-					  ph.p_flags & PF_X);
+		result = as_define_region(as, ph.p_vaddr, ph.p_memsz, ph.p_flags & PF_R,
+				ph.p_flags & PF_W, ph.p_flags & PF_X);
 		if (result) {
 			return result;
 		}
 	}
 
+#if OPT_A3
+	//initialize/ populate pt
+	initPT(as->pgTable, as->as_npages_text, as->as_npages_data);
+#endif
+
 	result = as_prepare_load(as);
 	if (result) {
 		return result;
 	}
-
 
 //	/*
 //	 * Now actually load each segment.

@@ -63,7 +63,7 @@ as_create(void) {
 
 
 	//init page table for this address space
-	initPT(as->pgTable);
+	as->pgTable = kmalloc(sizeof(struct pt));
 
 	return as;
 }
