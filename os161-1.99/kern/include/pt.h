@@ -1,5 +1,7 @@
 #include <types.h>
 
+struct vnode;
+
 struct pte {
 	paddr_t paddr;
 	//add protection flags here
@@ -24,6 +26,8 @@ paddr_t getPTE(struct pt * pgTable, vaddr_t addr);
 paddr_t loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText, vaddr_t segBegin);
 
 /* vaddr_t to paddr_t */
+
+int elf_to_ram(struct vnode* v, vaddr_t vaddr, paddr_t paddr);
 
 /*
 

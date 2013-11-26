@@ -40,11 +40,11 @@ void vm_bootstrap(void) {
 #if OPT_A3
 	vmInitialized = false;
 	paddr_t p_first; //lowest physical address in RAM (bottom)
-	paddr_t p_last; //highest physical address in RAM (top)
+	paddr_t p_last;//highest physical address in RAM (top)
 	//test
 	//region allocated for coremap
 	paddr_t cm_low;
-	paddr_t cm_high; //also the beginning of free memory i RAM
+	paddr_t cm_high;//also the beginning of free memory i RAM
 
 	int dbflags = DB_A3;
 	NUM_PAGES = -1;
@@ -139,7 +139,7 @@ paddr_t getppages(unsigned long npages) {
 #if OPT_A3
 	if (vmInitialized) {
 //		lock_acquire(coremapLock);
-		return cm_alloc_pages(npages); //use the coremap interface to handle physical pages
+		return cm_alloc_pages(npages);//use the coremap interface to handle physical pages
 //		lock_release(coremapLock);
 	} else {
 		//TODO instead of this, we call our mem allocator
@@ -243,7 +243,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 #if OPT_A3
 	vaddr_t vbase_text, vtop_text, vbase_data, vtop_data, stackbase, stacktop;
 	paddr_t paddr;
-//	int dbflags = DB_A3;
+	int dbflags = DB_A3;
 	int i;
 	int victim_index;
 	uint32_t ehi, elo;
@@ -255,14 +255,14 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
-	case VM_FAULT_READONLY:
+		case VM_FAULT_READONLY:
 		/* We always create pages read-write, so we can't get this */
 		panic("dumbvm: got VM_FAULT_READONLY\n");
-	case VM_FAULT_READ:
+		case VM_FAULT_READ:
 		break;
-	case VM_FAULT_WRITE:
+		case VM_FAULT_WRITE:
 		break;
-	default:
+		default:
 		return EINVAL;
 	}
 
@@ -298,6 +298,10 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 //	KASSERT((as->as_pbase2 & PAGE_FRAME) == as->as_pbase2);
 	KASSERT((as->as_stackpbase & PAGE_FRAME) == as->as_stackpbase);
 
+//	if(curproc_getas()->pgTable == NULL){
+//		initPT(as->pgTable);
+//	}
+
 	vbase_text = as->as_vbase_text;
 	vtop_text = vbase_text + as->as_npages_text * PAGE_SIZE;
 	vbase_data = as->as_vbase_data;
@@ -305,15 +309,34 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stackbase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
 	stacktop = USERSTACK;
 
+	//KASSERT(as->pgTable != NULL);
+
 	if (faultaddress >= vbase_text && faultaddress < vtop_text) {
-//		paddr = (faultaddress - vbase1) + as->as_pbase_text;
-		paddr = getPTE(as->pgTable, faultaddress);
+		if(as->pgTable != NULL) {
+			paddr = getPTE(as->pgTable, faultaddress);
+
+		}
+		else {
+			paddr = (faultaddress - vbase_text) + as->as_pbase_text;
+		}
 	} else if (faultaddress >= vbase_data && faultaddress < vtop_data) {
-//		paddr = (faultaddress - vbase2) + as->as_pbase_data;
-		paddr = getPTE(as->pgTable, faultaddress);
+
+		if(as->pgTable != NULL) {
+			paddr = getPTE(as->pgTable, faultaddress);
+		}
+		else {
+			paddr = (faultaddress - vbase_data) + as->as_pbase_data;
+		}
+
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
-//		paddr = (faultaddress - stackbase) + as->as_stackpbase;
-		paddr = getPTE(as->pgTable, faultaddress);
+		if(as->pgTable != NULL) {
+
+			paddr = getPTE(as->pgTable, faultaddress);
+		}
+		else {
+
+			paddr = (faultaddress - stackbase) + as->as_stackpbase;
+		}
 	} else {
 		return EFAULT;
 	}
@@ -325,7 +348,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);
-	
+
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
 
