@@ -48,6 +48,7 @@
 #include <addrspace.h>
 #include <vnode.h>
 #include "opt-A2.h"
+#include "opt-A3.h"
 
 #if OPT_A2
 #include <kern/errno.h>
@@ -94,6 +95,10 @@ proc_create(const char *name) {
 
 	/* VFS fields */
 	proc->p_cwd = NULL;
+
+#if OPT_A3
+	proc->p_elf = kmalloc(sizeof (struct elf));
+#endif
 
 	return proc;
 }
@@ -162,6 +167,11 @@ void proc_destroy(struct proc *proc) {
 #if OPT_A2
 	sem_destroy(proc->p_sem_waitforcode);
 #endif
+
+#if OPT_A3
+	kfree(proc->p_elf);
+#endif
+
 	kfree(proc->p_name);
 	kfree(proc);
 

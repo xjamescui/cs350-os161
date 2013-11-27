@@ -64,7 +64,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	//the entry we are looking into
 	struct pte* entry = NULL;
 
-	//not in either segments
+	//stack: not in either segments
 	if (!((textBegin <= addr && addr <= textEnd)
 			|| (dataBegin <= addr && addr <= dataEnd))) {
 		//kill process
@@ -109,36 +109,51 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	return NULL;
 }
 
-struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
+struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr, bool inText,
 		vaddr_t segBegin) {
-	//load page based on swapfile or ELF file
- struct vnode *v;
- int result;
- Elf_Ehdr eh; /* Executable header */
- Elf_Phdr ph; /* "Program header" = segment header */
- struct iovec iov;
- struct uio ku;
-
- //change this later
- (void)eh;
- (void)ph;
- (void)iov;
- (void)ku;
- (void)v;
-
- result = vfs_open(curproc->elf_name, O_RDONLY, 0, &v);
-  if (result) {
-   return NULL; //Some error
- }
-
-	//using cm_alloc_pages
-
+	struct vnode *v;
+	int result;
+	struct iovec iov;
+	struct uio u;
+	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 	//we only need one page
-	paddr_t paddr = cm_alloc_pages(1); 
-    //Register this physical page in the core map
+	paddr_t paddr = cm_alloc_pages(1);
+
+
+	result = vfs_open(curproc->p_elf->elf_name, O_RDONLY, 0, &v);
+	if (result) {
+		kprintf("error\n");
+		return NULL; //Some error
+	}
+
+	//load page based on swapfile or ELF file
+	iov.iov_kbase = (void *)PADDR_TO_KVADDR(paddr);
+	iov.iov_len = PAGE_SIZE;  //length of the memory space
+	u.uio_iov = &iov;
+	u.uio_iovcnt = 1;
+	u.uio_resid = PAGE_SIZE;
+	u.uio_rw = UIO_READ;
+	u.uio_space = curproc_getas();
+	u.uio_offset =
+			inText ?
+					vpn * PAGE_SIZE + curproc->p_elf->elf_text_offset :
+					vpn * PAGE_SIZE + curproc->p_elf->elf_data_offset;
+
+	result = VOP_READ(v, &u);
+	if (result) {
+		return NULL;
+	}
+
+	if (u.uio_resid != 0) {
+		/* short read; problem with executable? */
+		kprintf("ELF: short read on segment - file truncated?\n");
+		return NULL;
+	}
+
+	vfs_close(v);
+
+	//Register this physical page in the core map
 	//copy paddr over to page table with info from ELF/SWAP file
-	
-	int vpn = ((vaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
 	if (inText) {
 		pgTable->text[vpn]->paddr = paddr;
@@ -151,6 +166,5 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
 	}
 
 	//something has gone wrong!
-	// return EFAULT;
 	return NULL;
 }

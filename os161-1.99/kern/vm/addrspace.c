@@ -40,6 +40,7 @@
 #include "opt-A3.h"
 
 #if OPT_A3 //dumbvm implementation of as_* functions just to start A3
+#include <current.h>
 #include <uw-vmstats.h>
 #include <pt.h>
 
@@ -102,9 +103,9 @@ void as_deactivate(void) {
 }
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
-		int readable, int writeable, int executable) {
+		int readable, int writeable, int executable, uint32_t offset) {
 	size_t npages;
-
+	size_t sz_copy = sz;
 	/* Align the region. First, the base... */
 	sz += vaddr & ~(vaddr_t) PAGE_FRAME;
 	vaddr &= PAGE_FRAME;
@@ -122,12 +123,20 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 	if (as->as_vbase_text == 0) {
 		as->as_vbase_text = vaddr;
 		as->as_npages_text = npages;
+#if OPT_A3
+		curproc->p_elf->elf_text_offset = offset;
+		curproc->p_elf->elf_text_memsz = sz_copy ;
+#endif
 		return 0;
 	}
 
 	if (as->as_vbase_data == 0) {
 		as->as_vbase_data = vaddr;
 		as->as_npages_data = npages;
+#if OPT_A3
+		curproc->p_elf->elf_data_offset = offset;
+		curproc->p_elf->elf_data_memsz = sz_copy;
+#endif
 		return 0;
 	}
 

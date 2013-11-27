@@ -45,17 +45,19 @@
 #include <syscall.h>
 #include <test.h>
 #include "opt-A2.h"
+#include "opt-A3.h"
 
 #if OPT_A2
 
 #include <copyinout.h>
 
-int runprogram2(char *progname, unsigned long nargs, char **args, struct semaphore *progThreadSem) {
+int runprogram2(char *progname, unsigned long nargs, char **args,
+		struct semaphore *progThreadSem) {
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
 	int result;
-	(void)progThreadSem; //TODO fix later
+	(void) progThreadSem; //TODO fix later
 	int argc = (int) nargs;
 	(void) args;
 
@@ -87,8 +89,10 @@ int runprogram2(char *progname, unsigned long nargs, char **args, struct semapho
 		return result;
 	}
 
+#if OPT_A3
 	/* Done with the file now. */
- curproc->elf_name = progname;
+	curproc->p_elf->elf_name = progname;
+#endif
 	vfs_close(v);
 
 	/* Define the user stack in the address space */
@@ -172,6 +176,11 @@ int runprogram(char *progname) {
 		vfs_close(v);
 		return result;
 	}
+
+#if OPT_A3
+	/* Done with the file now. */
+	curproc->p_elf->elf_name = progname;
+#endif
 
 	/* Done with the file now. */
 	vfs_close(v);

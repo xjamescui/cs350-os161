@@ -113,7 +113,7 @@ void as_deactivate(void);
 void as_destroy(struct addrspace *);
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
-		int readable, int writeable, int executable);
+		int readable, int writeable, int executable, uint32_t offset);
 int as_prepare_load(struct addrspace *as);
 int as_complete_load(struct addrspace *as);
 int as_define_stack(struct addrspace *as, vaddr_t *initstackptr);

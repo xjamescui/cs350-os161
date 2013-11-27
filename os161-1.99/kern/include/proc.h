@@ -41,6 +41,7 @@
 #include <file_desc.h>
 #include <kern/limits.h>
 #include "opt-A2.h"
+#include "opt-A3.h"
 
 #ifdef OPT_A2
 #include <mips/trapframe.h>
@@ -58,6 +59,20 @@ struct semaphore *RaceConditionSem; //to be used in menu.c
 /*
  * Process structure.
  */
+
+#if OPT_A3
+
+/* keep track of the ELF file loaded by load_elf */
+struct elf{
+	char * elf_name;
+	uint32_t elf_text_offset;
+	size_t elf_text_memsz;
+	uint32_t elf_data_offset;
+	size_t elf_data_memsz;
+};
+
+#endif
+
 struct proc {
 
 #if OPT_A2
@@ -81,8 +96,7 @@ struct proc {
 	struct vnode *p_cwd; /* current working directory */
 
 	/* ELF */
-	struct vnode *p_elf;
- char *elf_name;
+	struct elf* p_elf;
 /* add more material here as needed */
 };
 

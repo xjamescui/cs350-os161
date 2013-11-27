@@ -308,7 +308,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	KASSERT(as->pgTable != NULL);
-	DEBUG(DB_A3, "as->pgTable is not empty: that is good!\n");
+	DEBUG(DB_A3, "fault addr = %x, as->pgTable is not empty: that is good!\n", faultaddress);
 
 	struct pte * entry;
 
@@ -325,6 +325,8 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		return EFAULT;
 	}
 
+
+	DEBUG(DB_A3, "I MADE IT!\n");
 	//getPTE encountered a vaddr outside of segment range
 	if (entry == NULL) {
 		return EFAULT;
