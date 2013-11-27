@@ -16,12 +16,12 @@ struct pt {
 
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages);
 
-paddr_t getPTE(struct pt * pgTable, vaddr_t addr);
+struct pte * getPTE(struct pt * pgTable, vaddr_t addr);
 
 // this function is called when there is a page fault, and we need to get the corresponding page from swapfile or ELF file
 // the boolean is 1 if vaddr is in text segment, 0 if it's in the only other segment (data)
 // segBegin thus corresponds with the beginning vaddr of the segment define by inText
-paddr_t loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
+struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
 		vaddr_t segBegin);
 
 /* vaddr_t to paddr_t */

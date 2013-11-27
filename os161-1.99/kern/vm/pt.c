@@ -5,7 +5,13 @@
 #include <addrspace.h>
 #include <mips/vm.h>
 #include <kern/errno.h>
+#include <kern/fcntl.h>
 #include <coremap.h>
+#include <elf.h>
+#include <uio.h>
+#include <vnode.h>
+#include <current.h>
+#include <vfs.h>
 
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
@@ -37,7 +43,7 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 	}
 }
 
-paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
+struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 
 	int dbflags = DB_A3;
 	DEBUG(DB_A3, "getPTE is called\n");
@@ -62,7 +68,7 @@ paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
 	if (!((textBegin <= addr && addr <= textEnd)
 			|| (dataBegin <= addr && addr <= dataEnd))) {
 		//kill process
-		return EFAULT;
+		return NULL;
 	}
 
 	//in text segment
@@ -75,7 +81,7 @@ paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
 
 			DEBUG(DB_A3, "addr is in text segment\n");
 
-			return entry->paddr;
+			return entry;
 		} else {
 			//page fault
 			//get from swapfile or elf file
@@ -92,32 +98,59 @@ paddr_t getPTE(struct pt* pgTable, vaddr_t addr) {
 			//add mapping to tlb, evict victim if necessary
 			//reexecute instruction
 			DEBUG(DB_A3, "addr is in data segment\n");
-			return entry->paddr;
+			return entry;
 		} else {
 			DEBUG(DB_A3, "page fault: addr is in data segment \n");
 			return loadPTE(pgTable, addr, 0, dataBegin);
 		}
 	}
 
-	return EFAULT;
+	// return EFAULT;
+	return NULL;
 }
 
-paddr_t loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
+struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, bool inText,
 		vaddr_t segBegin) {
 	//load page based on swapfile or ELF file
+ struct vnode *v;
+ int result;
+ Elf_Ehdr eh; /* Executable header */
+ Elf_Phdr ph; /* "Program header" = segment header */
+ struct iovec iov;
+ struct uio ku;
+
+ //change this later
+ (void)eh;
+ (void)ph;
+ (void)iov;
+ (void)ku;
+ (void)v;
+
+ result = vfs_open(curproc->elf_name, O_RDONLY, 0, &v);
+  if (result) {
+   return NULL; //Some error
+ }
+
 	//using cm_alloc_pages
 
 	//we only need one page
-	paddr_t paddr = cm_alloc_pages(1);
-	//copy paddr over to page table
+	paddr_t paddr = cm_alloc_pages(1); 
+    //Register this physical page in the core map
+	//copy paddr over to page table with info from ELF/SWAP file
+	
 	int vpn = ((vaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
 	if (inText) {
 		pgTable->text[vpn]->paddr = paddr;
+
+		return pgTable->text[vpn];
 	} else {
 		pgTable->data[vpn]->paddr = paddr;
+
+		return pgTable->text[vpn];
 	}
 
 	//something has gone wrong!
-	return EFAULT;
+	// return EFAULT;
+	return NULL;
 }

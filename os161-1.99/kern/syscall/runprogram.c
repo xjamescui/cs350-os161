@@ -88,6 +88,7 @@ int runprogram2(char *progname, unsigned long nargs, char **args, struct semapho
 	}
 
 	/* Done with the file now. */
+ curproc->elf_name = progname;
 	vfs_close(v);
 
 	/* Define the user stack in the address space */

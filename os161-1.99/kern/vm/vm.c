@@ -310,18 +310,23 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	KASSERT(as->pgTable != NULL);
 	DEBUG(DB_A3, "as->pgTable is not empty: that is good!\n");
 
+	struct pte * entry;
+
 	if (faultaddress >= vbase_text && faultaddress < vtop_text) {
-		paddr = getPTE(as->pgTable, faultaddress);
+		entry = getPTE(as->pgTable, faultaddress);
+		paddr = entry->paddr;
 	} else if (faultaddress >= vbase_data && faultaddress < vtop_data) {
-		paddr = getPTE(as->pgTable, faultaddress);
+		entry = getPTE(as->pgTable, faultaddress);
+		paddr = entry->paddr;
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
-		paddr = getPTE(as->pgTable, faultaddress);
+		entry = getPTE(as->pgTable, faultaddress);
+		paddr = entry->paddr;
 	} else {
 		return EFAULT;
 	}
 
 	//getPTE encountered a vaddr outside of segment range
-	if (paddr == EFAULT) {
+	if (entry == NULL) {
 		return EFAULT;
 	}
 

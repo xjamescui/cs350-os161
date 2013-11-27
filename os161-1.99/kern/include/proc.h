@@ -82,7 +82,7 @@ struct proc {
 
 	/* ELF */
 	struct vnode *p_elf;
-
+ char *elf_name;
 /* add more material here as needed */
 };
 
