@@ -89,13 +89,13 @@ void vm_bootstrap(void) {
 		}
 	}
 
-	for (int a = 0; a < NUM_PAGES; a++) {
-
-		DEBUG(DB_A3,
-				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
-				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr,
-				coremap[a].paddr, coremap[a].blocksAllocated);
-	}
+//	for (int a = 0; a < NUM_PAGES; a++) {
+//
+//		DEBUG(DB_A3,
+//				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
+//				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr,
+//				coremap[a].paddr, coremap[a].blocksAllocated);
+//	}
 
 	//we initialized the vm
 	vmInitialized = true;
@@ -145,7 +145,7 @@ paddr_t getppages(unsigned long npages) {
 //		lock_release(coremapLock);
 	} else {
 		//TODO instead of this, we call our mem allocator
-		DEBUG(DB_A3, "BAD \n");
+		DEBUG(DB_A3, "BAD: getppages() \n");
 		paddr_t addr;
 
 		spinlock_acquire(&stealmem_lock);
@@ -231,6 +231,18 @@ int tlb_get_rr_victim() {
 	int victim = next_victim;
 	next_victim = (next_victim + 1) % NUM_TLB;
 	return victim;
+}
+
+/**
+ * Prints the TLB to stdout
+ */
+void printTLB(){
+	uint32_t ehi, elo;
+	kprintf("---------Printing the TLB---------\n");
+	for(int i=0; i < NUM_TLB; i++){
+		tlb_read(&ehi, &elo, i);
+		kprintf("TLB[%d], ehi=%x, elo=%x\n", i, ehi, elo);
+	}
 }
 
 /**
@@ -331,17 +343,15 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	if (entry == NULL) {
 		return EFAULT;
 	}
-	DEBUG(DB_A3, "I MADE IT! paddr is %x\n", paddr);
 
 	printPT(curproc_getas()->pgTable);
-
 
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);
 
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
-
+	DEBUG(DB_A3, "Writing to TLB!\n");
 	for (i = 0; i < NUM_TLB; i++) {
 		tlb_read(&ehi, &elo, i);
 		if (elo & TLBLO_VALID) {
@@ -350,11 +360,13 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		ehi = faultaddress;
 		elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
+		DEBUG(DB_A3, "Got this: ehi %x  elo %x  i=%x\n", ehi, elo, i);
 		tlb_write(ehi, elo, i);
 		splx(spl);
+		printTLB();
 		return 0;
 	}
-
+    DEBUG(DB_A3, "GOtta evacuate an entry\n");
 	//all tlb entries are valid, time to do "replacement" i.e. to make room
 	victim_index = tlb_get_rr_victim();
 	tlb_write(TLBHI_INVALID(victim_index), TLBLO_INVALID(), victim_index);
@@ -366,6 +378,10 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	//stats update: TLB replace
 	vmstats_inc(VMSTAT_TLB_FAULT_REPLACE);
+
+	//print the tlb
+	printTLB();
+
 
 	splx(spl);
 	return 0;
@@ -382,6 +398,10 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 #endif
 }
 #endif /* OPT_VM */
+
+
+
+
 
 //#endif /* UW */
 

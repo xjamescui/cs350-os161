@@ -98,7 +98,6 @@ int runprogram2(char *progname, unsigned long nargs, char **args,
 	curproc->p_elf->v = v;
 	KASSERT(curproc->p_elf->v != NULL);
 #endif
-//	vfs_close(v);
 
 	/* Define the user stack in the address space */
 	result = as_define_stack(as, &stackptr);

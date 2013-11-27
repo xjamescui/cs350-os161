@@ -63,6 +63,7 @@ void tlb_read(uint32_t *entryhi, uint32_t *entrylo, uint32_t index);
 int tlb_probe(uint32_t entryhi, uint32_t entrylo);
 #if OPT_A3
 int tlb_get_rr_victim(void);
+void printTLB(void);
 #endif
 /*
  * TLB entry fields.

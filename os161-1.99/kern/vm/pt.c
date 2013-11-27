@@ -76,9 +76,9 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 
 	KASSERT(dataEnd > dataBegin);
 
-	int vpn;
 	//the entry we are looking into
 	struct pte* entry = NULL;
+	int vpn;
 
 	//not in either segments
 	if (!((textBegin <= addr && addr <= textEnd)
@@ -103,7 +103,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 		} else {
 			//page fault
 			//get from swapfile or elf file
-			DEBUG(DB_A3, "page fault: addr is in text segment \n");
+			DEBUG(DB_A3, "page fault: addr is in text segment, vpn =%d \n", vpn);
 			return loadPTE(pgTable, addr, TEXT_SEG, textBegin);
 		}
 	}
@@ -119,7 +119,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 			DEBUG(DB_A3, "addr is in data segment\n");
 			return entry;
 		} else {
-			DEBUG(DB_A3, "page fault: addr is in data segment \n");
+			DEBUG(DB_A3, "page fault: addr is in data segment, vpn = %d \n", vpn);
 			return loadPTE(pgTable, addr, DATA_SEG, dataBegin);
 		}
 	}
@@ -134,7 +134,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 			DEBUG(DB_A3, "addr is in stack segment\n");
 			return entry;
 		} else {
-			DEBUG(DB_A3, "page fault: addr is in stack segment \n");
+			DEBUG(DB_A3, "page fault: addr is in stack segment, vpn=%d \n", vpn);
 			return loadPTE(pgTable, addr, STACK_SEG, stackBase);
 		}
 	}
@@ -150,7 +150,9 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	int result;
 	struct iovec iov;
 	struct uio u;
+	off_t uio_offset;
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
+
 	//we only need one page
 	//paddr_t paddr = cm_alloc_pages(1);
 	paddr_t paddr;
@@ -168,55 +170,62 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//if not we use the non valid page
 		//if so, we need to swap out a page in pagetable
 		//then update coremap
+		kprintf("error in loadPTE\n");
 
 		//NOTE: the swapping
 	}
 
-	if (result) {
-		kprintf("error\n");
-		return NULL; //Some error
-	}
+//	if (result) {
+//		return NULL; //Some error
+//	}
 
 	DEBUG(DB_A3, "welcome to loadPTE\n");
 
 	//load page based on swapfile or ELF file
-	iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
-	iov.iov_len = PAGE_SIZE;  //length of the memory space
-	u.uio_iov = &iov;
-	u.uio_iovcnt = 1;
-	u.uio_resid = PAGE_SIZE;
-	u.uio_rw = UIO_READ;
-	u.uio_space = NULL;
-	u.uio_segflg = UIO_SYSSPACE;
+//	iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr); //where we want to transfer to
+//	iov.iov_len = PAGE_SIZE;  //length of the memory space
+//	u.uio_iov = &iov;
+//	u.uio_iovcnt = 1;
+//	u.uio_resid = PAGE_SIZE;
+//	u.uio_rw = UIO_READ;
+//	u.uio_space = NULL;
+//	u.uio_segflg = UIO_SYSSPACE;
+
 
 	switch (segmentNum) {
 	case TEXT_SEG:
-		u.uio_offset = faultaddr - segBegin + curproc->p_elf->elf_text_offset;
+		uio_offset = vpn*PAGE_SIZE + curproc->p_elf->elf_text_offset;
 		break;
 	case DATA_SEG:
-		u.uio_offset = faultaddr - segBegin + curproc->p_elf->elf_data_offset;
+		uio_offset = vpn*PAGE_SIZE + curproc->p_elf->elf_data_offset;
 		break;
-	case STACK_SEG:
-		DEBUG(DB_A3, "It's the stack's fault!\n");
-		pgTable->stack[vpn]->vaddr = faultaddr;
-		pgTable->stack[vpn]->paddr = paddr;
-		pgTable->stack[vpn]->valid = 1;
+	default:
+		break;
+	}
+
+
+	//READ from ELF if we are not dealing with something on the stack
+	uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), PAGE_SIZE, uio_offset,
+			UIO_READ);
+	if (segmentNum != STACK_SEG) {
+
+		result = VOP_READ(curproc->p_elf->v, &u);
+		if (result) {
+			DEBUG(DB_A3, "VOP_READ ERROR!!\n");
+			return NULL;
+		}
+
+		if (u.uio_resid != 0) {
+			/* short read; problem with executable? */
+			kprintf("ELF: short read on segment - file truncated?\n");
+			return NULL;
+		}
+	}
+	else{
+		//for stack
 		uiomovezeros(PAGE_SIZE, &u);
-		break;
 	}
-
-	result = VOP_READ(curproc->p_elf->v, &u);
-	if (result) {
-		DEBUG(DB_A3, "VOP_READ ERROR!!\n");
-		return NULL;
-	}
-
-	if (u.uio_resid != 0) {
-		/* short read; problem with executable? */
-		kprintf("ELF: short read on segment - file truncated?\n");
-		return NULL;
-	}
-
+	DEBUG(DB_A3, "welcome to loadPTE: read finished\n");
 //Register this physical page in the core map
 	if (segmentNum == TEXT_SEG) {
 		pgTable->text[vpn]->vaddr = faultaddr;
