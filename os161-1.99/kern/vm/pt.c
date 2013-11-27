@@ -176,6 +176,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	u.uio_resid = PAGE_SIZE;
 	u.uio_rw = UIO_READ;
 	u.uio_space = curproc_getas();
+
 	switch (segmentNum) {
 	case TEXT_SEG:
 		u.uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_text_offset;
@@ -184,7 +185,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		u.uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_data_offset;
 		break;
 	case STACK_SEG:
-
+		DEBUG(DB_A3, "It's the stack's fault!\n");
 		break;
 	}
 
