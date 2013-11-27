@@ -56,6 +56,11 @@
 #include <spl.h>
 #include <limits.h>
 #endif
+
+#if OPT_A3
+#include <vfs.h>
+#endif
+
 /*
  * The process for the kernel; this holds all the kernel-only threads.
  */
@@ -169,6 +174,8 @@ void proc_destroy(struct proc *proc) {
 #endif
 
 #if OPT_A3
+	KASSERT(proc->p_elf->v != NULL);
+	vfs_close(proc->p_elf->v);
 	kfree(proc->p_elf);
 #endif
 

@@ -293,7 +293,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	KASSERT(as->as_vbase_data != 0);
 //	KASSERT(as->as_pbase2 != 0);
 	KASSERT(as->as_npages_data != 0);
-	KASSERT(as->as_stackpbase != 0);
+//	KASSERT(as->as_stackpbase != 0);
 	KASSERT((as->as_vbase_text & PAGE_FRAME) == as->as_vbase_text);
 //	KASSERT((as->as_pbase1 & PAGE_FRAME) == as->as_pbase1);
 	KASSERT((as->as_vbase_data & PAGE_FRAME) == as->as_vbase_data);

@@ -47,6 +47,14 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 		pgTable->data[a]->paddr = (paddr_t) NULL;
 
 	}
+
+	for (int a = 0; a < DUMBVM_STACKPAGES; a++) {
+			pgTable->stack[a] = kmalloc(sizeof(struct pte));
+			pgTable->stack[a]->valid = false;
+			pgTable->stack[a]->readOnly = false;
+			pgTable->stack[a]->paddr = (paddr_t) NULL;
+
+		}
 }
 
 struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
@@ -64,9 +72,11 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	vaddr_t dataBegin = curproc_getas()->as_vbase_data;
 	vaddr_t dataEnd = dataBegin + curproc_getas()->as_npages_data * PAGE_SIZE;
 
-	vaddr_t stackBegin; //this is also constant, i think
-	vaddr_t stackEnd; //this is constant, i think
-	(void) stackEnd; //do we need stackEnd?
+	vaddr_t stackTop = USERSTACK;
+	vaddr_t stackBase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
+	DEBUG(DB_A3, " stackBegin si %x\n", stackTop);
+	DEBUG(DB_A3, "stackEnd is %x\n", stackBase);
+	(void) stackBase; //do we need stackEnd?
 
 	KASSERT(dataEnd > dataBegin);
 
@@ -74,22 +84,27 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	//the entry we are looking into
 	struct pte* entry = NULL;
 
-	//stack: not in either segments
+	DEBUG(DB_A3, "Addr is %x\n", addr);
+
+	//not in either segments
 	if (!((textBegin <= addr && addr <= textEnd)
-			|| (dataBegin <= addr && addr <= dataEnd))) {
+			|| (dataBegin <= addr && addr <= dataEnd)
+			|| (stackBase <= addr && addr <= stackTop))) {
 		//kill process
+		DEBUG(DB_A3, "BAD area\n");
 		return NULL;
 	}
 
 	//in text segment
 	else if (textBegin <= addr && addr <= textEnd) {
+		DEBUG(DB_A3, "addr is in text segment\n");
+
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->text[vpn];
 		if (entry->valid) {
 			//add mapping to tlb, evict victim if necessary
 			//reexecute instruction
 
-			DEBUG(DB_A3, "addr is in text segment\n");
 
 			return entry;
 		} else {
@@ -101,6 +116,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	}
 	//in data segment
 	else if (dataBegin <= addr && addr <= dataEnd) {
+		DEBUG(DB_A3, "addr is in data segment\n");
+
 		vpn = ((addr - dataBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->data[vpn];
 
@@ -116,8 +133,13 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	}
 	//in stack segment
 	else {
-		vpn = ((addr - stackBegin) & PAGE_FRAME) / PAGE_SIZE;
+		DEBUG(DB_A3, "addr is in stack segment\n");
+
+		vpn = ((addr - stackBase) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->stack[vpn];
+
+
+		DEBUG(DB_A3, "entry: XXXXXXXXXXXXXXXXXXXXXX");
 
 		if (entry->valid) {
 			//add mapping to tlb, evict victim if necessary
@@ -136,6 +158,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 
 struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		unsigned short int segmentNum, vaddr_t segBegin) {
+
+	int dbflags = DB_A3;
 	struct vnode *v;
 	int result;
 	struct iovec iov;
@@ -162,7 +186,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//NOTE: the swapping
 	}
 
-	result = vfs_open(curproc->p_elf->elf_name, O_RDONLY, 0, &v);
+//	result = vfs_open(curproc->p_elf->elf_name, O_RDONLY, 0, &v);
 	if (result) {
 		kprintf("error\n");
 		return NULL; //Some error
@@ -175,22 +199,25 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	u.uio_iovcnt = 1;
 	u.uio_resid = PAGE_SIZE;
 	u.uio_rw = UIO_READ;
-	u.uio_space = curproc_getas();
+	u.uio_space = NULL;
+	u.uio_segflg = UIO_SYSSPACE;
 
 	switch (segmentNum) {
 	case TEXT_SEG:
-		u.uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_text_offset;
+		u.uio_offset = faultaddr-segBegin + curproc->p_elf->elf_text_offset;
 		break;
 	case DATA_SEG:
-		u.uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_data_offset;
+		u.uio_offset = faultaddr-segBegin + curproc->p_elf->elf_data_offset;
 		break;
 	case STACK_SEG:
 		DEBUG(DB_A3, "It's the stack's fault!\n");
 		break;
 	}
 
-	result = VOP_READ(v, &u);
+	(void)v; //change later
+	result = VOP_READ(curproc->p_elf->v, &u);
 	if (result) {
+		DEBUG(DB_A3, "VOP_READ ERROR!!\n");
 		return NULL;
 	}
 
@@ -200,7 +227,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		return NULL;
 	}
 
-	vfs_close(v);
+//	vfs_close(v);
 
 	//Register this physical page in the core map
 	if (segmentNum == TEXT_SEG) {

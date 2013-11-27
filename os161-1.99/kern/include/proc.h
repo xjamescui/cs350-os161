@@ -65,6 +65,7 @@ struct semaphore *RaceConditionSem; //to be used in menu.c
 /* keep track of the ELF file loaded by load_elf */
 struct elf{
 	char * elf_name;
+	struct vnode* v;
 	uint32_t elf_text_offset;
 	size_t elf_text_memsz;
 	uint32_t elf_data_offset;

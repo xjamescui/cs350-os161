@@ -62,7 +62,6 @@ as_create(void) {
 	as->as_npages_data = 0;
 	as->as_stackpbase = 0;
 
-
 	//init page table for this address space
 	as->pgTable = kmalloc(sizeof(struct pt));
 
@@ -105,7 +104,7 @@ void as_deactivate(void) {
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		int readable, int writeable, int executable, uint32_t offset) {
 	size_t npages;
-	size_t sz_copy = sz;
+//	size_t sz_copy = sz;
 	/* Align the region. First, the base... */
 	sz += vaddr & ~(vaddr_t) PAGE_FRAME;
 	vaddr &= PAGE_FRAME;
@@ -125,7 +124,7 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		as->as_npages_text = npages;
 #if OPT_A3
 		curproc->p_elf->elf_text_offset = offset;
-		curproc->p_elf->elf_text_memsz = sz_copy ;
+//		curproc->p_elf->elf_text_memsz = sz_copy;
 #endif
 		return 0;
 	}
@@ -135,7 +134,7 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		as->as_npages_data = npages;
 #if OPT_A3
 		curproc->p_elf->elf_data_offset = offset;
-		curproc->p_elf->elf_data_memsz = sz_copy;
+//		curproc->p_elf->elf_data_memsz = sz_copy;
 #endif
 		return 0;
 	}
@@ -174,7 +173,6 @@ int as_prepare_load(struct addrspace *as) {
 
 	//initialize/setup page table
 //	initPT(as->pgTable);
-
 
 //	as_zero_region(as->as_pbase1, as->as_npages1);
 //	as_zero_region(as->as_pbase2, as->as_npages2);

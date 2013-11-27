@@ -60,6 +60,8 @@ int runprogram2(char *progname, unsigned long nargs, char **args,
 	(void) progThreadSem; //TODO fix later
 	int argc = (int) nargs;
 	(void) args;
+	int dbflags =DB_A3;
+
 
 	/* Open the file. */
 	result = vfs_open(progname, O_RDONLY, 0, &v);
@@ -85,6 +87,7 @@ int runprogram2(char *progname, unsigned long nargs, char **args,
 	result = load_elf(v, &entrypoint);
 	if (result) {
 		/* p_addrspace will go away when curproc is destroyed */
+		DEBUG(DB_A3, "VFS_CLOSE ON ERROR!\n");
 		vfs_close(v);
 		return result;
 	}
@@ -92,8 +95,10 @@ int runprogram2(char *progname, unsigned long nargs, char **args,
 #if OPT_A3
 	/* Done with the file now. */
 	curproc->p_elf->elf_name = progname;
+	curproc->p_elf->v = v;
+	KASSERT(curproc->p_elf->v != NULL);
 #endif
-	vfs_close(v);
+//	vfs_close(v);
 
 	/* Define the user stack in the address space */
 	result = as_define_stack(as, &stackptr);
@@ -180,10 +185,12 @@ int runprogram(char *progname) {
 #if OPT_A3
 	/* Done with the file now. */
 	curproc->p_elf->elf_name = progname;
+	curproc->p_elf->v = v;
+	KASSERT(curproc->p_elf->v != NULL);
 #endif
 
 	/* Done with the file now. */
-	vfs_close(v);
+//	vfs_close(v);
 
 	/* Define the user stack in the address space */
 	result = as_define_stack(as, &stackptr);
