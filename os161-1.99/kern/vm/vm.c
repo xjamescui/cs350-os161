@@ -257,12 +257,12 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
-	case VM_FAULT_READONLY:
+	case VM_FAULT_READONLY: //2
 		/* We always create pages read-write, so we can't get this */
 		panic("dumbvm: got VM_FAULT_READONLY\n");
-	case VM_FAULT_READ:
+	case VM_FAULT_READ: //0
 		break;
-	case VM_FAULT_WRITE:
+	case VM_FAULT_WRITE: //1
 		break;
 	default:
 		return EINVAL;
@@ -308,7 +308,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	KASSERT(as->pgTable != NULL);
-	DEBUG(DB_A3, "fault addr = %x, as->pgTable is not empty: that is good!\n", faultaddress);
+	DEBUG(DB_A3, "vm_fault: fault addr = %x, faulttype = %d\n", faultaddress, faulttype);
 
 	struct pte * entry;
 
@@ -326,11 +326,15 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	}
 
 
-	DEBUG(DB_A3, "I MADE IT!\n");
+
 	//getPTE encountered a vaddr outside of segment range
 	if (entry == NULL) {
 		return EFAULT;
 	}
+	DEBUG(DB_A3, "I MADE IT! paddr is %x\n", paddr);
+
+	printPT(curproc_getas()->pgTable);
+
 
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);

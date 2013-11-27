@@ -20,12 +20,11 @@
 
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
-//	const int numStackPages = 12;
-//	(void) numStackPages;
 	pgTable->numTextPages = numTextPages;
 	pgTable->numDataPages = numDataPages;
 	pgTable->text = kmalloc(numTextPages * sizeof(struct pte*));
 	pgTable->data = kmalloc(numDataPages * sizeof(struct pte*));
+	pgTable->stack = kmalloc(DUMBVM_STACKPAGES * sizeof(struct pte*));
 
 	//should we have one for the stack? what's going on here?
 	//pageTable->text = (struct pte *) kmalloc (12 * sizeof(struct pte));
@@ -49,18 +48,18 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 	}
 
 	for (int a = 0; a < DUMBVM_STACKPAGES; a++) {
-			pgTable->stack[a] = kmalloc(sizeof(struct pte));
-			pgTable->stack[a]->valid = false;
-			pgTable->stack[a]->readOnly = false;
-			pgTable->stack[a]->paddr = (paddr_t) NULL;
+		pgTable->stack[a] = kmalloc(sizeof(struct pte));
+		pgTable->stack[a]->valid = false;
+		pgTable->stack[a]->readOnly = false;
+		pgTable->stack[a]->paddr = (paddr_t) NULL;
 
-		}
+	}
 }
 
 struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 
 	int dbflags = DB_A3;
-	DEBUG(DB_A3, "getPTE is called\n");
+	DEBUG(DB_A3, "getPTE is called: faultaddr=%x\n", addr);
 
 	//text segment
 	vaddr_t textBegin = curproc_getas()->as_vbase_text;
@@ -74,9 +73,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 
 	vaddr_t stackTop = USERSTACK;
 	vaddr_t stackBase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
-	DEBUG(DB_A3, " stackBegin si %x\n", stackTop);
-	DEBUG(DB_A3, "stackEnd is %x\n", stackBase);
-	(void) stackBase; //do we need stackEnd?
 
 	KASSERT(dataEnd > dataBegin);
 
@@ -84,28 +80,25 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	//the entry we are looking into
 	struct pte* entry = NULL;
 
-	DEBUG(DB_A3, "Addr is %x\n", addr);
-
 	//not in either segments
 	if (!((textBegin <= addr && addr <= textEnd)
 			|| (dataBegin <= addr && addr <= dataEnd)
 			|| (stackBase <= addr && addr <= stackTop))) {
 		//kill process
-		DEBUG(DB_A3, "BAD area\n");
+		DEBUG(DB_A3, "faultaddr: BAD area\n");
 		return NULL;
 	}
 
 	//in text segment
 	else if (textBegin <= addr && addr <= textEnd) {
-		DEBUG(DB_A3, "addr is in text segment\n");
 
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->text[vpn];
 		if (entry->valid) {
 			//add mapping to tlb, evict victim if necessary
 			//reexecute instruction
-
-
+			KASSERT(entry != NULL);
+			DEBUG(DB_A3, "addr is in text segment\n");
 			return entry;
 		} else {
 			//page fault
@@ -116,7 +109,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	}
 	//in data segment
 	else if (dataBegin <= addr && addr <= dataEnd) {
-		DEBUG(DB_A3, "addr is in data segment\n");
 
 		vpn = ((addr - dataBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->data[vpn];
@@ -133,13 +125,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	}
 	//in stack segment
 	else {
-		DEBUG(DB_A3, "addr is in stack segment\n");
-
 		vpn = ((addr - stackBase) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->stack[vpn];
-
-
-		DEBUG(DB_A3, "entry: XXXXXXXXXXXXXXXXXXXXXX");
 
 		if (entry->valid) {
 			//add mapping to tlb, evict victim if necessary
@@ -148,7 +135,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 			return entry;
 		} else {
 			DEBUG(DB_A3, "page fault: addr is in stack segment \n");
-			return loadPTE(pgTable, addr, STACK_SEG, dataBegin);
+			return loadPTE(pgTable, addr, STACK_SEG, stackBase);
 		}
 	}
 
@@ -160,7 +147,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		unsigned short int segmentNum, vaddr_t segBegin) {
 
 	int dbflags = DB_A3;
-	struct vnode *v;
 	int result;
 	struct iovec iov;
 	struct uio u;
@@ -186,11 +172,12 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//NOTE: the swapping
 	}
 
-//	result = vfs_open(curproc->p_elf->elf_name, O_RDONLY, 0, &v);
 	if (result) {
 		kprintf("error\n");
 		return NULL; //Some error
 	}
+
+	DEBUG(DB_A3, "welcome to loadPTE\n");
 
 	//load page based on swapfile or ELF file
 	iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
@@ -204,17 +191,20 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	switch (segmentNum) {
 	case TEXT_SEG:
-		u.uio_offset = faultaddr-segBegin + curproc->p_elf->elf_text_offset;
+		u.uio_offset = faultaddr - segBegin + curproc->p_elf->elf_text_offset;
 		break;
 	case DATA_SEG:
-		u.uio_offset = faultaddr-segBegin + curproc->p_elf->elf_data_offset;
+		u.uio_offset = faultaddr - segBegin + curproc->p_elf->elf_data_offset;
 		break;
 	case STACK_SEG:
 		DEBUG(DB_A3, "It's the stack's fault!\n");
+		pgTable->stack[vpn]->vaddr = faultaddr;
+		pgTable->stack[vpn]->paddr = paddr;
+		pgTable->stack[vpn]->valid = 1;
+		uiomovezeros(PAGE_SIZE, &u);
 		break;
 	}
 
-	(void)v; //change later
 	result = VOP_READ(curproc->p_elf->v, &u);
 	if (result) {
 		DEBUG(DB_A3, "VOP_READ ERROR!!\n");
@@ -227,27 +217,56 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		return NULL;
 	}
 
-//	vfs_close(v);
-
-	//Register this physical page in the core map
+//Register this physical page in the core map
 	if (segmentNum == TEXT_SEG) {
+		pgTable->text[vpn]->vaddr = faultaddr;
 		pgTable->text[vpn]->paddr = paddr;
-
+		pgTable->text[vpn]->valid = 1;
 		return pgTable->text[vpn];
 	} else if (segmentNum == DATA_SEG) {
+		pgTable->data[vpn]->vaddr = faultaddr;
 		pgTable->data[vpn]->paddr = paddr;
-
-		return pgTable->text[vpn];
+		pgTable->data[vpn]->valid = 1;
+		return pgTable->data[vpn];
 	} else if (segmentNum == STACK_SEG) {
+		pgTable->stack[vpn]->vaddr = faultaddr;
 		pgTable->stack[vpn]->paddr = paddr;
-		return pgTable->text[vpn];
+		pgTable->stack[vpn]->valid = 1;
+		return pgTable->stack[vpn];
 	} else {
 		//something wrong!
 		return NULL;
 	}
 
-	//something has gone wrong!
+//something has gone wrong!
 	return NULL;
+}
+
+void printPT(struct pt* pgTable) {
+
+	kprintf("----Printing Page Table---------\n");
+
+	for (unsigned int a = 0; a < curproc_getas()->as_npages_text; a++) {
+		//load vaddr part only
+
+		kprintf("textPTE[%d] vaddr: %x, paddr: %x, valid: %d\n", a,
+				pgTable->text[a]->vaddr, pgTable->text[a]->paddr,
+				pgTable->text[a]->valid);
+	}
+
+	for (unsigned int a = 0; a < curproc_getas()->as_npages_data; a++) {
+		kprintf("dataPTE[%d] vaddr: %x, paddr: %x, valid: %d\n", a,
+				pgTable->data[a]->vaddr, pgTable->data[a]->paddr,
+				pgTable->data[a]->valid);
+
+	}
+
+	for (unsigned int a = 0; a < DUMBVM_STACKPAGES; a++) {
+		kprintf("stackPTE[%d] vaddr: %x, paddr: %x, valid: %d\n", a,
+				pgTable->stack[a]->vaddr, pgTable->stack[a]->paddr,
+				pgTable->stack[a]->valid);
+	}
+
 }
 
 //We use a random page replacement algorithm, as it is actually faster than FIFO in practise.
@@ -255,13 +274,11 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 //inserted into the page table like FIFO needs.
 //NOTE page replacement will  
 int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum) {
-	//JAMES, PLEASE DEFINE MACROS FOR THESE
-	//text segment = 0, data = 1, stack = 2
-	if (segmentNum == 0) {
+	if (segmentNum == TEXT_SEG) {
 		return random() % pgTable->numTextPages;
-	} else if (segmentNum == 1) {
+	} else if (segmentNum == DATA_SEG) {
 		return random() % pgTable->numDataPages;
-	} else if (segmentNum == 2) {
+	} else if (segmentNum == STACK_SEG) {
 		return random() % DUMBVM_STACKPAGES;
 	} else {
 		//we shouldn't get here

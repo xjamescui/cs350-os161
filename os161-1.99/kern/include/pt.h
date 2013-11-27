@@ -27,6 +27,8 @@ struct pte * getPTE(struct pt * pgTable, vaddr_t addr);
 struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, unsigned short int segmentNum,
 		vaddr_t segBegin);
 
+void printPT(struct pt* pgTable);
+
 
 //We use a random page replacement algorithm, as it is actually faster than FIFO in practise.
 //it is also by far the simplest replacement algorithm to use as we needn't keep track of the order of pages
