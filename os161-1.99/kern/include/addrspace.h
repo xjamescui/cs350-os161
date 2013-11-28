@@ -36,6 +36,7 @@
 
 #include <vm.h>
 #include "opt-dumbvm.h"
+#include "opt-A3.h"
 
 struct vnode;
 
@@ -113,10 +114,14 @@ void as_deactivate(void);
 void as_destroy(struct addrspace *);
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
-		int readable, int writeable, int executable, uint32_t offset);
+		int readable, int writeable, int executable, uint32_t offset, size_t fsz);
 int as_prepare_load(struct addrspace *as);
 int as_complete_load(struct addrspace *as);
 int as_define_stack(struct addrspace *as, vaddr_t *initstackptr);
+
+#if OPT_A3
+void as_zero_region(paddr_t paddr, unsigned npages);
+#endif
 
 /*
  * Functions in loadelf.c

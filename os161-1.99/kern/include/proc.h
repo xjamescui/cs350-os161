@@ -67,7 +67,11 @@ struct elf{
 	char * elf_name;
 	struct vnode* v;
 	uint32_t elf_text_offset;
+	uint32_t elf_text_memsz;
+	uint32_t elf_text_filesz;
 	uint32_t elf_data_offset;
+	uint32_t elf_data_memsz;
+	uint32_t elf_data_filesz;
 };
 
 #endif

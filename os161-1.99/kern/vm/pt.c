@@ -15,7 +15,6 @@
 
 #define DUMBVM_STACKPAGES    12
 
-
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
 	pgTable->numTextPages = numTextPages;
@@ -102,7 +101,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		} else {
 			//page fault
 			//get from swapfile or elf file
-			DEBUG(DB_A3, "page fault: addr is in text segment, vpn =%d \n", vpn);
+			DEBUG(DB_A3, "page fault: addr is in text segment, vpn =%d \n",
+					vpn);
 			return loadPTE(pgTable, addr, TEXT_SEG, textBegin);
 		}
 	}
@@ -118,7 +118,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 			DEBUG(DB_A3, "addr is in data segment\n");
 			return entry;
 		} else {
-			DEBUG(DB_A3, "page fault: addr is in data segment, vpn = %d \n", vpn);
+			DEBUG(DB_A3, "page fault: addr is in data segment, vpn = %d \n",
+					vpn);
 			return loadPTE(pgTable, addr, DATA_SEG, dataBegin);
 		}
 	}
@@ -133,7 +134,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 			DEBUG(DB_A3, "addr is in stack segment\n");
 			return entry;
 		} else {
-			DEBUG(DB_A3, "page fault: addr is in stack segment, vpn=%d \n", vpn);
+			DEBUG(DB_A3, "page fault: addr is in stack segment, vpn=%d \n",
+					vpn);
 			return loadPTE(pgTable, addr, STACK_SEG, stackBase);
 		}
 	}
@@ -150,6 +152,9 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct iovec iov;
 	struct uio u;
 	off_t uio_offset;
+//	size_t fillamt;
+	size_t filesize;
+	size_t loadsize;
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
 	/*
@@ -195,7 +200,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	}
 
-
 	DEBUG(DB_A3, "welcome to loadPTE\n");
 	DEBUG(DB_A3, "addr is %x\n", paddr);
 
@@ -203,11 +207,13 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	switch (segmentNum) {
 	case TEXT_SEG:
-		uio_offset = vpn*PAGE_SIZE + curproc->p_elf->elf_text_offset;
+		uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_text_offset;
+		filesize = curproc->p_elf->elf_text_filesz;
 //		uio_offset = curproc->p_elf->elf_text_offset + faultaddr - segBegin;
 		break;
 	case DATA_SEG:
-		uio_offset = vpn*PAGE_SIZE + curproc->p_elf->elf_data_offset;
+		uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_data_offset;
+		filesize = curproc->p_elf->elf_data_filesz;
 //		uio_offset = curproc->p_elf->elf_data_offset + faultaddr - segBegin;
 		break;
 	default:
@@ -215,10 +221,18 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	}
 
 
-	//READ from ELF if we are not dealing with something on the stack
+	//zero out the entire page first before we use it
 	uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), PAGE_SIZE, uio_offset,
 			UIO_READ);
+	uiomovezeros(PAGE_SIZE, &u);
+
 	if (segmentNum != STACK_SEG) {
+		//READ from ELF if we are not dealing with something on the stack
+
+		loadsize = PAGE_SIZE > filesize ? filesize : PAGE_SIZE;
+
+		uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), loadsize, uio_offset,
+					UIO_READ);
 
 		result = VOP_READ(curproc->p_elf->v, &u);
 		if (result) {
@@ -228,11 +242,20 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
-			kprintf("ELF: short read on segment - file truncated?\n");
+			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
+			kprintf("uio_offset=%d, uio_resid is %d\n", (int)uio_offset, u.uio_resid);
 			return NULL;
 		}
-	}
-	else{
+
+//		//check capacity used in page
+//		fillamt = PAGE_SIZE - filesize;
+//		if(fillamt > 0){
+//			//fill unused space in page with zeroes
+//			u.uio_resid += fillamt;
+//			u.uio_iov->iov_len+=fillamt;
+//			uiomovezeros(fillamt, &u);
+//		}
+	} else {
 		//for stack
 		uiomovezeros(PAGE_SIZE, &u);
 	}
@@ -263,7 +286,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 }
 
 void printPT(struct pt* pgTable) {
-(void) pgTable;
+	(void) pgTable;
 	kprintf("----Printing Page Table---------\n");
 
 	for (unsigned int a = 0; a < curproc_getas()->as_npages_text; a++) {
