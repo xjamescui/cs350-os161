@@ -3,6 +3,7 @@
 //alloc methods
 paddr_t cm_alloc_pages(unsigned long npages);
 void free_page(vaddr_t addr);
+int getVictimIndex();
 
 #define FREE 0
 #define FIXED 1
