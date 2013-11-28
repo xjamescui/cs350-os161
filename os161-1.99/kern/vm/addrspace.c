@@ -177,7 +177,7 @@ int as_prepare_load(struct addrspace *as) {
 
 //	as_zero_region(as->as_pbase1, as->as_npages1);
 //	as_zero_region(as->as_pbase2, as->as_npages2);
-	as_zero_region(as->as_stackpbase, DUMBVM_STACKPAGES);
+//	as_zero_region(as->as_stackpbase, DUMBVM_STACKPAGES);
 
 	return 0;
 }

@@ -4,6 +4,7 @@
 paddr_t cm_alloc_pages(unsigned long npages);
 void free_page(vaddr_t addr);
 int getVictimIndex(void);
+void printCM(void);
 
 #define FREE 0
 #define FIXED 1
@@ -23,7 +24,7 @@ struct page {
 	 * n for n consecutive blocks allocated and this is the first block
  	 * -1 otherwise
 	 **/
-	volatile int blocksAllocated;
+	volatile int pagesAllocated;
 
 	/**
 	 * 0 = free

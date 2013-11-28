@@ -82,7 +82,7 @@ void vm_bootstrap(void) {
 		coremap[a].as = NULL;
 		coremap[a].paddr = (paddr_t) a * PAGE_SIZE;
 		coremap[a].vpn = -1;
-		coremap[a].blocksAllocated = -1;
+		coremap[a].pagesAllocated = -1;
 		coremap[a].id = 0;
 		//mark pages between cm_high to top as FREE, else FIXED
 		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
@@ -91,14 +91,6 @@ void vm_bootstrap(void) {
 			coremap[a].state = FIXED;
 		}
 	}
-
-//	for (int a = 0; a < NUM_PAGES; a++) {
-//
-//		DEBUG(DB_A3,
-//				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
-//				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr,
-//				coremap[a].paddr, coremap[a].blocksAllocated);
-//	}
 
 	//we initialized the vm
 	vmInitialized = true;
@@ -188,7 +180,7 @@ void free_kpages(vaddr_t addr) {
 	for (int a = 0; a < NUM_PAGES; a++) {
 		//bitwise and addr with 0xfffff000 to align by 4kB
 		if (coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
-			for (int b = a; b < a + coremap[a].blocksAllocated; b++) {
+			for (int b = a; b < a + coremap[a].pagesAllocated; b++) {
 
 				//need to make sure state is not fixed
 				if (coremap[b].state != FIXED) {
