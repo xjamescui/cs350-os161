@@ -3,7 +3,7 @@
 //alloc methods
 paddr_t cm_alloc_pages(unsigned long npages);
 void free_page(vaddr_t addr);
-int getVictimIndex();
+int getVictimIndex(void);
 
 #define FREE 0
 #define FIXED 1
@@ -32,6 +32,13 @@ struct page {
 	 * 3 = dirty
 	 **/
 	volatile int state;
+
+	//this variable is used in the page replacement algorithm
+	//a global variable is used to assign ids in sequential fashion
+	//and the variable simply choose the smallest id that meets criteria
+	//to evict.
+	//currently, ids are not reused and will cause an overflow when we hit 2^32
+	volatile unsigned int id;
 };
 
 

@@ -8,9 +8,15 @@
 
 #if OPT_A3
 
+//we assign this to the id of the page allocated
+unsigned int idCounter = 1;
+
 /**
  * allocate npages of available pages in the coremap
  * - synchronized
+ * I think currently, we  only call this with param: 1
+ * let's keep it that way, I don't think allocating multiple pages may
+ * work with some of the stuff we've got here
  */
 paddr_t cm_alloc_pages(unsigned long npages) {
 
@@ -28,8 +34,20 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 			}
 			if (counter == npages) {
 				coremap[a - counter + 1].blocksAllocated = (int) npages;
+				coremap[a - counter + 1].id = idCounter;
+				idCounter++;
+
+				if(idCounter == 0xFFFFFFFF) {
+					//we've set the max id, reset all ids to zero
+					for(int i = 0 ; i < NUM_PAGES ; i++) {
+						coremap[i].id = 0;
+					}
+					idCounter = 1;
+				}
+
 				for (int b = a - counter + 1; b < a + 1; b++) {
-					coremap[b].state = DIRTY;
+					// coremap[b].state = DIRTY;
+					coremap[b].state = CLEAN; //should be clean instead
 				}
 				lock_release(coremapLock);
 				return (paddr_t) coremap[a - counter + 1].paddr;
@@ -54,16 +72,23 @@ void free_page(vaddr_t addr) {
 	}
 }
 
-int getVictimIndex() {
-	//we need to change this, this will give us the first page that is not fixed everytime, which in a lot of cases is teh same page.
+int getVictimIndex(void) {
+	unsigned int min = 0xFFFFFFFF;
+	int indexOfMin;
+
 	for(int a = 0 ; a < NUM_PAGES ; a++) {
-		if(coremap[a]->state == FIXED) {
+		if(coremap[a].state == FIXED) {
 			continue;
 		}
 		else {
-			return a;
+			if(coremap[a].id < min) {
+				min = coremap[a].id;
+				indexOfMin = a;
+			}
 		}
 	}
+
+	return indexOfMin;
 }
 
 #endif

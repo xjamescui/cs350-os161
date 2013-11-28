@@ -152,6 +152,23 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	off_t uio_offset;
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
+	/*
+	Page fault
+	 if no mem
+	  load new page from swap, if can't find, find in elf ***
+	  get victim in CM
+	  swap out victim, invalidate pt entry
+	  evict victim from CM
+	  load new page into evicted slot
+	  update pt and CM***
+	  return paddr_t***
+	 if mem avail
+	  load new page from elf***
+	  update pt and CM***
+	  return paddr_t***
+	*/
+
+
 	//we only need one page
 	//paddr_t paddr = cm_alloc_pages(1);
 	paddr_t paddr;
@@ -165,13 +182,17 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	//no more physical ram available
 	if (allocPageResult == -1) {
-		//the coremap contains all valid pages
-		//need to find a victim ni coremap to evict and
+		//we ran out of physical memory
+		//need to find a victim in coremap to evict and
 		//invalidate the corresponding pte in page table of the process
 		//owning the page
-		kprintf("error in loadPTE\n");
 
+		kprintf("error in loadPTE\n");
 		//NOTE: the swapping
+	}
+	else {
+		// we can get a physical page, we haven't run out of memory yet.
+
 	}
 
 

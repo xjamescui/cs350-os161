@@ -81,6 +81,7 @@ void vm_bootstrap(void) {
 		coremap[a].paddr = (paddr_t) a * PAGE_SIZE;
 		coremap[a].vpn = -1;
 		coremap[a].blocksAllocated = -1;
+		coremap[a].id = 0;
 		//mark pages between cm_high to top as FREE, else FIXED
 		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
 			coremap[a].state = FREE;
