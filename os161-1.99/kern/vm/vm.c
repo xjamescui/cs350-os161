@@ -22,6 +22,8 @@
 #include <spinlock.h>
 #include <uw-vmstats.h>
 #include <pt.h>
+#include <synch.h>
+#include <sys_functions.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
@@ -259,18 +261,22 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 
 
-
 	faultaddress &= PAGE_FRAME;
 
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
 	case VM_FAULT_READONLY: //2
-		/* We always create pages read-write, so we can't get this */
+		//exit the process (should not let it crash kernel)
+		sys__exit(-1);
+
+		//only panic if sys__exit() fails
 		panic("dumbvm: got VM_FAULT_READONLY\n");
 	case VM_FAULT_READ: //0
+		vmstats_inc(VMSTAT_TLB_FAULT);
 		break;
 	case VM_FAULT_WRITE: //1
+		vmstats_inc(VMSTAT_TLB_FAULT);
 		break;
 	default:
 		return EINVAL;
@@ -352,21 +358,23 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		ehi = faultaddress;
 		elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
+		vmstats_inc(VMSTAT_TLB_FAULT_FREE);
 		tlb_write(ehi, elo, i);
 		splx(spl);
 		return 0;
 	}
+	//stats update: TLB replace
+	vmstats_inc(VMSTAT_TLB_FAULT_REPLACE);
+
 	//all tlb entries are valid, time to do "replacement" i.e. to make room
 	victim_index = tlb_get_rr_victim();
 	tlb_write(TLBHI_INVALID(victim_index), TLBLO_INVALID(), victim_index);
 
 	//write to the victim's entry we just invalidated
 	ehi = faultaddress;
-	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+	elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
 	tlb_write(ehi, elo, i);
 
-	//stats update: TLB replace
-	vmstats_inc(VMSTAT_TLB_FAULT_REPLACE);
 
 	splx(spl);
 	return 0;

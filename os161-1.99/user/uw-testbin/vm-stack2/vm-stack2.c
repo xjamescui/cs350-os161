@@ -28,7 +28,7 @@ main()
 	/* check the uninitialized array before initialization */
 	for (i=0; i<UNINIT_ARRAY_ELEMS; i++) {
 		if (uninit[i] != 0) {
-			printf("FAILED uninit[%d] = %u != %d\n", i, uninit[i], 0);
+			printf("A FAILED uninit[%d] = %u != %d\n", i, uninit[i], 0);
 			exit(1);
 		}
 	}
@@ -54,7 +54,7 @@ main()
 	/* check the uninitialized array after initialization */
 	for (i=0; i<UNINIT_ARRAY_ELEMS; i++) {
 		if (uninit[i] != i * 100) {
-			printf("FAILED uninit[%d] = %u != %d\n", i, uninit[i], i);
+			printf("B FAILED uninit[%d] = %u != %d\n", i, uninit[i], i);
 			exit(1);
 		}
 	}

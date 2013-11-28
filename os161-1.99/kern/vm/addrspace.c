@@ -102,7 +102,7 @@ void as_deactivate(void) {
 }
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
-		int readable, int writeable, int executable, uint32_t offset) {
+		int readable, int writeable, int executable, uint32_t offset, size_t fsz) {
 	size_t npages;
 	/* Align the region. First, the base... */
 	sz += vaddr & ~(vaddr_t) PAGE_FRAME;
@@ -123,6 +123,9 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		as->as_npages_text = npages;
 #if OPT_A3
 		curproc->p_elf->elf_text_offset = offset;
+		curproc->p_elf->elf_text_memsz = sz;
+		curproc->p_elf->elf_text_filesz = fsz;
+		kprintf("text filesize is %x\n", fsz);
 #endif
 		return 0;
 	}
@@ -132,6 +135,9 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		as->as_npages_data = npages;
 #if OPT_A3
 		curproc->p_elf->elf_data_offset = offset;
+		curproc->p_elf->elf_data_memsz = sz;
+		curproc->p_elf->elf_data_filesz = fsz;
+		kprintf("data filesize is %x\n", fsz);
 #endif
 		return 0;
 	}
@@ -143,7 +149,7 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 	return EUNIMP;
 }
 
-static
+
 void as_zero_region(paddr_t paddr, unsigned npages) {
 	bzero((void *) PADDR_TO_KVADDR(paddr), npages * PAGE_SIZE);
 }
