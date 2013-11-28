@@ -55,6 +55,7 @@ void free_page(vaddr_t addr) {
 }
 
 int getVictimIndex() {
+	//we need to change this, this will give us the first page that is not fixed everytime, which in a lot of cases is teh same page.
 	for(int a = 0 ; a < NUM_PAGES ; a++) {
 		if(coremap[a]->state == FIXED) {
 			continue;
