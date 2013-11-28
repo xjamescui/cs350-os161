@@ -14,9 +14,7 @@
 #include <vfs.h>
 
 #define DUMBVM_STACKPAGES    12
-#define DATA_SEG 0
-#define TEXT_SEG 1
-#define STACK_SEG 2
+
 
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
@@ -56,9 +54,9 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 	}
 }
 
-struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
+struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 
-	int dbflags = DB_A3;
+//	int dbflags = DB_A3;
 	DEBUG(DB_A3, "getPTE is called: faultaddr=%x\n", addr);
 
 	//text segment
@@ -92,6 +90,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 	//in text segment
 	else if (textBegin <= addr && addr <= textEnd) {
 
+		*inText = 1;
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->text[vpn];
 		if (entry->valid) {
@@ -146,7 +145,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr) {
 struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		unsigned short int segmentNum, vaddr_t segBegin) {
 
-	int dbflags = DB_A3;
+//	int dbflags = DB_A3;
 	int result;
 	struct iovec iov;
 	struct uio u;
@@ -156,7 +155,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	//we only need one page
 	//paddr_t paddr = cm_alloc_pages(1);
 	paddr_t paddr;
-	long allocPageResult = cm_alloc_pages(1);
+	long allocPageResult = getppages(1);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 		//ALERT: there may be a bug here
@@ -175,29 +174,20 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//NOTE: the swapping
 	}
 
-//	if (result) {
-//		return NULL; //Some error
-//	}
 
 	DEBUG(DB_A3, "welcome to loadPTE\n");
+	DEBUG(DB_A3, "addr is %x\n", paddr);
 
 	//load page based on swapfile or ELF file
-//	iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr); //where we want to transfer to
-//	iov.iov_len = PAGE_SIZE;  //length of the memory space
-//	u.uio_iov = &iov;
-//	u.uio_iovcnt = 1;
-//	u.uio_resid = PAGE_SIZE;
-//	u.uio_rw = UIO_READ;
-//	u.uio_space = NULL;
-//	u.uio_segflg = UIO_SYSSPACE;
-
 
 	switch (segmentNum) {
 	case TEXT_SEG:
 		uio_offset = vpn*PAGE_SIZE + curproc->p_elf->elf_text_offset;
+//		uio_offset = curproc->p_elf->elf_text_offset + faultaddr - segBegin;
 		break;
 	case DATA_SEG:
 		uio_offset = vpn*PAGE_SIZE + curproc->p_elf->elf_data_offset;
+//		uio_offset = curproc->p_elf->elf_data_offset + faultaddr - segBegin;
 		break;
 	default:
 		break;
@@ -252,7 +242,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 }
 
 void printPT(struct pt* pgTable) {
-
+(void) pgTable;
 	kprintf("----Printing Page Table---------\n");
 
 	for (unsigned int a = 0; a < curproc_getas()->as_npages_text; a++) {

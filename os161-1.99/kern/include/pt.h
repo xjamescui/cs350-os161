@@ -1,5 +1,9 @@
 #include <types.h>
 
+#define DATA_SEG 0
+#define TEXT_SEG 1
+#define STACK_SEG 2
+
 struct pte {
 	vaddr_t vaddr;
 	paddr_t paddr;
@@ -19,7 +23,7 @@ struct pt {
 
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages);
 
-struct pte * getPTE(struct pt * pgTable, vaddr_t addr);
+struct pte * getPTE(struct pt * pgTable, vaddr_t addr, int* inText);
 
 // this function is called when there is a page fault, and we need to get the corresponding page from swapfile or ELF file
 // the unsigned short int is 0 if text seg, 1 if data seg, and 2 if stack seg.

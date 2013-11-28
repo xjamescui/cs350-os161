@@ -137,15 +137,9 @@ void vm_bootstrap(void) {
 paddr_t getppages(unsigned long npages) {
 
 #if OPT_A3
-	int dbflags = DB_A3;
 	if (vmInitialized) {
-		DEBUG(DB_A3, "vmInitialized = %d\n", vmInitialized);
-//		lock_acquire(coremapLock);
 		return cm_alloc_pages(npages); //use the coremap interface to handle physical pages
-//		lock_release(coremapLock);
 	} else {
-		//TODO instead of this, we call our mem allocator
-		DEBUG(DB_A3, "BAD: getppages() \n");
 		paddr_t addr;
 
 		spinlock_acquire(&stealmem_lock);
@@ -168,10 +162,8 @@ paddr_t getppages(unsigned long npages) {
 vaddr_t alloc_kpages(int npages) {
 #if OPT_A3
 	paddr_t pa;
-	int dbflags = DB_A3;
 
 	pa = getppages(npages);
-	DEBUG(DB_A3, "pa is %x\n", pa);
 	if (pa == 0) {
 		return 0;
 	}
@@ -236,7 +228,7 @@ int tlb_get_rr_victim() {
 /**
  * Prints the TLB to stdout
  */
-void printTLB(){
+void printTLB() {
 	uint32_t ehi, elo;
 	kprintf("---------Printing the TLB---------\n");
 	for(int i=0; i < NUM_TLB; i++){
@@ -257,12 +249,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 #if OPT_A3
 	vaddr_t vbase_text, vtop_text, vbase_data, vtop_data, stackbase, stacktop;
 	paddr_t paddr;
-	int dbflags = DB_A3;
+//	int dbflags = DB_A3;
 	int i;
 	int victim_index;
 	uint32_t ehi, elo;
 	struct addrspace *as;
 	int spl;
+	int inText = 0; //whether or not the faultaddress is in text segment
+
+
+
 
 	faultaddress &= PAGE_FRAME;
 
@@ -320,53 +316,46 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	KASSERT(as->pgTable != NULL);
-	DEBUG(DB_A3, "vm_fault: fault addr = %x, faulttype = %d\n", faultaddress, faulttype);
+//	DEBUG(DB_A3, "vm_fault: fault addr = %x, faulttype = %d\n", faultaddress,
+//			faulttype);
 
 	struct pte * entry;
 
 	if (faultaddress >= vbase_text && faultaddress < vtop_text) {
-		entry = getPTE(as->pgTable, faultaddress);
+		entry = getPTE(as->pgTable, faultaddress, &inText);
 		paddr = entry->paddr;
 	} else if (faultaddress >= vbase_data && faultaddress < vtop_data) {
-		entry = getPTE(as->pgTable, faultaddress);
+		entry = getPTE(as->pgTable, faultaddress, &inText);
 		paddr = entry->paddr;
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
-		entry = getPTE(as->pgTable, faultaddress);
+		entry = getPTE(as->pgTable, faultaddress, &inText);
 		paddr = entry->paddr;
 	} else {
 		return EFAULT;
 	}
-
-
 
 	//getPTE encountered a vaddr outside of segment range
 	if (entry == NULL) {
 		return EFAULT;
 	}
 
-	printPT(curproc_getas()->pgTable);
-
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);
 
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
-	DEBUG(DB_A3, "Writing to TLB!\n");
 	for (i = 0; i < NUM_TLB; i++) {
 		tlb_read(&ehi, &elo, i);
 		if (elo & TLBLO_VALID) {
 			continue;
 		}
 		ehi = faultaddress;
-		elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+		elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
-		DEBUG(DB_A3, "Got this: ehi %x  elo %x  i=%x\n", ehi, elo, i);
 		tlb_write(ehi, elo, i);
 		splx(spl);
-		printTLB();
 		return 0;
 	}
-    DEBUG(DB_A3, "GOtta evacuate an entry\n");
 	//all tlb entries are valid, time to do "replacement" i.e. to make room
 	victim_index = tlb_get_rr_victim();
 	tlb_write(TLBHI_INVALID(victim_index), TLBLO_INVALID(), victim_index);
@@ -378,10 +367,6 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	//stats update: TLB replace
 	vmstats_inc(VMSTAT_TLB_FAULT_REPLACE);
-
-	//print the tlb
-	printTLB();
-
 
 	splx(spl);
 	return 0;
@@ -398,10 +383,6 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 #endif
 }
 #endif /* OPT_VM */
-
-
-
-
 
 //#endif /* UW */
 
