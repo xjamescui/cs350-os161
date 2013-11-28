@@ -54,4 +54,15 @@ void free_page(vaddr_t addr) {
 	}
 }
 
+int getVictimIndex() {
+	for(int a = 0 ; a < NUM_PAGES ; a++) {
+		if(coremap[a]->state == FIXED) {
+			continue;
+		}
+		else {
+			return a;
+		}
+	}
+}
+
 #endif

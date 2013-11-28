@@ -33,7 +33,7 @@ void printPT(struct pt* pgTable);
 //We use a random page replacement algorithm, as it is actually faster than FIFO in practise.
 //it is also by far the simplest replacement algorithm to use as we needn't keep track of the order of pages
 //inserted into the page table like FIFO needs.
-int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum);
+//int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum);
 /* vaddr_t to paddr_t */
 
 /*

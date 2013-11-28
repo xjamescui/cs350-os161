@@ -166,10 +166,10 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	//no more physical ram available
 	if (allocPageResult == -1) {
-		//need to check if all pages in page table are valid
-		//if not we use the non valid page
-		//if so, we need to swap out a page in pagetable
-		//then update coremap
+		//the coremap contains all valid pages
+		//need to find a victim ni coremap to evict and
+		//invalidate the corresponding pte in page table of the process
+		//owning the page
 		kprintf("error in loadPTE\n");
 
 		//NOTE: the swapping
@@ -282,6 +282,7 @@ void printPT(struct pt* pgTable) {
 //it is also by far the simplest replacement algorithm to use as we needn't keep track of the order of pages
 //inserted into the page table like FIFO needs.
 //NOTE page replacement will  
+/*
 int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum) {
 	if (segmentNum == TEXT_SEG) {
 		return random() % pgTable->numTextPages;
@@ -294,3 +295,4 @@ int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum) {
 		return -1;
 	}
 }
+*/
