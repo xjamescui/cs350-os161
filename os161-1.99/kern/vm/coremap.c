@@ -1,9 +1,10 @@
+#include <types.h>
 #include <coremap.h>
 #include <lib.h>
 #include <mips/vm.h>
 #include <vm.h>
 #include <synch.h>
-
+#include <proc.h>
 #include "opt-A3.h"
 
 #if OPT_A3
@@ -45,9 +46,11 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 					idCounter = 1;
 				}
 
+    struct addrspace *as = curproc_getas();
 				for (int b = a - counter + 1; b < a + 1; b++) {
 					// coremap[b].state = DIRTY;
 					coremap[b].state = CLEAN; //should be clean instead
+     coremap[b].as = as;
 				}
 
 				//zero out
@@ -69,16 +72,17 @@ void free_page(paddr_t paddr) {
 
 		int startingIndex = paddr / PAGE_SIZE;
 
-//		kprintf("Freeing pages\n");
-//		kprintf("we are freeing %x and %d pages\n",addr, coremap[startingIndex].pagesAllocated);
-
-		for (int b = startingIndex; b < coremap[startingIndex].pagesAllocated; b++) {
-
+		for (int b = startingIndex; b < startingIndex+coremap[startingIndex].pagesAllocated; b++) {
+			kprintf("IN LOOP\n");
 			//need to make sure state is not hogged
 			if (coremap[b].state != HOGGED) {
-				coremap[b].paddr = (paddr_t) NULL;
+				kprintf("FREEING INDEX=%d\n", b);
+		//		coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
+    coremap[b].as = NULL;
+	   coremap[b].pagesAllocated = -1;
 				//addr needed to be aligned by 4k
+
 			}
 		}
 
@@ -115,7 +119,14 @@ void printCM() {
 				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
 				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr,
 				coremap[a].paddr, coremap[a].pagesAllocated);
-	}
+	
+
+struct addrspace * as = coremap[a].as;
+ if (as != NULL) {
+ kprintf("vbase_text: %x pbase_text: %x npages_text : %d vbase_data: %x pbase_data %x npages_data %d as_stackpbase %x\n\n", as->as_vbase_text, as->as_pbase_text, as->as_npages_text, as->as_vbase_data, as->as_pbase_data, as->as_npages_data, as->as_stackpbase);
+ }
+}
+
 }
 
 #endif

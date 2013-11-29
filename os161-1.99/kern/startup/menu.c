@@ -44,7 +44,7 @@
 #include "opt-synchprobs.h"
 #include "opt-sfs.h"
 #include "opt-net.h"
-
+#include <coremap.h>
 #include "opt-A2.h"
 
 #include <vm.h>
@@ -648,6 +648,12 @@ void menu(char *args) {
 	menu_execute(args, 1);
 
 	while (1) {
+  //kprintf("clearing coremap!!!");
+  //for (int i = 0; i < NUM_PAGES; i++) {
+  //  if (coremap[i].state == 2) 
+  //  free_page(coremap[i].paddr); 
+  //}
+  printCM();
 		kprintf("OS/161 kernel [? for menu]: ");
 		kgets(buf, sizeof(buf));
 		menu_execute(buf, 0);

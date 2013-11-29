@@ -46,7 +46,7 @@
 #include <test.h>
 #include "opt-A2.h"
 #include "opt-A3.h"
-
+#include <coremap.h>
 #if OPT_A2
 
 #include <copyinout.h>
@@ -128,6 +128,8 @@ int runprogram2(char *progname, unsigned long nargs, char **args,
 	//align to 8
 	tempptr = (userptr_t) ((unsigned int) arrStart & 0xFFFFFFF8);
 	stackptr = (vaddr_t) tempptr;
+
+
 
 	/* Warp to user mode. */
 	enter_new_process(argc /*argc*/,
