@@ -142,6 +142,7 @@ paddr_t getppages(unsigned long npages) {
 
 #if OPT_A3
 	if (vmInitialized) {
+
 		return cm_alloc_pages(npages); //use the coremap interface to handle physical pages
 	} else {
 		paddr_t addr;
@@ -186,7 +187,10 @@ void free_kpages(vaddr_t addr) {
 	/**
 	 * TODO: remember to invalidate in coremap AND owner thread's page table
 	 */
-	free_page(addr);
+
+	 paddr_t paddr = addr - MIPS_KSEG0;
+
+	free_page(paddr);
 
 	(void) addr;
 }

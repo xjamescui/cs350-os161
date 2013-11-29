@@ -63,14 +63,10 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 	return -1; //cannot get continuous blocks of avaialable pages
 }
 
-void free_page(vaddr_t addr) {
-
-	(void) addr;
-
+void free_page(paddr_t paddr) {
 	if (vmInitialized == 1) {
 		lock_acquire(coremapLock);
 
-		paddr_t paddr = (addr - MIPS_KSEG0) & 0xFFFFF000;
 		int startingIndex = paddr / PAGE_SIZE;
 
 //		kprintf("Freeing pages\n");
@@ -78,7 +74,7 @@ void free_page(vaddr_t addr) {
 
 		for (int b = startingIndex; b < coremap[startingIndex].pagesAllocated; b++) {
 
-			//need to make sure state is not fixed
+			//need to make sure state is not hogged
 			if (coremap[b].state != HOGGED) {
 				coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
