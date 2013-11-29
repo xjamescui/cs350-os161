@@ -61,15 +61,9 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
 struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 
-//	int dbflags = DB_A3;
-	DEBUG(DB_A3, "getPTE is called: faultaddr=%x\n", addr);
-
 	//text segment
 	vaddr_t textBegin = curproc_getas()->as_vbase_text;
 	vaddr_t textEnd = textBegin + curproc_getas()->as_npages_text * PAGE_SIZE;
-
-//	kprintf("text_seg_begin : 0x%x\n", textBegin);
-//	kprintf("text_seg_end : 0x%x\n", textEnd),
 
 	KASSERT(textEnd > textBegin);
 
@@ -77,14 +71,10 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	vaddr_t dataBegin = curproc_getas()->as_vbase_data;
 	vaddr_t dataEnd = dataBegin + curproc_getas()->as_npages_data * PAGE_SIZE;
 
-//	kprintf("data_seg_begin : 0x%x\n", dataBegin);
-//	kprintf("data_seg_end : 0x%x\n", dataEnd);
 
 	vaddr_t stackTop = USERSTACK;
 	vaddr_t stackBase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
 
-//	kprintf("stack_seg_begin : 0x%x\n", stackBase);
-//	kprintf("stack_seg_end : 0x%x\n", stackTop);
 
 	KASSERT(dataEnd > dataBegin);
 
@@ -97,7 +87,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 			|| (dataBegin <= addr && addr <= dataEnd)
 			|| (stackBase <= addr && addr <= stackTop))) {
 		//kill process
-		DEBUG(DB_A3, "faultaddr: BAD area\n");
 		return NULL;
 	}
 
@@ -287,55 +276,27 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
-	} else {
-		//if we faulted on a stack address
-
-//		iov.iov_ubase = (userptr_t)(segBegin + vpn * PAGE_SIZE);
-//		kprintf("segEnd = %x\n", segEnd);
-//		kprintf("vpn = %d\n", vpn);
-//		kprintf("segBegin = %x\n", segBegin);
-//		kprintf("faultaddr = %x\n", faultaddr);
-//		KASSERT( segEnd - vpn * PAGE_SIZE >= segBegin+PAGE_SIZE);
-//		iov.iov_len = PAGE_SIZE;
-//		u.uio_iov = &iov;
-//		u.uio_iovcnt = 1;
-//		u.uio_offset = 0;
-//		u.uio_resid = PAGE_SIZE;
-//		u.uio_segflg = UIO_USERSPACE;
-//		u.uio_rw = UIO_READ;
-//		u.uio_space = curproc_getas();
-
-//		iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
-//		iov.iov_len = PAGE_SIZE;
-//		u.uio_iov = &iov;
-//		u.uio_iovcnt = 1;
-//		u.uio_offset = 0;
-//		u.uio_resid = PAGE_SIZE;
-//		u.uio_segflg = UIO_SYSSPACE;
-//		u.uio_rw = UIO_READ;
-//		u.uio_space = NULL;
-//
-//		if(uiomovezeros(PAGE_SIZE, &u)){
-//			kprintf("ERROR on uiomovezeroes\n");
-//		};
-
 	}
-	//kprintf("In load page\n");
+
 	//update info to page table
 	if (segmentNum == TEXT_SEG) {
+		//text-segment is readonly!
 		pgTable->text[vpn]->vaddr = faultaddr;
 		pgTable->text[vpn]->paddr = paddr;
 		pgTable->text[vpn]->valid = 1;
+		pgTable->text[vpn]->readOnly =1;
 		return pgTable->text[vpn];
 	} else if (segmentNum == DATA_SEG) {
 		pgTable->data[vpn]->vaddr = faultaddr;
 		pgTable->data[vpn]->paddr = paddr;
 		pgTable->data[vpn]->valid = 1;
+		pgTable->data[vpn]->readOnly = 0;
 		return pgTable->data[vpn];
 	} else if (segmentNum == STACK_SEG) {
 		pgTable->stack[vpn]->vaddr = faultaddr;
 		pgTable->stack[vpn]->paddr = paddr;
 		pgTable->stack[vpn]->valid = 1;
+		pgTable->stack[vpn]->readOnly=0;
 		return pgTable->stack[vpn];
 	} else {
 		//something wrong!
