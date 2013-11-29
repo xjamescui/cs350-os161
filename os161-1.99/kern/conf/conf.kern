@@ -340,6 +340,7 @@ defoption vm
 optfile   vm   vm/vm.c
 file vm/pt.c
 file vm/coremap.c
+file vm/swapfile.c
 
 optofffile dumbvm   vm/addrspace.c
 
