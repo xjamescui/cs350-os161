@@ -132,7 +132,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 			return entry;
 		} else {
 			//page fault
-			vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
 			return loadPTE(pgTable, addr, STACK_SEG, stackBase, stackTop);
 		}
 	}
@@ -183,6 +182,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 
+		vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
 		//zero out page
 		iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
 		iov.iov_len = PAGE_SIZE;
