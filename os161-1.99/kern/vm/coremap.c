@@ -72,6 +72,7 @@ void free_page(vaddr_t addr) {
 	}
 }
 
+//FIFO algorithm, returns the page with the lowest id that's not fixed
 int getVictimIndex(void) {
 	unsigned int min = 0xFFFFFFFF;
 	int indexOfMin;

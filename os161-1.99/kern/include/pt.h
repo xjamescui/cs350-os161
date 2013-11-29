@@ -13,7 +13,7 @@ struct pte {
 };
 
 struct pt {
-	//have two "mini" page tables for each segment
+	//have three "mini" page tables for each segment
 	unsigned int numTextPages;
 	unsigned int numDataPages;
 	struct pte** text;
