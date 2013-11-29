@@ -14,6 +14,8 @@
 #include <vfs.h>
 
 #define DUMBVM_STACKPAGES    12
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
 
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
@@ -62,14 +64,23 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	vaddr_t textBegin = curproc_getas()->as_vbase_text;
 	vaddr_t textEnd = textBegin + curproc_getas()->as_npages_text * PAGE_SIZE;
 
+//	kprintf("text_seg_begin : 0x%x\n", textBegin);
+//	kprintf("text_seg_end : 0x%x\n", textEnd),
+
 	KASSERT(textEnd > textBegin);
 
 	//data segment
 	vaddr_t dataBegin = curproc_getas()->as_vbase_data;
 	vaddr_t dataEnd = dataBegin + curproc_getas()->as_npages_data * PAGE_SIZE;
 
+//	kprintf("data_seg_begin : 0x%x\n", dataBegin);
+//	kprintf("data_seg_end : 0x%x\n", dataEnd);
+
 	vaddr_t stackTop = USERSTACK;
 	vaddr_t stackBase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
+
+//	kprintf("stack_seg_begin : 0x%x\n", stackBase);
+//	kprintf("stack_seg_end : 0x%x\n", stackTop);
 
 	KASSERT(dataEnd > dataBegin);
 
@@ -103,7 +114,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 			//get from swapfile or elf file
 			DEBUG(DB_A3, "page fault: addr is in text segment, vpn =%d \n",
 					vpn);
-			return loadPTE(pgTable, addr, TEXT_SEG, textBegin);
+			return loadPTE(pgTable, addr, TEXT_SEG, textBegin, textEnd);
 		}
 	}
 	//in data segment
@@ -120,7 +131,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		} else {
 			DEBUG(DB_A3, "page fault: addr is in data segment, vpn = %d \n",
 					vpn);
-			return loadPTE(pgTable, addr, DATA_SEG, dataBegin);
+			return loadPTE(pgTable, addr, DATA_SEG, dataBegin, dataEnd);
 		}
 	}
 	//in stack segment
@@ -136,7 +147,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		} else {
 			DEBUG(DB_A3, "page fault: addr is in stack segment, vpn=%d \n",
 					vpn);
-			return loadPTE(pgTable, addr, STACK_SEG, stackBase);
+			return loadPTE(pgTable, addr, STACK_SEG, stackBase, stackTop);
 		}
 	}
 
@@ -145,122 +156,117 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 }
 
 struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
-		unsigned short int segmentNum, vaddr_t segBegin) {
-
-//	int dbflags = DB_A3;
+		unsigned short int segmentNum, vaddr_t segBegin, vaddr_t segEnd) {
+	(void) segEnd;
 	int result;
 	struct iovec iov;
 	struct uio u;
 	off_t uio_offset;
-//	size_t fillamt;
-	size_t filesize;
 	size_t loadsize;
+
+	//which page number to search for
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
+	uint32_t textFileBegin = curproc->p_elf->elf_text_offset;
+	uint32_t textFileEnd = textFileBegin + curproc->p_elf->elf_text_filesz;
+
+	uint32_t dataFileBegin = curproc->p_elf->elf_data_offset;
+	uint32_t dataFileEnd = dataFileBegin + curproc->p_elf->elf_data_filesz;
+
+	uint32_t fileEnd = (segmentNum == TEXT_SEG) ? textFileEnd : dataFileEnd;
+
 	/*
-	Page fault
+	 Page fault
 	 if no mem
-	  load new page from swap, if can't find, find in elf ***
-	  get victim in CM
-	  swap out victim, invalidate pt entry
-	  evict victim from CM
-	  load new page into evicted slot
-	  update pt and CM***
-	  return paddr_t***
+	 load new page from swap, if can't find, find in elf ***
+	 get victim in CM
+	 swap out victim, invalidate pt entry
+	 evict victim from CM
+	 load new page into evicted slot
+	 update pt and CM***
+	 return paddr_t***
 	 if mem avail
-	  load new page from elf***
-	  update pt and CM***
-	  return paddr_t***
-	*/
+	 load new page from elf***
+	 update pt and CM***
+	 return paddr_t***
+	 */
 
-
-	//we only need one page
-	//paddr_t paddr = cm_alloc_pages(1);
+	//getting a physical page to write to
 	paddr_t paddr;
 	long allocPageResult = getppages(1);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 		//ALERT: there may be a bug here
-	}
-	//Register this physical page in the core map
-	//copy paddr over to page table with info from ELF/SWAP file
-
-	//no more physical ram available
-	if (allocPageResult == -1) {
+	} else if (allocPageResult == -1) {
 		//we ran out of physical memory
 		//need to find a victim in coremap to evict and
 		//invalidate the corresponding pte in page table of the process
 		//owning the page
 
 		kprintf("error in loadPTE\n");
+		return NULL;
 		//NOTE: the swapping
 	}
-	else {
-		// we can get a physical page, we haven't run out of memory yet.
-
-	}
-
-	DEBUG(DB_A3, "welcome to loadPTE\n");
-	DEBUG(DB_A3, "addr is %x\n", paddr);
 
 	//load page based on swapfile or ELF file
-
+	KASSERT(faultaddr < segEnd);
 	switch (segmentNum) {
 	case TEXT_SEG:
-		uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_text_offset;
-		filesize = curproc->p_elf->elf_text_filesz;
-//		uio_offset = curproc->p_elf->elf_text_offset + faultaddr - segBegin;
+		uio_offset = vpn * PAGE_SIZE + textFileBegin;
 		break;
 	case DATA_SEG:
-		uio_offset = vpn * PAGE_SIZE + curproc->p_elf->elf_data_offset;
-		filesize = curproc->p_elf->elf_data_filesz;
-//		uio_offset = curproc->p_elf->elf_data_offset + faultaddr - segBegin;
+		uio_offset = vpn * PAGE_SIZE + dataFileBegin;
 		break;
 	default:
 		break;
 	}
 
-
-	//zero out the entire page first before we use it
-	uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), PAGE_SIZE, uio_offset,
-			UIO_READ);
-	uiomovezeros(PAGE_SIZE, &u);
-
 	if (segmentNum != STACK_SEG) {
-		//READ from ELF if we are not dealing with something on the stack
+		//READ from ELF if we are not dealing with data or text segments (ELF does not
+		//have a stack)
 
-		loadsize = PAGE_SIZE > filesize ? filesize : PAGE_SIZE;
+		//how much data we will read, default to PAGE_SIZE
+		loadsize = PAGE_SIZE;
 
-		uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), loadsize, uio_offset,
-					UIO_READ);
+		/**
+		 * Begin: Check for weird cases when reading out a page
+		 */
 
+		if (uio_offset < fileEnd) {
+
+			//reading a page from this point will go off of the segment
+			if (uio_offset + PAGE_SIZE > fileEnd) {
+				loadsize = fileEnd - uio_offset;
+			}
+		} else{
+			uio_offset = fileEnd - PAGE_SIZE;
+		}
+
+		KASSERT(loadsize <= PAGE_SIZE);
+		/**
+		 * End of checking
+		 */
+
+		//setup uio to read from ELF
+		uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), loadsize,
+				uio_offset, UIO_READ);
 		result = VOP_READ(curproc->p_elf->v, &u);
 		if (result) {
 			DEBUG(DB_A3, "VOP_READ ERROR!!\n");
 			return NULL;
 		}
 
+		//reading is finished
+		KASSERT(u.uio_iov->iov_len == 0);
+
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
-			kprintf("uio_offset=%d, uio_resid is %d\n", (int)uio_offset, u.uio_resid);
 			return NULL;
 		}
-
-//		//check capacity used in page
-//		fillamt = PAGE_SIZE - filesize;
-//		if(fillamt > 0){
-//			//fill unused space in page with zeroes
-//			u.uio_resid += fillamt;
-//			u.uio_iov->iov_len+=fillamt;
-//			uiomovezeros(fillamt, &u);
-//		}
-	} else {
-		//for stack
-		uiomovezeros(PAGE_SIZE, &u);
 	}
-	DEBUG(DB_A3, "welcome to loadPTE: read finished\n");
-//Register this physical page in the core map
+
+	//update info to page table
 	if (segmentNum == TEXT_SEG) {
 		pgTable->text[vpn]->vaddr = faultaddr;
 		pgTable->text[vpn]->paddr = paddr;
@@ -281,7 +287,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		return NULL;
 	}
 
-//something has gone wrong!
+	//something has gone wrong!
 	return NULL;
 }
 
@@ -317,16 +323,16 @@ void printPT(struct pt* pgTable) {
 //inserted into the page table like FIFO needs.
 //NOTE page replacement will  
 /*
-int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum) {
-	if (segmentNum == TEXT_SEG) {
-		return random() % pgTable->numTextPages;
-	} else if (segmentNum == DATA_SEG) {
-		return random() % pgTable->numDataPages;
-	} else if (segmentNum == STACK_SEG) {
-		return random() % DUMBVM_STACKPAGES;
-	} else {
-		//we shouldn't get here
-		return -1;
-	}
-}
-*/
+ int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum) {
+ if (segmentNum == TEXT_SEG) {
+ return random() % pgTable->numTextPages;
+ } else if (segmentNum == DATA_SEG) {
+ return random() % pgTable->numDataPages;
+ } else if (segmentNum == STACK_SEG) {
+ return random() % DUMBVM_STACKPAGES;
+ } else {
+ //we shouldn't get here
+ return -1;
+ }
+ }
+ */

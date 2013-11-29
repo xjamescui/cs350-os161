@@ -29,7 +29,7 @@ struct pte * getPTE(struct pt * pgTable, vaddr_t addr, int* inText);
 // the unsigned short int is 0 if text seg, 1 if data seg, and 2 if stack seg.
 // segBegin thus corresponds with the beginning vaddr of the segment define by inText
 struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, unsigned short int segmentNum,
-		vaddr_t segBegin);
+		vaddr_t segBegin, vaddr_t segEnd);
 
 void printPT(struct pt* pgTable);
 

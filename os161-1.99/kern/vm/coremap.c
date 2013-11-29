@@ -7,7 +7,7 @@
 #include "opt-A3.h"
 
 #if OPT_A3
-
+#include <addrspace.h>
 //we assign this to the id of the page allocated
 unsigned int idCounter = 1;
 
@@ -27,19 +27,19 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 		KASSERT(NUM_PAGES >= 0);
 
 		for (int a = 0; a < NUM_PAGES; a++) {
-			if (coremap[a].state == FREE || coremap[a].state == CLEAN) {
+			if (coremap[a].state == FREE) {
 				counter++;
 			} else {
 				counter = 0;
 			}
 			if (counter == npages) {
-				coremap[a - counter + 1].blocksAllocated = (int) npages;
+				coremap[a - counter + 1].pagesAllocated = (int) npages;
 				coremap[a - counter + 1].id = idCounter;
 				idCounter++;
 
-				if(idCounter == 0xFFFFFFFF) {
+				if (idCounter == 0xFFFFFFFF) {
 					//we've set the max id, reset all ids to zero
-					for(int i = 0 ; i < NUM_PAGES ; i++) {
+					for (int i = 0; i < NUM_PAGES; i++) {
 						coremap[i].id = 0;
 					}
 					idCounter = 1;
@@ -49,6 +49,10 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 					// coremap[b].state = DIRTY;
 					coremap[b].state = CLEAN; //should be clean instead
 				}
+
+				//zero out
+				as_zero_region(coremap[a- counter + 1].paddr,npages);
+
 				lock_release(coremapLock);
 				return (paddr_t) coremap[a - counter + 1].paddr;
 				//set pages to be used
@@ -77,12 +81,11 @@ int getVictimIndex(void) {
 	unsigned int min = 0xFFFFFFFF;
 	int indexOfMin;
 
-	for(int a = 0 ; a < NUM_PAGES ; a++) {
-		if(coremap[a].state == FIXED) {
+	for (int a = 0; a < NUM_PAGES; a++) {
+		if (coremap[a].state == FIXED) {
 			continue;
-		}
-		else {
-			if(coremap[a].id < min) {
+		} else {
+			if (coremap[a].id < min) {
 				min = coremap[a].id;
 				indexOfMin = a;
 			}
@@ -90,6 +93,16 @@ int getVictimIndex(void) {
 	}
 
 	return indexOfMin;
+}
+
+void printCM() {
+	for (int a = 0; a < NUM_PAGES; a++) {
+
+		kprintf(
+				"a = %d, PAGE_SIZE= %d, coremap[%d].state=%d, address =%x, paddr = %x, blocksAlloc = %d\n",
+				a, PAGE_SIZE, a, coremap[a].state, coremap[a].vaddr,
+				coremap[a].paddr, coremap[a].pagesAllocated);
+	}
 }
 
 #endif
