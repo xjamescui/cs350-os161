@@ -163,6 +163,8 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct uio u;
 	off_t uio_offset;
 	size_t loadsize;
+
+	//which page number to search for
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
 	uint32_t textFileBegin = curproc->p_elf->elf_text_offset;
@@ -171,8 +173,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	uint32_t dataFileBegin = curproc->p_elf->elf_data_offset;
 	uint32_t dataFileEnd = dataFileBegin + curproc->p_elf->elf_data_filesz;
 
-	uint32_t fileBegin =
-			(segmentNum == TEXT_SEG) ? textFileBegin : dataFileBegin;
 	uint32_t fileEnd = (segmentNum == TEXT_SEG) ? textFileEnd : dataFileEnd;
 
 	/*
@@ -191,31 +191,21 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	 return paddr_t***
 	 */
 
-	//we only need one page
-	//paddr_t paddr = cm_alloc_pages(1);
+	//getting a physical page to write to
 	paddr_t paddr;
 	long allocPageResult = getppages(1);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 		//ALERT: there may be a bug here
-	}
-	//Register this physical page in the core map
-	//copy paddr over to page table with info from ELF/SWAP file
-
-	//no more physical ram available
-	if (allocPageResult == -1) {
+	} else if (allocPageResult == -1) {
 		//we ran out of physical memory
 		//need to find a victim in coremap to evict and
 		//invalidate the corresponding pte in page table of the process
 		//owning the page
 
 		kprintf("error in loadPTE\n");
-//		printCM();
 		return NULL;
 		//NOTE: the swapping
-	} else {
-		// we can get a physical page, we haven't run out of memory yet.
-
 	}
 
 	//load page based on swapfile or ELF file
@@ -231,32 +221,33 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		break;
 	}
 
-	//zero out the entire page first before we use it----------
-	uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), PAGE_SIZE, uio_offset,
-			UIO_READ);
-	uiomovezeros(PAGE_SIZE, &u);
-	//end of: zero out---------------------
-
 	if (segmentNum != STACK_SEG) {
-		//READ from ELF if we are not dealing with something on the stack
+		//READ from ELF if we are not dealing with data or text segments (ELF does not
+		//have a stack)
 
+		//how much data we will read, default to PAGE_SIZE
 		loadsize = PAGE_SIZE;
 
-		(void) fileBegin;
-		//if the offset we end up with is
-		if (uio_offset > fileEnd) {
-			uio_offset = fileEnd - PAGE_SIZE; //needs to be revised
-		}
+		/**
+		 * Begin: Check for weird cases when reading out a page
+		 */
 
-		else if ((uio_offset < fileEnd)) {
+		if (uio_offset < fileEnd) {
 
 			//reading a page from this point will go off of the segment
 			if (uio_offset + PAGE_SIZE > fileEnd) {
 				loadsize = fileEnd - uio_offset;
 			}
+		} else{
+			uio_offset = fileEnd - PAGE_SIZE;
 		}
 
 		KASSERT(loadsize <= PAGE_SIZE);
+		/**
+		 * End of checking
+		 */
+
+		//setup uio to read from ELF
 		uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), loadsize,
 				uio_offset, UIO_READ);
 		result = VOP_READ(curproc->p_elf->v, &u);
@@ -265,19 +256,17 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			return NULL;
 		}
 
+		//reading is finished
 		KASSERT(u.uio_iov->iov_len == 0);
 
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
-			kprintf("uio_offset=%d, uio_resid is %d\n", (int) uio_offset,
-					u.uio_resid);
 			return NULL;
 		}
 	}
 
-	DEBUG(DB_A3, "welcome to loadPTE: read finished\n");
-	//Register this physical page in the core map
+	//update info to page table
 	if (segmentNum == TEXT_SEG) {
 		pgTable->text[vpn]->vaddr = faultaddr;
 		pgTable->text[vpn]->paddr = paddr;

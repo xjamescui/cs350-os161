@@ -7,7 +7,7 @@
 #include "opt-A3.h"
 
 #if OPT_A3
-
+#include <addrspace.h>
 //we assign this to the id of the page allocated
 unsigned int idCounter = 1;
 
@@ -49,6 +49,10 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 					// coremap[b].state = DIRTY;
 					coremap[b].state = CLEAN; //should be clean instead
 				}
+
+				//zero out
+				as_zero_region(coremap[a- counter + 1].paddr,npages);
+
 				lock_release(coremapLock);
 				return (paddr_t) coremap[a - counter + 1].paddr;
 				//set pages to be used
