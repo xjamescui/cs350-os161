@@ -73,8 +73,8 @@ void free_page(vaddr_t addr) {
 		paddr_t paddr = (addr - MIPS_KSEG0) & 0xFFFFF000;
 		int startingIndex = paddr / PAGE_SIZE;
 
-		kprintf("Freeing pages\n");
-		kprintf("we are freeing %x and %d pages\n",addr, coremap[startingIndex].pagesAllocated);
+//		kprintf("Freeing pages\n");
+//		kprintf("we are freeing %x and %d pages\n",addr, coremap[startingIndex].pagesAllocated);
 
 		for (int b = startingIndex; b < coremap[startingIndex].pagesAllocated; b++) {
 

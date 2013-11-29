@@ -32,6 +32,7 @@
  * Wrap rma_stealmem in a spinlock.
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
+static struct spinlock spinlock_tlb = SPINLOCK_INITIALIZER;
 
 static unsigned int next_victim = 0;
 
@@ -248,19 +249,11 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	int spl;
 	int inText = 0; //whether or not the faultaddress is in text segment
 
-
-
 	faultaddress &= PAGE_FRAME;
-
-	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
 	case VM_FAULT_READONLY: //2
-		//exit the process (should not let it crash kernel)
-		sys__exit(-1);
-
-		//only panic if sys__exit() fails
-		panic("dumbvm: got VM_FAULT_READONLY\n");
+		return EFAULT;
 	case VM_FAULT_READ: //0
 		vmstats_inc(VMSTAT_TLB_FAULT);
 		break;
@@ -348,7 +341,9 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
 		vmstats_inc(VMSTAT_TLB_FAULT_FREE);
+		spinlock_acquire(&spinlock_tlb);
 		tlb_write(ehi, elo, i);
+		spinlock_release(&spinlock_tlb);
 		splx(spl);
 		return 0;
 	}
@@ -357,12 +352,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	//all tlb entries are valid, time to do "replacement" i.e. to make room
 	victim_index = tlb_get_rr_victim();
+	spinlock_acquire(&spinlock_tlb);
 	tlb_write(TLBHI_INVALID(victim_index), TLBLO_INVALID(), victim_index);
+	spinlock_release(&spinlock_tlb);
 
 	//write to the victim's entry we just invalidated
 	ehi = faultaddress;
 	elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
+	spinlock_acquire(&spinlock_tlb);
 	tlb_write(ehi, elo, i);
+	spinlock_release(&spinlock_tlb);
 
 
 	splx(spl);

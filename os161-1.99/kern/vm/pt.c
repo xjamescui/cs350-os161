@@ -103,7 +103,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 
 	//in text segment
 	else if (textBegin <= addr && addr <= textEnd) {
-
 		*inText = 1;
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->text[vpn];
@@ -123,7 +122,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	}
 	//in data segment
 	else if (dataBegin <= addr && addr <= dataEnd) {
-
 		vpn = ((addr - dataBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->data[vpn];
 
@@ -322,7 +320,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 //		};
 
 	}
-
+	//kprintf("In load page\n");
 	//update info to page table
 	if (segmentNum == TEXT_SEG) {
 		pgTable->text[vpn]->vaddr = faultaddr;
