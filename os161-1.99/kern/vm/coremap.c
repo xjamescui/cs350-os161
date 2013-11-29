@@ -52,7 +52,6 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 
 				//zero out
 				as_zero_region(coremap[a- counter + 1].paddr,npages);
-
 				lock_release(coremapLock);
 				return (paddr_t) coremap[a - counter + 1].paddr;
 				//set pages to be used
@@ -71,8 +70,26 @@ void free_page(vaddr_t addr) {
 	if (vmInitialized == 1) {
 		lock_acquire(coremapLock);
 
-		//add stuff here
+		paddr_t paddr = (addr - MIPS_KSEG0) & 0xFFFFF000;
+		int startingIndex = paddr / PAGE_SIZE;
+
+		kprintf("Freeing pages\n");
+		kprintf("we are freeing %x and %d pages\n",addr, coremap[startingIndex].pagesAllocated);
+
+		for (int b = startingIndex; b < coremap[startingIndex].pagesAllocated; b++) {
+
+			//need to make sure state is not fixed
+			if (coremap[b].state != FIXED) {
+				coremap[b].paddr = (paddr_t) NULL;
+				coremap[b].state = FREE;
+				//addr needed to be aligned by 4k
+			}
+		}
+
 		lock_release(coremapLock);
+	}
+	else {
+		panic("kernel tried to free a page before vm is initialized?");
 	}
 }
 

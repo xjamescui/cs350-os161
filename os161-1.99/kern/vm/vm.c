@@ -70,7 +70,14 @@ void vm_bootstrap(void) {
 	DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
 	cm_high = p_first + NUM_PAGES * sizeof(struct page);
+
+	cm_high = (cm_high & PAGE_FRAME) + PAGE_SIZE;
+
+	int firstFreePageIndex = cm_high / PAGE_SIZE;
+
 	DEBUG(DB_A3, "cm_high is %x\n", cm_high);
+
+
 
 	/**
 	 * Initialize contents in coremap
@@ -85,7 +92,8 @@ void vm_bootstrap(void) {
 		coremap[a].pagesAllocated = -1;
 		coremap[a].id = 0;
 		//mark pages between cm_high to top as FREE, else FIXED
-		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
+//		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
+		if(a >= firstFreePageIndex) {
 			coremap[a].state = FREE;
 		} else {
 			coremap[a].state = FIXED;
@@ -177,20 +185,8 @@ void free_kpages(vaddr_t addr) {
 	/**
 	 * TODO: remember to invalidate in coremap AND owner thread's page table
 	 */
-	for (int a = 0; a < NUM_PAGES; a++) {
-		//bitwise and addr with 0xfffff000 to align by 4kB
-		if (coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
-			for (int b = a; b < a + coremap[a].pagesAllocated; b++) {
+	free_page(addr);
 
-				//need to make sure state is not fixed
-				if (coremap[b].state != FIXED) {
-					coremap[b].paddr = (paddr_t) NULL;
-					coremap[b].state = FREE;
-					//addr needed to be aligned by 4k
-				}
-			}
-		}
-	}
 	(void) addr;
 }
 

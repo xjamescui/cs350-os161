@@ -38,6 +38,7 @@
 #include <current.h>
 #include <vm.h>
 #include <mainbus.h>
+#include <coremap.h>
 #include <syscall.h>
 #include "opt-A2.h"
 
@@ -134,6 +135,11 @@ void mips_trap(struct trapframe *tf) {
 
 	/* Make sure we haven't run off our stack */
 	if (curthread != NULL && curthread->t_stack != NULL) {
+		if (!((vaddr_t) tf > (vaddr_t) curthread->t_stack)
+				|| !((vaddr_t) tf < (vaddr_t) (curthread->t_stack + STACK_SIZE))) {
+			printCM();
+
+		}
 		KASSERT((vaddr_t )tf > (vaddr_t )curthread->t_stack);
 		KASSERT((vaddr_t )tf < (vaddr_t )(curthread->t_stack + STACK_SIZE));
 	}
@@ -334,7 +340,6 @@ void mips_trap(struct trapframe *tf) {
 //	DEBUG(DB_A3, "cpustack.. = %x, tf = %x\n",
 //			((cpustacks[curcpu->c_number] - 1) & STACK_MASK),
 //			((vaddr_t )tf & STACK_MASK));
-
 
 	/*
 	 * This assertion will fail if either

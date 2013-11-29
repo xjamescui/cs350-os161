@@ -253,6 +253,7 @@ int load_elf(struct vnode *v, vaddr_t *entrypoint) {
 	}
 
 #if OPT_A3
+
 	//initialize/ populate pt
 	initPT(as->pgTable, as->as_npages_text, as->as_npages_data);
 #endif
