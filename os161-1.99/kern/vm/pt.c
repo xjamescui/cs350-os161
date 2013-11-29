@@ -12,11 +12,15 @@
 #include <vnode.h>
 #include <current.h>
 #include <vfs.h>
+#include <uw-vmstats.h>
 
 #define DUMBVM_STACKPAGES    12
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+/**
+ * Initializes/Sets up the page table, after it has been alloc'ed
+ */
 void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
 	pgTable->numTextPages = numTextPages;
@@ -46,10 +50,6 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
 	}
 
-//	//init stack
-//	paddr_t paddr = getppages(DUMBVM_STACKPAGES);
-
-
 	for (int a = 0; a < DUMBVM_STACKPAGES; a++) {
 		pgTable->stack[a] = kmalloc(sizeof(struct pte));
 		pgTable->stack[a]->valid = false;
@@ -59,6 +59,9 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
 }
 
+/**
+ * TLB Miss and we are now trying to find what we need in the page table
+ */
 struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 
 	//text segment
@@ -96,10 +99,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->text[vpn];
 		if (entry->valid) {
-			//add mapping to tlb, evict victim if necessary
-			//reexecute instruction
-			KASSERT(entry != NULL);
-			DEBUG(DB_A3, "addr is in text segment\n");
+			vmstats_inc(VMSTAT_TLB_RELOAD);
 			return entry;
 		} else {
 			//page fault
@@ -115,13 +115,10 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		entry = pgTable->data[vpn];
 
 		if (entry->valid) {
-			//add mapping to tlb, evict victim if necessary
-			//reexecute instruction
-			DEBUG(DB_A3, "addr is in data segment\n");
+			vmstats_inc(VMSTAT_TLB_RELOAD);
 			return entry;
 		} else {
-			DEBUG(DB_A3, "page fault: addr is in data segment, vpn = %d \n",
-					vpn);
+			//page fault
 			return loadPTE(pgTable, addr, DATA_SEG, dataBegin, dataEnd);
 		}
 	}
@@ -131,13 +128,11 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		entry = pgTable->stack[vpn];
 
 		if (entry->valid) {
-			//add mapping to tlb, evict victim if necessary
-			//reexecute instruction
-			DEBUG(DB_A3, "addr is in stack segment\n");
+			vmstats_inc(VMSTAT_TLB_RELOAD);
 			return entry;
 		} else {
-			DEBUG(DB_A3, "page fault: addr is in stack segment, vpn=%d \n",
-					vpn);
+			//page fault
+			vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
 			return loadPTE(pgTable, addr, STACK_SEG, stackBase, stackTop);
 		}
 	}
@@ -262,6 +257,11 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//setup uio to read from ELF
 		uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), loadsize,
 				uio_offset, UIO_READ);
+
+		//stat tracking: reading from the ELF file
+		vmstats_inc(VMSTAT_ELF_FILE_READ);
+
+		//Reading...
 		result = VOP_READ(curproc->p_elf->v, &u);
 		if (result) {
 			DEBUG(DB_A3, "VOP_READ ERROR!!\n");
