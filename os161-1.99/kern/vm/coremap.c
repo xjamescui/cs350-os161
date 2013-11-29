@@ -79,7 +79,7 @@ void free_page(vaddr_t addr) {
 		for (int b = startingIndex; b < coremap[startingIndex].pagesAllocated; b++) {
 
 			//need to make sure state is not fixed
-			if (coremap[b].state != FIXED) {
+			if (coremap[b].state != HOGGED) {
 				coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
 				//addr needed to be aligned by 4k
@@ -99,7 +99,7 @@ int getVictimIndex(void) {
 	int indexOfMin;
 
 	for (int a = 0; a < NUM_PAGES; a++) {
-		if (coremap[a].state == FIXED) {
+		if (coremap[a].state == HOGGED) {
 			continue;
 		} else {
 			if (coremap[a].id < min) {

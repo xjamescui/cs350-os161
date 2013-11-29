@@ -97,7 +97,7 @@ void vm_bootstrap(void) {
 		if(a >= firstFreePageIndex) {
 			coremap[a].state = FREE;
 		} else {
-			coremap[a].state = FIXED;
+			coremap[a].state = HOGGED;
 		}
 	}
 
