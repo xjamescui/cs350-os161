@@ -69,6 +69,9 @@ as_create(void) {
 }
 
 void as_destroy(struct addrspace *as) {
+
+	destroyPT(as->pgTable);
+
 	kfree(as);
 }
 

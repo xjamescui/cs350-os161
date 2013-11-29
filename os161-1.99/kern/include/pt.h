@@ -31,6 +31,8 @@ struct pte * getPTE(struct pt * pgTable, vaddr_t addr, int* inText);
 struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, unsigned short int segmentNum,
 		vaddr_t segBegin, vaddr_t segEnd);
 
+int destroyPT(struct pt * pgTable);
+
 void printPT(struct pt* pgTable);
 
 

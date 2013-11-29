@@ -307,6 +307,22 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	return NULL;
 }
 
+int destroyPT(struct pt * pgTable) {
+	for(unsigned int a = 0 ; a < pgTable->numTextPages ; a++) {
+		free_page(pgTable->text[a]->paddr);
+	}
+
+	for(unsigned int a = 0 ; a < pgTable->numDataPages ; a++) {
+		free_page(pgTable->data[a]->paddr);
+	}
+
+	for(unsigned int a = 0 ; a < DUMBVM_STACKPAGES ; a++) {
+		free_page(pgTable->stack[a]->paddr);
+	}
+
+	return 0;
+}
+
 void printPT(struct pt* pgTable) {
 	(void) pgTable;
 	kprintf("----Printing Page Table---------\n");

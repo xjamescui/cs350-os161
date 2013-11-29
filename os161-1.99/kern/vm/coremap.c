@@ -73,14 +73,14 @@ void free_page(paddr_t paddr) {
 		int startingIndex = paddr / PAGE_SIZE;
 
 		for (int b = startingIndex; b < startingIndex+coremap[startingIndex].pagesAllocated; b++) {
-			kprintf("IN LOOP\n");
 			//need to make sure state is not hogged
 			if (coremap[b].state != HOGGED) {
 				kprintf("FREEING INDEX=%d\n", b);
-		//		coremap[b].paddr = (paddr_t) NULL;
+				// coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
-    coremap[b].as = NULL;
-	   coremap[b].pagesAllocated = -1;
+    			coremap[b].as = NULL;
+	  			coremap[b].pagesAllocated = -1;
+	  			coremap[b].vaddr = 0;
 				//addr needed to be aligned by 4k
 
 			}

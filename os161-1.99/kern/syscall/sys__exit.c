@@ -13,7 +13,8 @@ void sys__exit(int exitcode) {
 	struct proc *cur_process = curthread->t_proc;
 	pid_t parent_pid = cur_process->p_parentpid;
 	int old_spl = splhigh();
-
+	
+	/*
 	if (parent_pid >= KERNEL_PID && procArray[parent_pid] != NULL) { //if process has a parent
 
 		struct proc *parent_process = procArray[parent_pid];
@@ -31,9 +32,7 @@ void sys__exit(int exitcode) {
 		}
 
 	} else {
-		/**
-		 * proceed to destroy process
-		 */
+		
 
 		//detach all threads used by this process
 		int processThreadCount = threadarray_num(&cur_process->p_threads);
@@ -54,6 +53,27 @@ void sys__exit(int exitcode) {
 			V(RaceConditionSem);
 		}
 	}
+	*/
+	//new stuff
+	(void)parent_pid;
+	(void)exitcode;
+	int processThreadCount = threadarray_num(&cur_process->p_threads);
+
+		for (int i = 0; i < processThreadCount; i++) {
+			threadarray_remove(&cur_process->p_threads, i);
+		}
+		KASSERT(threadarray_num(&cur_process->p_threads) == 0);
+
+		//destroy process
+		KASSERT(cur_process != NULL);
+		procArray[cur_process->p_pid] = NULL;
+		cur_process->p_hasExited = true;
+		proc_destroy(cur_process);
+
+		V(RaceConditionSem);
+	//end new stuff
+
+
 
 	curthread->t_proc = NULL;
 	splx(old_spl);
