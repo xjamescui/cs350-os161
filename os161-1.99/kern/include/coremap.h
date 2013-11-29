@@ -6,10 +6,10 @@ void free_page(vaddr_t addr);
 int getVictimIndex(void);
 void printCM(void);
 
-#define FREE 0
-#define FIXED 1
-#define CLEAN 2
-#define DIRTY 3
+#define FREE 0  //page is available and is unalloc'ed
+#define HOGGED 1 	//page is alloc'ed and belongs to important owners, can't be used by others
+#define CLEAN 2 //page is alloc'ed and used and has not been modified
+#define DIRTY 3 //page is alloc'ed and used and has been modified
 
 /* a physical page (frame) for coremap */
 struct page {
@@ -22,13 +22,13 @@ struct page {
 
 	/**
 	 * n for n consecutive blocks allocated and this is the first block
- 	 * -1 otherwise
+	 * -1 otherwise
 	 **/
 	volatile int pagesAllocated;
 
 	/**
 	 * 0 = free
-	 * 1 = fixed
+	 * 1 = hogged
 	 * 2 = clean
 	 * 3 = dirty
 	 **/
@@ -41,7 +41,6 @@ struct page {
 	//currently, ids are not reused and will cause an overflow when we hit 2^32
 	volatile unsigned int id;
 };
-
 
 struct lock * coremapLock;
 struct page * coremap;

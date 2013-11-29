@@ -32,6 +32,7 @@
  * Wrap rma_stealmem in a spinlock.
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
+static struct spinlock spinlock_tlb = SPINLOCK_INITIALIZER;
 
 static unsigned int next_victim = 0;
 
@@ -70,7 +71,14 @@ void vm_bootstrap(void) {
 	DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
 	cm_high = p_first + NUM_PAGES * sizeof(struct page);
+
+	cm_high = (cm_high & PAGE_FRAME) + PAGE_SIZE;
+
+	int firstFreePageIndex = cm_high / PAGE_SIZE;
+
 	DEBUG(DB_A3, "cm_high is %x\n", cm_high);
+
+
 
 	/**
 	 * Initialize contents in coremap
@@ -85,10 +93,11 @@ void vm_bootstrap(void) {
 		coremap[a].pagesAllocated = -1;
 		coremap[a].id = 0;
 		//mark pages between cm_high to top as FREE, else FIXED
-		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
+//		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
+		if(a >= firstFreePageIndex) {
 			coremap[a].state = FREE;
 		} else {
-			coremap[a].state = FIXED;
+			coremap[a].state = HOGGED;
 		}
 	}
 
@@ -177,20 +186,8 @@ void free_kpages(vaddr_t addr) {
 	/**
 	 * TODO: remember to invalidate in coremap AND owner thread's page table
 	 */
-	for (int a = 0; a < NUM_PAGES; a++) {
-		//bitwise and addr with 0xfffff000 to align by 4kB
-		if (coremap[a].vaddr == (addr & 0xfffff000) && coremap[a].state != 1) {
-			for (int b = a; b < a + coremap[a].pagesAllocated; b++) {
+	free_page(addr);
 
-				//need to make sure state is not fixed
-				if (coremap[b].state != FIXED) {
-					coremap[b].paddr = (paddr_t) NULL;
-					coremap[b].state = FREE;
-					//addr needed to be aligned by 4k
-				}
-			}
-		}
-	}
 	(void) addr;
 }
 
@@ -252,19 +249,11 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	int spl;
 	int inText = 0; //whether or not the faultaddress is in text segment
 
-
-
 	faultaddress &= PAGE_FRAME;
-
-	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
 
 	switch (faulttype) {
 	case VM_FAULT_READONLY: //2
-		//exit the process (should not let it crash kernel)
-		sys__exit(-1);
-
-		//only panic if sys__exit() fails
-		panic("dumbvm: got VM_FAULT_READONLY\n");
+		return EFAULT;
 	case VM_FAULT_READ: //0
 		vmstats_inc(VMSTAT_TLB_FAULT);
 		break;
@@ -352,7 +341,9 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
 		vmstats_inc(VMSTAT_TLB_FAULT_FREE);
+		spinlock_acquire(&spinlock_tlb);
 		tlb_write(ehi, elo, i);
+		spinlock_release(&spinlock_tlb);
 		splx(spl);
 		return 0;
 	}
@@ -361,12 +352,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	//all tlb entries are valid, time to do "replacement" i.e. to make room
 	victim_index = tlb_get_rr_victim();
+	spinlock_acquire(&spinlock_tlb);
 	tlb_write(TLBHI_INVALID(victim_index), TLBLO_INVALID(), victim_index);
+	spinlock_release(&spinlock_tlb);
 
 	//write to the victim's entry we just invalidated
 	ehi = faultaddress;
 	elo = inText? (paddr | TLBLO_VALID) & ~TLBLO_DIRTY : paddr | TLBLO_DIRTY | TLBLO_VALID;
+	spinlock_acquire(&spinlock_tlb);
 	tlb_write(ehi, elo, i);
+	spinlock_release(&spinlock_tlb);
 
 
 	splx(spl);

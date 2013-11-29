@@ -58,7 +58,9 @@ static
 void
 sort(int *arr, int size)
 {
+	printf("before tmp declaration\n");
 	static int tmp[SIZE];
+	printf("after tmp declaration\n");
 	int pivot, i, j, k;
 
 	if (size<2) {

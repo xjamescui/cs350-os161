@@ -125,7 +125,6 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		curproc->p_elf->elf_text_offset = offset;
 		curproc->p_elf->elf_text_memsz = sz;
 		curproc->p_elf->elf_text_filesz = fsz;
-		kprintf("text filesize is %x\n", fsz);
 #endif
 		return 0;
 	}
@@ -137,7 +136,6 @@ int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 		curproc->p_elf->elf_data_offset = offset;
 		curproc->p_elf->elf_data_memsz = sz;
 		curproc->p_elf->elf_data_filesz = fsz;
-		kprintf("data filesize is %x\n", fsz);
 #endif
 		return 0;
 	}
@@ -169,10 +167,10 @@ int as_prepare_load(struct addrspace *as) {
 //		return ENOMEM;
 //	}
 
-	as->as_stackpbase = getppages(DUMBVM_STACKPAGES);
-	if (as->as_stackpbase == 0) {
-		return ENOMEM;
-	}
+//	as->as_stackpbase = getppages(DUMBVM_STACKPAGES);
+//	if (as->as_stackpbase == 0) {
+//		return ENOMEM;
+//	}
 
 
 //	as_zero_region(as->as_pbase1, as->as_npages1);
@@ -188,8 +186,8 @@ int as_complete_load(struct addrspace *as) {
 }
 
 int as_define_stack(struct addrspace *as, vaddr_t *stackptr) {
-	KASSERT(as->as_stackpbase != 0);
-
+//	KASSERT(as->as_stackpbase != 0);
+	(void) as;
 	*stackptr = USERSTACK;
 	return 0;
 }

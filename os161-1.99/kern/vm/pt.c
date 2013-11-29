@@ -46,13 +46,17 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 
 	}
 
+//	//init stack
+//	paddr_t paddr = getppages(DUMBVM_STACKPAGES);
+
+
 	for (int a = 0; a < DUMBVM_STACKPAGES; a++) {
 		pgTable->stack[a] = kmalloc(sizeof(struct pte));
 		pgTable->stack[a]->valid = false;
 		pgTable->stack[a]->readOnly = false;
-		pgTable->stack[a]->paddr = (paddr_t) NULL;
-
+		pgTable->stack[a]->paddr = (paddr_t)NULL;
 	}
+
 }
 
 struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
@@ -99,7 +103,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 
 	//in text segment
 	else if (textBegin <= addr && addr <= textEnd) {
-
 		*inText = 1;
 		vpn = ((addr - textBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->text[vpn];
@@ -119,7 +122,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	}
 	//in data segment
 	else if (dataBegin <= addr && addr <= dataEnd) {
-
 		vpn = ((addr - dataBegin) & PAGE_FRAME) / PAGE_SIZE;
 		entry = pgTable->data[vpn];
 
@@ -196,6 +198,23 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	long allocPageResult = getppages(1);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
+
+		//zero out page
+		iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
+		iov.iov_len = PAGE_SIZE;
+		u.uio_iov = &iov;
+		u.uio_iovcnt = 1;
+		u.uio_offset = 0;
+		u.uio_resid = PAGE_SIZE;
+		u.uio_segflg = UIO_SYSSPACE;
+		u.uio_rw = UIO_READ;
+		u.uio_space = NULL;
+
+		if(uiomovezeros(PAGE_SIZE, &u)){
+			kprintf("ERROR on uiomovezeroes\n");
+		};
+
+
 		//ALERT: there may be a bug here
 	} else if (allocPageResult == -1) {
 		//we ran out of physical memory
@@ -217,9 +236,13 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	case DATA_SEG:
 		uio_offset = vpn * PAGE_SIZE + dataFileBegin;
 		break;
+	case STACK_SEG:
+		uio_offset = 0;
+		break;
 	default:
 		break;
 	}
+
 
 	if (segmentNum != STACK_SEG) {
 		//READ from ELF if we are not dealing with data or text segments (ELF does not
@@ -238,7 +261,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			if (uio_offset + PAGE_SIZE > fileEnd) {
 				loadsize = fileEnd - uio_offset;
 			}
-		} else{
+		} else {
 			uio_offset = fileEnd - PAGE_SIZE;
 		}
 
@@ -264,8 +287,40 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
-	}
+	} else {
+		//if we faulted on a stack address
 
+//		iov.iov_ubase = (userptr_t)(segBegin + vpn * PAGE_SIZE);
+//		kprintf("segEnd = %x\n", segEnd);
+//		kprintf("vpn = %d\n", vpn);
+//		kprintf("segBegin = %x\n", segBegin);
+//		kprintf("faultaddr = %x\n", faultaddr);
+//		KASSERT( segEnd - vpn * PAGE_SIZE >= segBegin+PAGE_SIZE);
+//		iov.iov_len = PAGE_SIZE;
+//		u.uio_iov = &iov;
+//		u.uio_iovcnt = 1;
+//		u.uio_offset = 0;
+//		u.uio_resid = PAGE_SIZE;
+//		u.uio_segflg = UIO_USERSPACE;
+//		u.uio_rw = UIO_READ;
+//		u.uio_space = curproc_getas();
+
+//		iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
+//		iov.iov_len = PAGE_SIZE;
+//		u.uio_iov = &iov;
+//		u.uio_iovcnt = 1;
+//		u.uio_offset = 0;
+//		u.uio_resid = PAGE_SIZE;
+//		u.uio_segflg = UIO_SYSSPACE;
+//		u.uio_rw = UIO_READ;
+//		u.uio_space = NULL;
+//
+//		if(uiomovezeros(PAGE_SIZE, &u)){
+//			kprintf("ERROR on uiomovezeroes\n");
+//		};
+
+	}
+	//kprintf("In load page\n");
 	//update info to page table
 	if (segmentNum == TEXT_SEG) {
 		pgTable->text[vpn]->vaddr = faultaddr;
