@@ -229,11 +229,14 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 
 	//check in fd_table to see if file is already open
 	if (fd < 3 && fd >= 0) {
-
 		//standard console related (0,1,2)
+
+		//apparently we need this to avoid some deadbeef stuff
+		table[fd] = NULL;
+
 		KASSERT(filename == "con:");
 		if (table[fd] != NULL) {
-		kprintf("context table[fd] : %d\n\n\n\n", table[fd]->f_vn==NULL);
+		// kprintf("context table[fd] : %d\n\n\n\n", table[fd]->f_vn==NULL);
 			openedVnode = table[fd]->f_vn;
 		}
 

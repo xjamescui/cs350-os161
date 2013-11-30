@@ -512,6 +512,7 @@ static
 int
 subpage_kfree(void *ptr)
 {
+
 	int blktype;		// index into sizes[] that we're using
 	vaddr_t ptraddr;	// same as ptr
 	struct pageref *pr;	// pageref for page we're freeing in
@@ -626,9 +627,11 @@ kfree(void *ptr)
 	 */
 	if (ptr == NULL) {
 		return;
-	} else if (subpage_kfree(ptr)) {
+	} 
+	else if (subpage_kfree(ptr)) {
 		KASSERT((vaddr_t)ptr%PAGE_SIZE==0);
 		free_kpages((vaddr_t)ptr);
 	}
+	
 }
 

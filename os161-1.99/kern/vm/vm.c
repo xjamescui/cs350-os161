@@ -50,7 +50,7 @@ void vm_bootstrap(void) {
 	paddr_t cm_low;
 	paddr_t cm_high; //also the beginning of free memory i RAM
 
-	int dbflags = DB_A3;
+	// int dbflags = DB_A3;
 	NUM_PAGES = -1;
 	//TODO maybe add check to see if we got a lock
 
@@ -69,7 +69,7 @@ void vm_bootstrap(void) {
 	 */
 
 	cm_low = p_first;
-	DEBUG(DB_A3, "cm_low is %x\n", cm_low);
+	// DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
 	cm_high = p_first + NUM_PAGES * ( sizeof(struct page) + sizeof(struct addrspace));
 
@@ -77,7 +77,7 @@ void vm_bootstrap(void) {
 
 	int firstFreePageIndex = cm_high / PAGE_SIZE;
 
-	DEBUG(DB_A3, "cm_high is %x\n", cm_high);
+	// DEBUG(DB_A3, "cm_high is %x\n", cm_high);
 
 
 
