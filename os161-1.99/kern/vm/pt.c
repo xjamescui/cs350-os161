@@ -160,7 +160,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	uint32_t dataFileBegin = curproc->p_elf->elf_data_offset;
 
 	int fileSize = (segmentNum == TEXT_SEG) ?
-	curproc->p_elf->elf_text_filesz : curproc->p_elf->elf_data_filesz;
+	curproc->p_elf->elf_text_filesz :curproc->p_elf->elf_data_filesz;
 
 	/*
 	 Page fault
@@ -240,6 +240,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		if (letsZero) {
 
 			if (zeroWholePage) {
+				vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
 				u.uio_resid = 0; //don't read anything but zero the page later
 			} else {
 				u.uio_resid = fileSize - vpn * PAGE_SIZE;
@@ -261,7 +262,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
-			panic("loadPTE: ELF: short read on segment - file truncated?\n");
+			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
 
