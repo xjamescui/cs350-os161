@@ -174,20 +174,10 @@ void proc_destroy(struct proc *proc) {
 
 #if OPT_A3
 	
+	//double confirming the fd_table is cleaned up
 	for(int i = 0; i <MAX_OPEN_COUNT; i++){
-//		if(proc->fd_table[i] == (struct file_desc *) 0xdeadbeef){
 		proc->fd_table[i] = NULL;
-			// kprintf("fd_table[%d] is %p at addr %x\n", i, (void *)proc->fd_table[i], (unsigned int)proc->fd_table[i]);
-//		}
 	}
-	
-//	sys_close(STDIN_FILENO);
-//	sys_close(STDOUT_FILENO);
-//	sys_close(STDERR_FILENO);
-
-//	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
-//	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
-//	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
 
 #endif
 
