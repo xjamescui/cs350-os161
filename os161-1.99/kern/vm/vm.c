@@ -24,6 +24,7 @@
 #include <pt.h>
 #include <synch.h>
 #include <sys_functions.h>
+#include <swapfile.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
@@ -108,6 +109,9 @@ void vm_bootstrap(void) {
 	if (coremapLock == NULL) {
 		panic("Cannot get coremapLock!");
 	}
+
+ //swap init
+ swapinit = false;
 
 #endif
 }
@@ -253,6 +257,11 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	struct addrspace *as;
 	int spl;
 	int inText = 0; //whether or not the faultaddress is in text segment
+
+ if (swapinit == 0) {
+  initSF(); 
+  swapinit = 1;
+ }
 
 	faultaddress &= PAGE_FRAME;
 

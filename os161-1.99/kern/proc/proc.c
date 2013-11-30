@@ -125,6 +125,8 @@ void proc_destroy(struct proc *proc) {
 	 * hang around beyond process exit. Some wait/exit designs
 	 * do, some don't.
 	 */
+ int dbflags = DB_A3;
+ DEBUG(DB_A3, "calling proc_destroy\n");
 
 	KASSERT(proc != NULL);
 	KASSERT(proc != kproc);
@@ -171,17 +173,19 @@ void proc_destroy(struct proc *proc) {
 	}
 
 #if OPT_A3
-	sys_close(STDIN_FILENO);
-	sys_close(STDOUT_FILENO);
-	sys_close(STDERR_FILENO);
+	for(int i = 0; i <MAX_OPEN_COUNT; i++){
+//		if(proc->fd_table[i] == (struct file_desc *) 0xdeadbeef){
+			kprintf("fd_table[%d] is %p\n", i, (void *)proc->fd_table[i]);
+//		}
+	}
 
-	// proc->fd_table[STDIN_FILENO] = NULL;
-	// proc->fd_table[STDOUT_FILENO] = NULL;
-	// proc->fd_table[STDERR_FILENO] = NULL;
+//	sys_close(STDIN_FILENO);
+//	sys_close(STDOUT_FILENO);
+//	sys_close(STDERR_FILENO);
 
-	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
-	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
-	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
+//	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
+//	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
+//	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
 
 #endif
 
