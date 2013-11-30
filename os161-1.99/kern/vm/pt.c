@@ -261,7 +261,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
-			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
+			panic("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
 
