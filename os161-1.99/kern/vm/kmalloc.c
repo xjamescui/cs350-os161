@@ -460,7 +460,7 @@ subpage_kmalloc(size_t sz)
 	 */
 
 	spinlock_release(&kmalloc_spinlock);
-	prpage = alloc_kpages(1);
+	prpage = alloc_kpages(1, true);
 	if (prpage==0) {
 		/* Out of memory. */
 		kprintf("kmalloc: Subpage allocator couldn't get a page\n"); 
@@ -512,6 +512,7 @@ static
 int
 subpage_kfree(void *ptr)
 {
+
 	int blktype;		// index into sizes[] that we're using
 	vaddr_t ptraddr;	// same as ptr
 	struct pageref *pr;	// pageref for page we're freeing in
@@ -607,7 +608,7 @@ kmalloc(size_t sz)
 
 		/* Round up to a whole number of pages. */
 		npages = (sz + PAGE_SIZE - 1)/PAGE_SIZE;
-		address = alloc_kpages(npages);
+		address = alloc_kpages(npages, true);
 		if (address==0) {
 			return NULL;
 		}
@@ -626,9 +627,11 @@ kfree(void *ptr)
 	 */
 	if (ptr == NULL) {
 		return;
-	} else if (subpage_kfree(ptr)) {
+	} 
+	else if (subpage_kfree(ptr)) {
 		KASSERT((vaddr_t)ptr%PAGE_SIZE==0);
 		free_kpages((vaddr_t)ptr);
 	}
+	
 }
 

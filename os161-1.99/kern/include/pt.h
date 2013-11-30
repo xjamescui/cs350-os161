@@ -1,3 +1,6 @@
+#ifndef _PT_H_
+#define _PT_H_
+
 #include <types.h>
 
 #define DATA_SEG 0
@@ -49,4 +52,4 @@ void printPT(struct pt* pgTable);
  makePageAvail?
 
  */
-
+#endif

@@ -1,3 +1,6 @@
+#ifndef _SWAP_H_
+#define _SWAP_H_
+
 #include <types.h>
 #include <pt.h>
 
@@ -15,9 +18,11 @@ struct vnode *swapv;
 volatile int swap_entries;
 //Need a swap lock here
 struct lock *swap_lock;
+volatile int swapinit;
 
 int initSF(void);
 
 int copyToSwap(struct pte * entry);
 
 int copyFromSwap(struct pte * entry);
+#endif

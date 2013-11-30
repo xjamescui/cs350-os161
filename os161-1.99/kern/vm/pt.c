@@ -13,6 +13,7 @@
 #include <current.h>
 #include <vfs.h>
 #include <uw-vmstats.h>
+#include <swapfile.h>
 
 #define DUMBVM_STACKPAGES    12
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -180,7 +181,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	//getting a physical page to write to
 	paddr_t paddr;
-	long allocPageResult = getppages(1);
+	long allocPageResult = getppages(1, false);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 
@@ -265,6 +266,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
+ 
 
 		//filling zeroes if needed
 		if (letsZero) {
@@ -282,6 +284,17 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			}
 
 		}
+
+  //Try writing to swap file 
+  //if (swapinit == 1) {
+  //  if (TEXT_SEG) {
+  //    copyToSwap(pgTable->text[vpn]);
+  //  }
+  //  else if (DATA_SEG) {
+  //    copyToSwap(pgTable->data[vpn]);
+  //  }
+  //swapinit = 2;
+  //}
 
 	}
 
@@ -315,21 +328,21 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 }
 
 int destroyPT(struct pt * pgTable) {
-	for (unsigned int a = 0; a < pgTable->numTextPages; a++) {
-		if (pgTable->text[a]->paddr != 0) {
-			free_page(pgTable->text[a]->paddr);
+	for(unsigned int a = 0 ; a < pgTable->numTextPages ; a++) {
+		if(pgTable->text[a]->paddr != 0) {
+			free_page(pgTable->text[a]->paddr, false);
 		}
 	}
 
-	for (unsigned int a = 0; a < pgTable->numDataPages; a++) {
-		if (pgTable->data[a]->paddr != 0) {
-			free_page(pgTable->data[a]->paddr);
+	for(unsigned int a = 0 ; a < pgTable->numDataPages ; a++) {
+		if(pgTable->data[a]->paddr != 0) {
+			free_page(pgTable->data[a]->paddr, false);
 		}
 	}
 
-	for (unsigned int a = 0; a < DUMBVM_STACKPAGES; a++) {
-		if (pgTable->stack[a]->paddr != 0) {
-			free_page(pgTable->stack[a]->paddr);
+	for(unsigned int a = 0 ; a < DUMBVM_STACKPAGES ; a++) {
+		if(pgTable->stack[a]->paddr != 0) {
+			free_page(pgTable->stack[a]->paddr, false);
 		}
 	}
 

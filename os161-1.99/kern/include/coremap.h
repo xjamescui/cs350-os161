@@ -1,8 +1,8 @@
 #include <types.h>
 
 //alloc methods
-paddr_t cm_alloc_pages(unsigned long npages);
-void free_page(paddr_t addr);
+paddr_t cm_alloc_pages(unsigned long npages, bool inKernel);
+void free_page(paddr_t addr, bool inKernel);
 int getVictimIndex(void);
 void printCM(void);
 

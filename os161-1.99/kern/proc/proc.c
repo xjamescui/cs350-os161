@@ -61,6 +61,7 @@
 #include <vfs.h>
 #include <sys_functions.h>
 #include <kern/unistd.h>
+#include <coremap.h>
 #endif
 
 /*
@@ -124,6 +125,8 @@ void proc_destroy(struct proc *proc) {
 	 * hang around beyond process exit. Some wait/exit designs
 	 * do, some don't.
 	 */
+ // int dbflags = DB_A3;
+ // DEBUG(DB_A3, "calling proc_destroy\n");
 
 	KASSERT(proc != NULL);
 	KASSERT(proc != kproc);
@@ -165,16 +168,19 @@ void proc_destroy(struct proc *proc) {
 #else
 		as = curproc_setas(NULL);
 #endif
+		// printCM();
 		as_destroy(as);
 	}
 
 #if OPT_A3
+	
 	for(int i = 0; i <MAX_OPEN_COUNT; i++){
 //		if(proc->fd_table[i] == (struct file_desc *) 0xdeadbeef){
-			kprintf("fd_table[%d] is %p\n", i, (void *)proc->fd_table[i]);
+		proc->fd_table[i] = NULL;
+			// kprintf("fd_table[%d] is %p at addr %x\n", i, (void *)proc->fd_table[i], (unsigned int)proc->fd_table[i]);
 //		}
 	}
-
+	
 //	sys_close(STDIN_FILENO);
 //	sys_close(STDOUT_FILENO);
 //	sys_close(STDERR_FILENO);

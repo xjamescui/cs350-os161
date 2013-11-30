@@ -43,6 +43,7 @@
 #include <current.h>
 #include <uw-vmstats.h>
 #include <pt.h>
+#include <coremap.h>
 
 /* under dumbvm, always have 48k of user stack */
 #define DUMBVM_STACKPAGES    12
@@ -70,13 +71,14 @@ as_create(void) {
 
 void as_destroy(struct addrspace *as) {
 
-	kprintf("destroying PT\n");
+	// kprintf("destroying PT\n");
 	destroyPT(as->pgTable);
 
 	// vfs_close(curproc->p_elf->v);
 
 	kfree(as->pgTable);
 	kfree(as);
+ //printCM();
 }
 
 void as_activate(void) {

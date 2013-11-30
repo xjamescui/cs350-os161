@@ -229,10 +229,14 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 
 	//check in fd_table to see if file is already open
 	if (fd < 3 && fd >= 0) {
-
 		//standard console related (0,1,2)
+
+		//apparently we need this to avoid some deadbeef stuff
+		table[fd] = NULL;
+
 		KASSERT(filename == "con:");
 		if (table[fd] != NULL) {
+		// kprintf("context table[fd] : %d\n\n\n\n", table[fd]->f_vn==NULL);
 			openedVnode = table[fd]->f_vn;
 		}
 
@@ -316,7 +320,7 @@ int sys_close(int fd) {
 		return EBADF;
 	}
 
-	KASSERT(file->f_vn->vn_opencount >= 1);
+	// KASSERT(file->f_vn->vn_opencount >= 1);
 	KASSERT(file->f_vn->vn_refcount >= 1);
 
 	if (file->f_vn->vn_refcount == 1) {
@@ -333,6 +337,7 @@ int sys_close(int fd) {
 
 	//clean up row in the table
 	file->f_vn = NULL;
+	file->f_name = NULL;
 	curthread->t_proc->fd_table[fd] = NULL;
 	KASSERT(file != NULL);
 	kfree(file);
