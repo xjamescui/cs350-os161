@@ -74,10 +74,8 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	vaddr_t dataBegin = curproc_getas()->as_vbase_data;
 	vaddr_t dataEnd = dataBegin + curproc_getas()->as_npages_data * PAGE_SIZE;
 
-
 	vaddr_t stackTop = USERSTACK;
 	vaddr_t stackBase = USERSTACK - DUMBVM_STACKPAGES * PAGE_SIZE;
-
 
 	KASSERT(dataEnd > dataBegin);
 
@@ -147,11 +145,11 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct iovec iov;
 	struct uio u;
 	off_t uio_offset;
-	size_t loadsize;
 
-	kprintf("Trying to load vaddr %x in segment %d with range %x to %x\n", faultaddr,segmentNum,segBegin,segEnd);
+//	kprintf("Trying to load vaddr %x in segment %d with range %x to %x\n",
+//			faultaddr, segmentNum, segBegin, segEnd);
 
-	if(faultaddr > MIPS_KSEG0) {
+	if (faultaddr > MIPS_KSEG0) {
 		panic("We are given a kernel vaddr!!!\n");
 	}
 
@@ -159,12 +157,10 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
 
 	uint32_t textFileBegin = curproc->p_elf->elf_text_offset;
-	uint32_t textFileEnd = textFileBegin + curproc->p_elf->elf_text_filesz;
-
 	uint32_t dataFileBegin = curproc->p_elf->elf_data_offset;
-	uint32_t dataFileEnd = dataFileBegin + curproc->p_elf->elf_data_filesz;
 
-	uint32_t fileEnd = (segmentNum == TEXT_SEG) ? textFileEnd : dataFileEnd;
+	int fileSize = (segmentNum == TEXT_SEG) ?
+	curproc->p_elf->elf_text_filesz : curproc->p_elf->elf_data_filesz;
 
 	/*
 	 Page fault
@@ -187,23 +183,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	long allocPageResult = getppages(1);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
-
-		vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
-		//zero out page
-		iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
-		iov.iov_len = PAGE_SIZE;
-		u.uio_iov = &iov;
-		u.uio_iovcnt = 1;
-		u.uio_offset = 0;
-		u.uio_resid = PAGE_SIZE;
-		u.uio_segflg = UIO_SYSSPACE;
-		u.uio_rw = UIO_READ;
-		u.uio_space = NULL;
-
-		if(uiomovezeros(PAGE_SIZE, &u)){
-			kprintf("ERROR on uiomovezeroes\n");
-		};
-
 
 		//ALERT: there may be a bug here
 	} else if (allocPageResult == -1) {
@@ -233,36 +212,42 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		break;
 	}
 
+	//setup our UIO
+	iov.iov_kbase = (void *) PADDR_TO_KVADDR(paddr);
+	iov.iov_len = PAGE_SIZE;
+	u.uio_iov = &iov;
+	u.uio_iovcnt = 1;
+	u.uio_offset = uio_offset;
+	u.uio_rw = UIO_READ;
+	u.uio_space = NULL;
+	u.uio_segflg = UIO_SYSSPACE;
 
-	if (segmentNum != STACK_SEG) {
+	if (segmentNum == STACK_SEG) {
+		u.uio_resid = PAGE_SIZE;
+		if (uiomovezeros(PAGE_SIZE, &u)) {
+			panic("error while zeroing for a stack page\n");
+		}
+	} else {
 		//READ from ELF if we are not dealing with data or text segments (ELF does not
 		//have a stack)
 
-		//how much data we will read, default to PAGE_SIZE
-		loadsize = PAGE_SIZE;
+		//set up flags to see if zeroing is needed
+		bool letsZero = PAGE_SIZE * (vpn + 1) >= fileSize; //there are unused spaces in the frame so we need to zero these spaces
+		bool zeroWholePage = PAGE_SIZE * (vpn) >= fileSize; //offset is on the bound or going off, don't read anything
+		size_t zeroAmt = 0;
 
-		/**
-		 * Begin: Check for weird cases when reading out a page
-		 */
+		//setup our uio_resid
+		if (letsZero) {
 
-		if (uio_offset < fileEnd) {
-
-			//reading a page from this point will go off of the segment
-			if (uio_offset + PAGE_SIZE > fileEnd) {
-				loadsize = fileEnd - uio_offset;
+			if (zeroWholePage) {
+				u.uio_resid = 0; //don't read anything but zero the page later
+			} else {
+				u.uio_resid = fileSize - vpn * PAGE_SIZE;
 			}
 		} else {
-			uio_offset = fileEnd - PAGE_SIZE;
+			//read a whole page
+			u.uio_resid = PAGE_SIZE;
 		}
-
-		KASSERT(loadsize <= PAGE_SIZE);
-		/**
-		 * End of checking
-		 */
-
-		//setup uio to read from ELF
-		uio_kinit(&iov, &u, (void *) PADDR_TO_KVADDR(paddr), loadsize,
-				uio_offset, UIO_READ);
 
 		//stat tracking: reading from the ELF file
 		vmstats_inc(VMSTAT_ELF_FILE_READ);
@@ -270,18 +255,33 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//Reading...
 		result = VOP_READ(curproc->p_elf->v, &u);
 		if (result) {
-			DEBUG(DB_A3, "VOP_READ ERROR!!\n");
+			panic("error on VOP_READ from elf\n");
 			return NULL;
 		}
-
-		//reading is finished
-		KASSERT(u.uio_iov->iov_len == 0);
 
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
+
+		//filling zeroes if needed
+		if (letsZero) {
+			if (zeroWholePage) {
+				zeroAmt = PAGE_SIZE;
+			} else {
+				zeroAmt = (vpn + 1) * PAGE_SIZE - fileSize;
+			}
+
+			if (zeroAmt > 0) {
+				u.uio_resid += zeroAmt;
+				if (uiomovezeros(zeroAmt, &u)) {
+					panic("uiomovezero error in loadPTE");
+				}
+			}
+
+		}
+
 	}
 
 	//update info to page table
@@ -290,7 +290,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		pgTable->text[vpn]->vaddr = faultaddr;
 		pgTable->text[vpn]->paddr = paddr;
 		pgTable->text[vpn]->valid = 1;
-		pgTable->text[vpn]->readOnly =1;
+		pgTable->text[vpn]->readOnly = 1;
 		return pgTable->text[vpn];
 	} else if (segmentNum == DATA_SEG) {
 		pgTable->data[vpn]->vaddr = faultaddr;
@@ -302,7 +302,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		pgTable->stack[vpn]->vaddr = faultaddr;
 		pgTable->stack[vpn]->paddr = paddr;
 		pgTable->stack[vpn]->valid = 1;
-		pgTable->stack[vpn]->readOnly=0;
+		pgTable->stack[vpn]->readOnly = 0;
 		return pgTable->stack[vpn];
 	} else {
 		//something wrong!
@@ -314,20 +314,20 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 }
 
 int destroyPT(struct pt * pgTable) {
-	for(unsigned int a = 0 ; a < pgTable->numTextPages ; a++) {
-		if(pgTable->text[a]->paddr != 0) {
+	for (unsigned int a = 0; a < pgTable->numTextPages; a++) {
+		if (pgTable->text[a]->paddr != 0) {
 			free_page(pgTable->text[a]->paddr);
 		}
 	}
 
-	for(unsigned int a = 0 ; a < pgTable->numDataPages ; a++) {
-		if(pgTable->data[a]->paddr != 0) {
+	for (unsigned int a = 0; a < pgTable->numDataPages; a++) {
+		if (pgTable->data[a]->paddr != 0) {
 			free_page(pgTable->data[a]->paddr);
 		}
 	}
 
-	for(unsigned int a = 0 ; a < DUMBVM_STACKPAGES ; a++) {
-		if(pgTable->stack[a]->paddr != 0) {
+	for (unsigned int a = 0; a < DUMBVM_STACKPAGES; a++) {
+		if (pgTable->stack[a]->paddr != 0) {
 			free_page(pgTable->stack[a]->paddr);
 		}
 	}

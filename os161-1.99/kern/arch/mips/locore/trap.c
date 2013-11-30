@@ -135,11 +135,11 @@ void mips_trap(struct trapframe *tf) {
 
 	/* Make sure we haven't run off our stack */
 	if (curthread != NULL && curthread->t_stack != NULL) {
-		if (!((vaddr_t) tf > (vaddr_t) curthread->t_stack)
-				|| !((vaddr_t) tf < (vaddr_t) (curthread->t_stack + STACK_SIZE))) {
-//			printCM();
-
-		}
+//		if (!((vaddr_t) tf > (vaddr_t) curthread->t_stack)
+//				|| !((vaddr_t) tf < (vaddr_t) (curthread->t_stack + STACK_SIZE))) {
+////			printCM();
+//
+//		}
 		KASSERT((vaddr_t )tf > (vaddr_t )curthread->t_stack);
 		KASSERT((vaddr_t )tf < (vaddr_t )(curthread->t_stack + STACK_SIZE));
 	}

@@ -169,13 +169,13 @@ void proc_destroy(struct proc *proc) {
 	}
 
 #if OPT_A3
-	sys_close(STDIN_FILENO);
-	sys_close(STDOUT_FILENO);
-	sys_close(STDERR_FILENO);
-
-	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
-	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
-	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
+//	sys_close(STDIN_FILENO);
+//	sys_close(STDOUT_FILENO);
+//	sys_close(STDERR_FILENO);
+//
+//	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
+//	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
+//	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
 
 #endif
 
