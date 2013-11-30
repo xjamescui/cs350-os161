@@ -70,8 +70,12 @@ as_create(void) {
 
 void as_destroy(struct addrspace *as) {
 
+	kprintf("destroying PT\n");
 	destroyPT(as->pgTable);
 
+	// vfs_close(curproc->p_elf->v);
+
+	kfree(as->pgTable);
 	kfree(as);
 }
 

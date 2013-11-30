@@ -39,14 +39,14 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 		pgTable->text[a] = kmalloc(sizeof(struct pte));
 		pgTable->text[a]->valid = false;
 		pgTable->text[a]->readOnly = false;
-		pgTable->text[a]->paddr = (paddr_t) NULL;
+		pgTable->text[a]->paddr = 0;
 	}
 
 	for (int a = 0; a < numDataPages; a++) {
 		pgTable->data[a] = kmalloc(sizeof(struct pte));
 		pgTable->data[a]->valid = false;
 		pgTable->data[a]->readOnly = false;
-		pgTable->data[a]->paddr = (paddr_t) NULL;
+		pgTable->data[a]->paddr = 0;
 
 	}
 
@@ -54,7 +54,7 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 		pgTable->stack[a] = kmalloc(sizeof(struct pte));
 		pgTable->stack[a]->valid = false;
 		pgTable->stack[a]->readOnly = false;
-		pgTable->stack[a]->paddr = (paddr_t)NULL;
+		pgTable->stack[a]->paddr = 0;
 	}
 
 }
@@ -148,6 +148,12 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct uio u;
 	off_t uio_offset;
 	size_t loadsize;
+
+	kprintf("Trying to load vaddr %x in segment %d with range %x to %x\n", faultaddr,segmentNum,segBegin,segEnd);
+
+	if(faultaddr > MIPS_KSEG0) {
+		panic("We are given a kernel vaddr!!!\n");
+	}
 
 	//which page number to search for
 	int vpn = ((faultaddr - segBegin) & PAGE_FRAME) / PAGE_SIZE;
@@ -309,15 +315,21 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 int destroyPT(struct pt * pgTable) {
 	for(unsigned int a = 0 ; a < pgTable->numTextPages ; a++) {
-		free_page(pgTable->text[a]->paddr);
+		if(pgTable->text[a]->paddr != 0) {
+			free_page(pgTable->text[a]->paddr);
+		}
 	}
 
 	for(unsigned int a = 0 ; a < pgTable->numDataPages ; a++) {
-		free_page(pgTable->data[a]->paddr);
+		if(pgTable->data[a]->paddr != 0) {
+			free_page(pgTable->data[a]->paddr);
+		}
 	}
 
 	for(unsigned int a = 0 ; a < DUMBVM_STACKPAGES ; a++) {
-		free_page(pgTable->stack[a]->paddr);
+		if(pgTable->stack[a]->paddr != 0) {
+			free_page(pgTable->stack[a]->paddr);
+		}
 	}
 
 	return 0;

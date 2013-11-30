@@ -653,7 +653,7 @@ void menu(char *args) {
   //  if (coremap[i].state == 2) 
   //  free_page(coremap[i].paddr); 
   //}
-  printCM();
+  // printCM();
 		kprintf("OS/161 kernel [? for menu]: ");
 		kgets(buf, sizeof(buf));
 		menu_execute(buf, 0);

@@ -243,6 +243,7 @@ void printTLB() {
 int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 #if OPT_A3
+
 	vaddr_t vbase_text, vtop_text, vbase_data, vtop_data, stackbase, stacktop;
 	paddr_t paddr;
 //	int dbflags = DB_A3;

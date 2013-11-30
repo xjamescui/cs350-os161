@@ -75,7 +75,7 @@ void free_page(paddr_t paddr) {
 		for (int b = startingIndex; b < startingIndex+coremap[startingIndex].pagesAllocated; b++) {
 			//need to make sure state is not hogged
 			if (coremap[b].state != HOGGED) {
-				kprintf("FREEING INDEX=%d\n", b);
+				// kprintf("FREEING INDEX=%d\n", b);
 				// coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
     			coremap[b].as = NULL;
