@@ -10,13 +10,14 @@
 #include <addrspace.h>
 #include <uio.h>
 #include <proc.h>
+#include <lib.h>
 
 int initSF() {
 	//if swapfile file size > 9MB, panic
 
  //Create/open swap file
  //NOT SURE IF THIS IS CORRECT WAY TO INITIALIZE
- char *name = (char *)"swap.swp";
+ char *name = kstrdup("SWAPFILE");
  vfs_open(name, O_RDWR | O_CREAT | O_TRUNC, 0, &swapv);
 
  //Calculate number of allowable entries
@@ -72,22 +73,22 @@ int copyToSwap(struct pte * entry) {
  struct uio u;
  int result;
 
- iov.iov_ubase = (userptr_t)entry->vaddr;
+ iov.iov_kbase = (void *)PADDR_TO_KVADDR(entry->vaddr);
  iov.iov_len = PAGE_SIZE;
  u.uio_iov = &iov;
  u.uio_iovcnt = 1;
  u.uio_resid = PAGE_SIZE;
- u.uio_offset = entry_index * PAGE_SIZE; //In bits/bytes?
+ u.uio_offset = (off_t)(entry_index * PAGE_SIZE); //In bits/bytes?
  u.uio_segflg = UIO_SYSSPACE; //not sure
  u.uio_rw = UIO_WRITE;
- u.uio_space = curproc_getas(); 
-
+ u.uio_space = NULL; 
+kprintf("UH OH");
  result = VOP_WRITE(swapv, &u);
  if (result) {
   return -1;
  }
  KASSERT(u.uio_resid == 0);
- 
+kprintf("YAY"); 
  //Update sfeArray
  //If empty entry, intialize before store
  struct sfe *entry_to_replace = sfeArray[entry_index];//?

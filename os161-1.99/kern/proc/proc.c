@@ -124,6 +124,8 @@ void proc_destroy(struct proc *proc) {
 	 * hang around beyond process exit. Some wait/exit designs
 	 * do, some don't.
 	 */
+ int dbflags = DB_A3;
+ DEBUG(DB_A3, "calling proc_destroy\n");
 
 	KASSERT(proc != NULL);
 	KASSERT(proc != kproc);

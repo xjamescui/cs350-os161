@@ -13,6 +13,7 @@
 #include <current.h>
 #include <vfs.h>
 #include <uw-vmstats.h>
+#include <swapfile.h>
 
 #define DUMBVM_STACKPAGES    12
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -282,6 +283,17 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
+ 
+  //Try writing to swap file 
+  //if (swapinit == 1) {
+  //  if (TEXT_SEG) {
+  //    copyToSwap(pgTable->text[vpn]);
+  //  }
+  //  else if (DATA_SEG) {
+  //    copyToSwap(pgTable->data[vpn]);
+  //  }
+  //swapinit = 2;
+  //}
 	}
 
 	//update info to page table
