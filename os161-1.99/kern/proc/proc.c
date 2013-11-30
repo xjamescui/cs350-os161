@@ -169,10 +169,16 @@ void proc_destroy(struct proc *proc) {
 	}
 
 #if OPT_A3
+	for(int i = 0; i <MAX_OPEN_COUNT; i++){
+//		if(proc->fd_table[i] == (struct file_desc *) 0xdeadbeef){
+			kprintf("fd_table[%d] is %p\n", i, (void *)proc->fd_table[i]);
+//		}
+	}
+
 //	sys_close(STDIN_FILENO);
 //	sys_close(STDOUT_FILENO);
 //	sys_close(STDERR_FILENO);
-//
+
 //	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
 //	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
 //	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
