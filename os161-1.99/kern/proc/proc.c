@@ -59,6 +59,8 @@
 
 #if OPT_A3
 #include <vfs.h>
+#include <sys_functions.h>
+#include <kern/unistd.h>
 #endif
 
 /*
@@ -102,7 +104,7 @@ proc_create(const char *name) {
 	proc->p_cwd = NULL;
 
 #if OPT_A3
-	proc->p_elf = kmalloc(sizeof (struct elf));
+	proc->p_elf = kmalloc(sizeof(struct elf));
 #endif
 
 	return proc;
@@ -174,6 +176,15 @@ void proc_destroy(struct proc *proc) {
 #endif
 
 #if OPT_A3
+
+	sys_close(STDIN_FILENO);
+	sys_close(STDOUT_FILENO);
+	sys_close(STDERR_FILENO);
+
+	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
+	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
+	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
+
 	KASSERT(proc->p_elf->v != NULL);
 	vfs_close(proc->p_elf->v);
 	kfree(proc->p_elf);

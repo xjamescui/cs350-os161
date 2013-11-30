@@ -304,7 +304,7 @@ int sys_open(const char *filename, int flags, int mode, int32_t *retval) {
 int sys_close(int fd) {
 
 	//make sure the file is in table
-	KASSERT(curthread->t_curspl == 0);
+//	KASSERT(curthread->t_curspl == 0);
 
 	if (fd < 0 || fd >= MAX_OPEN_COUNT) {
 		return EBADF;
