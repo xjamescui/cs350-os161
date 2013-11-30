@@ -19,7 +19,7 @@ unsigned int idCounter = 1;
  * let's keep it that way, I don't think allocating multiple pages may
  * work with some of the stuff we've got here
  */
-paddr_t cm_alloc_pages(unsigned long npages) {
+paddr_t cm_alloc_pages(unsigned long npages, bool inKernel) {
 
 	if (vmInitialized) {
 		lock_acquire(coremapLock);
@@ -46,11 +46,16 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 					idCounter = 1;
 				}
 
-    struct addrspace *as = curproc_getas();
+    			struct addrspace *as = curproc_getas();
 				for (int b = a - counter + 1; b < a + 1; b++) {
 					// coremap[b].state = DIRTY;
-					coremap[b].state = CLEAN; //should be clean instead
-     coremap[b].as = as;
+					if(inKernel) {
+						coremap[b].state = HOGGED;
+					}
+					else {
+						coremap[b].state = CLEAN; //should be clean instead
+     					coremap[b].as = as;
+ 					}
 				}
 
 				//zero out
@@ -66,15 +71,18 @@ paddr_t cm_alloc_pages(unsigned long npages) {
 	return -1; //cannot get continuous blocks of avaialable pages
 }
 
-void free_page(paddr_t paddr) {
+void free_page(paddr_t paddr, bool inKernel) {
 	if (vmInitialized == 1) {
 		lock_acquire(coremapLock);
 
 		int startingIndex = paddr / PAGE_SIZE;
+		int pagesToFree = coremap[startingIndex].pagesAllocated;
 
-		for (int b = startingIndex; b < startingIndex+coremap[startingIndex].pagesAllocated; b++) {
+		KASSERT(pagesToFree > 0);
+
+		for (int b = startingIndex; b < startingIndex+ pagesToFree; b++) {
 			//need to make sure state is not hogged
-			if (coremap[b].state != HOGGED) {
+			if (inKernel || coremap[b].state != HOGGED) {
 				// kprintf("FREEING INDEX=%d\n", b);
 				// coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
@@ -82,9 +90,11 @@ void free_page(paddr_t paddr) {
 	  			coremap[b].pagesAllocated = -1;
 	  			coremap[b].vaddr = 0;
 				//addr needed to be aligned by 4k
-
 			}
 		}
+		as_zero_region(coremap[startingIndex].paddr,pagesToFree);
+
+
 
 		lock_release(coremapLock);
 	}

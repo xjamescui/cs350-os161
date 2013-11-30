@@ -460,7 +460,7 @@ subpage_kmalloc(size_t sz)
 	 */
 
 	spinlock_release(&kmalloc_spinlock);
-	prpage = alloc_kpages(1);
+	prpage = alloc_kpages(1, true);
 	if (prpage==0) {
 		/* Out of memory. */
 		kprintf("kmalloc: Subpage allocator couldn't get a page\n"); 
@@ -607,7 +607,7 @@ kmalloc(size_t sz)
 
 		/* Round up to a whole number of pages. */
 		npages = (sz + PAGE_SIZE - 1)/PAGE_SIZE;
-		address = alloc_kpages(npages);
+		address = alloc_kpages(npages, true);
 		if (address==0) {
 			return NULL;
 		}

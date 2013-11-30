@@ -61,6 +61,7 @@
 #include <vfs.h>
 #include <sys_functions.h>
 #include <kern/unistd.h>
+#include <coremap.h>
 #endif
 
 /*
@@ -165,6 +166,7 @@ void proc_destroy(struct proc *proc) {
 #else
 		as = curproc_setas(NULL);
 #endif
+		// printCM();
 		as_destroy(as);
 	}
 
@@ -172,6 +174,10 @@ void proc_destroy(struct proc *proc) {
 	sys_close(STDIN_FILENO);
 	sys_close(STDOUT_FILENO);
 	sys_close(STDERR_FILENO);
+
+	// proc->fd_table[STDIN_FILENO] = NULL;
+	// proc->fd_table[STDOUT_FILENO] = NULL;
+	// proc->fd_table[STDERR_FILENO] = NULL;
 
 	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
 	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);

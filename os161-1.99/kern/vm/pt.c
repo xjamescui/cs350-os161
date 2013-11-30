@@ -149,7 +149,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	off_t uio_offset;
 	size_t loadsize;
 
-	kprintf("Trying to load vaddr %x in segment %d with range %x to %x\n", faultaddr,segmentNum,segBegin,segEnd);
+	// kprintf("Trying to load vaddr %x in segment %d with range %x to %x\n", faultaddr,segmentNum,segBegin,segEnd);
 
 	if(faultaddr > MIPS_KSEG0) {
 		panic("We are given a kernel vaddr!!!\n");
@@ -184,7 +184,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	//getting a physical page to write to
 	paddr_t paddr;
-	long allocPageResult = getppages(1);
+	long allocPageResult = getppages(1, false);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 
@@ -316,19 +316,19 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 int destroyPT(struct pt * pgTable) {
 	for(unsigned int a = 0 ; a < pgTable->numTextPages ; a++) {
 		if(pgTable->text[a]->paddr != 0) {
-			free_page(pgTable->text[a]->paddr);
+			free_page(pgTable->text[a]->paddr, false);
 		}
 	}
 
 	for(unsigned int a = 0 ; a < pgTable->numDataPages ; a++) {
 		if(pgTable->data[a]->paddr != 0) {
-			free_page(pgTable->data[a]->paddr);
+			free_page(pgTable->data[a]->paddr, false);
 		}
 	}
 
 	for(unsigned int a = 0 ; a < DUMBVM_STACKPAGES ; a++) {
 		if(pgTable->stack[a]->paddr != 0) {
-			free_page(pgTable->stack[a]->paddr);
+			free_page(pgTable->stack[a]->paddr, false);
 		}
 	}
 

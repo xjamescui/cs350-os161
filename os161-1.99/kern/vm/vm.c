@@ -70,7 +70,7 @@ void vm_bootstrap(void) {
 	cm_low = p_first;
 	DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
-	cm_high = p_first + NUM_PAGES * sizeof(struct page);
+	cm_high = p_first + NUM_PAGES * ( sizeof(struct page) + sizeof(struct addrspace));
 
 	cm_high = (cm_high & PAGE_FRAME) + PAGE_SIZE;
 
@@ -138,12 +138,12 @@ void vm_bootstrap(void) {
 
  */
 
-paddr_t getppages(unsigned long npages) {
+paddr_t getppages(unsigned long npages, bool inKernel) {
 
 #if OPT_A3
 	if (vmInitialized) {
 
-		return cm_alloc_pages(npages); //use the coremap interface to handle physical pages
+		return cm_alloc_pages(npages, inKernel); //use the coremap interface to handle physical pages
 	} else {
 		paddr_t addr;
 
@@ -164,11 +164,11 @@ paddr_t getppages(unsigned long npages) {
 //#endif
 
 /* Allocate/free some kernel-space virtual pages */
-vaddr_t alloc_kpages(int npages) {
+vaddr_t alloc_kpages(int npages, bool inKernel) {
 #if OPT_A3
 	paddr_t pa;
 
-	pa = getppages(npages);
+	pa = getppages(npages, inKernel);
 	if (pa == 0) {
 		return 0;
 	}
@@ -190,7 +190,7 @@ void free_kpages(vaddr_t addr) {
 
 	 paddr_t paddr = addr - MIPS_KSEG0;
 
-	free_page(paddr);
+	free_page(paddr, true);
 
 	(void) addr;
 }

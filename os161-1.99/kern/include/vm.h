@@ -52,7 +52,7 @@ bool vmInitialized;
 //total number of pages in physical memory
 int NUM_PAGES;
 
-paddr_t getppages(unsigned long npages);
+paddr_t getppages(unsigned long npages, bool inKernel);
 
 #endif
 
@@ -63,7 +63,7 @@ void vm_bootstrap(void);
 int vm_fault(int faulttype, vaddr_t faultaddress);
 
 /* Allocate/free kernel heap pages (called by kmalloc/kfree) */
-vaddr_t alloc_kpages(int npages);
+vaddr_t alloc_kpages(int npages, bool inKernel);
 void free_kpages(vaddr_t addr);
 
 /* TLB shootdown handling called from interprocessor_interrupt */
