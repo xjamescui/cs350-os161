@@ -168,6 +168,17 @@ void proc_destroy(struct proc *proc) {
 		as_destroy(as);
 	}
 
+#if OPT_A3
+	sys_close(STDIN_FILENO);
+	sys_close(STDOUT_FILENO);
+	sys_close(STDERR_FILENO);
+
+	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
+	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
+	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
+
+#endif
+
 	threadarray_cleanup(&proc->p_threads);
 	spinlock_cleanup(&proc->p_lock);
 
@@ -176,14 +187,6 @@ void proc_destroy(struct proc *proc) {
 #endif
 
 #if OPT_A3
-
-	sys_close(STDIN_FILENO);
-	sys_close(STDOUT_FILENO);
-	sys_close(STDERR_FILENO);
-
-	KASSERT(proc->fd_table[STDIN_FILENO] == NULL);
-	KASSERT(proc->fd_table[STDOUT_FILENO] == NULL);
-	KASSERT(proc->fd_table[STDERR_FILENO] == NULL);
 
 	KASSERT(proc->p_elf->v != NULL);
 	vfs_close(proc->p_elf->v);
