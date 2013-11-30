@@ -105,6 +105,9 @@ void free_page(paddr_t paddr, bool inKernel) {
 
 //FIFO algorithm, returns the page with the lowest id that's not fixed
 int getVictimIndex(void) {
+
+	//add locks?
+	lock_acquire(coremapLock);
 	unsigned int min = 0xFFFFFFFF;
 	int indexOfMin;
 
@@ -118,7 +121,7 @@ int getVictimIndex(void) {
 			}
 		}
 	}
-
+	lock_release(coremapLock);
 	return indexOfMin;
 }
 
