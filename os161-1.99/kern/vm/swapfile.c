@@ -13,10 +13,7 @@
 #include <lib.h>
 
 int initSF() {
-	//if swapfile file size > 9MB, panic
-
  //Create/open swap file
- //NOT SURE IF THIS IS CORRECT WAY TO INITIALIZE
  char *name = kstrdup("SWAPFILE");
  vfs_open(name, O_RDWR | O_CREAT | O_TRUNC, 0, &swapv);
 
@@ -38,17 +35,14 @@ int copyToSwap(struct page * entry) {
 	//copies from pt to swapfile
  KASSERT(entry != NULL); 
  lock_acquire(swap_lock);
- int dbflags = DB_A3; 
  struct addrspace *as = entry->as;
  int entry_index = -1;
  
- DEBUG(DB_A3, "Writing to SWAP\n");
  //Check for existing entry 
  for (int i = 0; i < swap_entries; i++) {
    if (sfeArray[i] != NULL) { //Non-empty entry
      struct sfe *temp = sfeArray[i]; //?
      if (temp->as == as && temp->vaddr == entry->vaddr) {
-       DEBUG(DB_A3, "Found previous entry to overwrite\n");
        entry_index = i;
        break;
      }
@@ -81,8 +75,8 @@ int copyToSwap(struct page * entry) {
  u.uio_iov = &iov;
  u.uio_iovcnt = 1;
  u.uio_resid = PAGE_SIZE;
- u.uio_offset = (off_t)(entry_index * PAGE_SIZE); //In bits/bytes?
- u.uio_segflg = UIO_SYSSPACE; //not sure
+ u.uio_offset = (off_t)(entry_index * PAGE_SIZE); 
+ u.uio_segflg = UIO_SYSSPACE; 
  u.uio_rw = UIO_WRITE;
  u.uio_space = NULL; 
 
@@ -119,15 +113,13 @@ int copyToSwap(struct page * entry) {
 int copyFromSwap(struct page * entry) {
 	//copies from swap file to pt
 lock_acquire(swap_lock);
-int dbflags = DB_A3;
  struct addrspace *as = entry->as;
  int entry_index = -1;
  
- DEBUG(DB_A3, "Reading from SWAP\n");
  //Find entry 
  for (int i = 0; i < swap_entries; i++) {
    if (sfeArray[i] != NULL) { //Non-empty entry
-     struct sfe *temp = sfeArray[i];//? 
+     struct sfe *temp = sfeArray[i];
      if (temp->as == as && temp->vaddr == entry->vaddr) {
        entry_index = i;
        break;
@@ -136,19 +128,16 @@ int dbflags = DB_A3;
  }
 
  if (entry_index != -1) {
-   DEBUG(DB_A3, "Found previous entry to read!\n");
    lock_release(swap_lock);
    return 0;
  }
 
  //No entry found. Bad!
  if (entry_index == -1) {
-  DEBUG(DB_A3, "NOT FOUND. NOT COOL.");
   lock_release(swap_lock);
   return -1;
  }
 
- DEBUG(DB_A3, "copying from SWAP\n");
 
  //Initialize stuff to read from file
  struct iovec iov;
@@ -173,8 +162,6 @@ int dbflags = DB_A3;
  KASSERT(u.uio_resid == 0);
  
  //Once entry is read, swap read is done
- //struct sfe *entry_to_replace = sfeArray[entry_index];
- //KASSERT(entry_to_replace != NULL);
 
 	(void)entry;
  lock_release(swap_lock);

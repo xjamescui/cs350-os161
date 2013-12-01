@@ -144,6 +144,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct iovec iov;
 	struct uio u;
 	off_t uio_offset;
+ vmstats_inc(VMSTAT_PAGE_FAULT_DISK);
 
 	if (faultaddr > MIPS_KSEG0) {
 		panic("We are given a kernel vaddr!!!\n");
@@ -161,12 +162,12 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	/*
 	 Page fault
 	 if no mem
-	 load new page from swap, if can't find, find in elf ***
 	 get victim in CM
 	 swap out victim, invalidate pt entry
 	 evict victim from CM
 	 load new page into evicted slot
 	 update pt and CM***
+  load new page from swap, if can't find, find in elf ***
 	 return paddr_t***
 	 if mem avail
 	 load new page from elf***
@@ -184,7 +185,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//need to find a victim in coremap to evict and
 		//invalidate the corresponding pte in page table of the process
 		//owning the page
-  DEBUG(DB_A3, "USING SWAPFILE OYEAA"); 
   paddr = noPhysicalMemoryAction(pgTable, faultaddr,segmentNum, segBegin, segEnd, vpn);
 	
   int coreMapIndex = paddr / PAGE_SIZE;
@@ -215,8 +215,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
     panic("We shouldn't get here, there are only 3 segments.");
   }   
 
-  //TODO:COMMENT OUT AFTER COMPLETION
-		return NULL;
 		//NOTE: the swapping
 	}
 
@@ -229,9 +227,8 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
  struct addrspace *as = curproc_getas();
  for (int i = 0; i < swap_entries; i++) {
     if (sfeArray[i] != NULL) { //Non-empty entry
-      struct sfe *temp = sfeArray[i]; //?
+      struct sfe *temp = sfeArray[i];
       if (temp->as == as && temp->vaddr == faultaddr) {
-        DEBUG(DB_A3, "Taking data from SWAP\n");
         inSwap = true;
         break;
       }
@@ -239,7 +236,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
   } 
  lock_release(swap_lock);
  if (inSwap){
-  DEBUG(DB_A3, "LOADING FROM SWAPFILE OYEAA");
+  vmstats_inc(VMSTAT_SWAP_FILE_READ);
   int coreMapIndex = paddr / PAGE_SIZE;
 	 result = copyToSwap(&coremap[coreMapIndex]);
   if (result == -1) {
@@ -247,19 +244,19 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
     return NULL;
   }
 
-switch (segmentNum) {
-	case TEXT_SEG:
-return pgTable->text[vpn];
-		break;
-	case DATA_SEG:
-return pgTable->data[vpn];
-		break;
-	case STACK_SEG:
-		break;
-	default:
-		break;
-	}
- }
+  switch (segmentNum) {
+  	case TEXT_SEG:
+  return pgTable->text[vpn];
+  		break;
+  	case DATA_SEG:
+  return pgTable->data[vpn];
+  		break;
+  	case STACK_SEG:
+  		break;
+  	default:
+  		break;
+  	}
+  }
 
  //If not in Swap, load from elf
 	switch (segmentNum) {
@@ -438,6 +435,7 @@ void printPT(struct pt* pgTable) {
 
 }
 
+//If not enough physical memory, evict a physical frame to SWAPFILE
 paddr_t noPhysicalMemoryAction(struct pt * pgTable, vaddr_t faultaddr, 	unsigned short int segmentNum, vaddr_t segBegin, vaddr_t segEnd, int vpn){
   (void)pgTable;
   (void)faultaddr;
@@ -449,21 +447,20 @@ paddr_t noPhysicalMemoryAction(struct pt * pgTable, vaddr_t faultaddr, 	unsigned
   //Get Victim Index
   int victimIndex = getVictimIndex();
   
-  //CLEAN or DIRTY? Cannot be FREE OR FIXED.
+  //Check for CLEAN or DIRTY? Cannot be FREE OR FIXED.
   lock_acquire(coremapLock);
   struct page *victim = &coremap[victimIndex];
   //DIRTY
   if (victim->state == 3) {
     copyToSwap(victim);
+    vmstats_inc(VMSTAT_SWAP_FILE_WRITE);
   }
   //DO NOTHING IF CLEAN. We can just replace the page w/o consequence.
-  //Invalidate coremap, PT. TLB(?)
   vaddr_t victimVaddr = victim->vaddr;
   paddr_t victimPaddr = victim->paddr;
    
   lock_release(coremapLock);
 
-//SET COREMAP TO CLEAN? Does it have significance.
  
 //Set the pte valid bit = 0
   int victimVPN = 0;
@@ -477,7 +474,6 @@ switch (segmentNum) {
 	 victim->as->pgTable->data[vpn]->valid = 0;	
 		break;
 	case STACK_SEG:
-  //Should anything be done for stack?
 		break;
 	default:
 		break;
