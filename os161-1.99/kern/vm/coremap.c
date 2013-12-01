@@ -13,11 +13,10 @@
 unsigned int idCounter = 1;
 
 /**
- * allocate npages of available pages in the coremap
+ * allocate npages of contiguous available pages in the coremap
  * - synchronized
  * I think currently, we  only call this with param: 1
- * let's keep it that way, I don't think allocating multiple pages may
- * work with some of the stuff we've got here
+ * Only kernel code calls this with npages > 1
  */
 paddr_t cm_alloc_pages(unsigned long npages, bool inKernel) {
 
@@ -48,7 +47,6 @@ paddr_t cm_alloc_pages(unsigned long npages, bool inKernel) {
 
     			struct addrspace *as = curproc_getas();
 				for (int b = a - counter + 1; b < a + 1; b++) {
-					// coremap[b].state = DIRTY;
 					if(inKernel) {
 						coremap[b].state = HOGGED;
 					}
@@ -83,18 +81,13 @@ void free_page(paddr_t paddr, bool inKernel) {
 		for (int b = startingIndex; b < startingIndex+ pagesToFree; b++) {
 			//need to make sure state is not hogged
 			if (inKernel || coremap[b].state != HOGGED) {
-				// kprintf("FREEING INDEX=%d\n", b);
-				// coremap[b].paddr = (paddr_t) NULL;
 				coremap[b].state = FREE;
     			coremap[b].as = NULL;
 	  			coremap[b].pagesAllocated = -1;
 	  			coremap[b].vaddr = 0;
-				//addr needed to be aligned by 4k
 			}
 		}
 		as_zero_region(coremap[startingIndex].paddr,pagesToFree);
-
-
 
 		lock_release(coremapLock);
 	}
@@ -106,11 +99,9 @@ void free_page(paddr_t paddr, bool inKernel) {
 //FIFO algorithm, returns the page with the lowest id that's not fixed
 int getVictimIndex(void) {
 
-	//add locks?
 	lock_acquire(coremapLock);
 	unsigned int min = 0xFFFFFFFF;
 	int indexOfMin;
- //Is there any pages that we shouldn't use? Such as kernel pages.
 	for (int a = 0; a < NUM_PAGES; a++) {
 		if (coremap[a].state == HOGGED) {
 			continue;

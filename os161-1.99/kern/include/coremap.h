@@ -9,7 +9,7 @@ int getVictimIndex(void);
 void printCM(void);
 
 #define FREE 0  //page is available and is unalloc'ed
-#define HOGGED 1 	//page is alloc'ed and belongs to important owners, can't be used by others
+#define HOGGED 1 	//page is alloc'ed and belongs to important owners (ie kernel), can't be used by others
 #define CLEAN 2 //page is alloc'ed and used and has not been modified
 #define DIRTY 3 //page is alloc'ed and used and has been modified
 
@@ -20,7 +20,6 @@ struct page {
 	//the vaddr the frame is mapped to
 	volatile vaddr_t vaddr;
 	volatile paddr_t paddr;
-	volatile int vpn;
 
 	/**
 	 * n for n consecutive blocks allocated and this is the first block

@@ -70,15 +70,10 @@ as_create(void) {
 }
 
 void as_destroy(struct addrspace *as) {
-
-	// kprintf("destroying PT\n");
 	destroyPT(as->pgTable);
-
-	// vfs_close(curproc->p_elf->v);
 
 	kfree(as->pgTable);
 	kfree(as);
- //printCM();
 }
 
 void as_activate(void) {
@@ -106,8 +101,6 @@ void as_activate(void) {
 
 void as_deactivate(void) {
 	/* nothing */
-
-	//invalidate/clean page table?
 }
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
@@ -166,26 +159,6 @@ int as_prepare_load(struct addrspace *as) {
 	KASSERT(as->as_pbase_data == 0);
 	KASSERT(as->as_stackpbase == 0);
 
-//	as->as_pbase1 = getppages(as->as_npages1);
-//	if (as->as_pbase1 == 0) {
-//		return ENOMEM;
-//	}
-//
-//	as->as_pbase2 = getppages(as->as_npages2);
-//	if (as->as_pbase2 == 0) {
-//		return ENOMEM;
-//	}
-
-//	as->as_stackpbase = getppages(DUMBVM_STACKPAGES);
-//	if (as->as_stackpbase == 0) {
-//		return ENOMEM;
-//	}
-
-
-//	as_zero_region(as->as_pbase1, as->as_npages1);
-//	as_zero_region(as->as_pbase2, as->as_npages2);
-//	as_zero_region(as->as_stackpbase, DUMBVM_STACKPAGES);
-
 	return 0;
 }
 
@@ -195,7 +168,6 @@ int as_complete_load(struct addrspace *as) {
 }
 
 int as_define_stack(struct addrspace *as, vaddr_t *stackptr) {
-//	KASSERT(as->as_stackpbase != 0);
 	(void) as;
 	*stackptr = USERSTACK;
 	return 0;

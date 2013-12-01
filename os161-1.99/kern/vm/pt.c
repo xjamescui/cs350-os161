@@ -133,6 +133,10 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	return NULL;
 }
 
+/** 
+ * This method is called when we encountera page fault, and need to load a page from either
+ * ELF or SWAP into physical memory
+ **/
 struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		unsigned short int segmentNum, vaddr_t segBegin, vaddr_t segEnd) {
 	(void) segEnd;
@@ -152,8 +156,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	uint32_t dataFileBegin = curproc->p_elf->elf_data_offset;
 
 	int fileSize = (segmentNum == TEXT_SEG) ?
-	curproc->p_elf->elf_text_filesz :
-												curproc->p_elf->elf_data_filesz;
+	curproc->p_elf->elf_text_filesz : curproc->p_elf->elf_data_filesz;
 
 	/*
 	 Page fault
@@ -176,8 +179,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	long allocPageResult = getppages(1, false);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
-
-		//ALERT: there may be a bug here
 	} else if (allocPageResult == -1) {
 		//we ran out of physical memory
 		//need to find a victim in coremap to evict and
@@ -188,24 +189,24 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	
   int coreMapIndex = paddr / PAGE_SIZE;
 	 coremap[coreMapIndex].state = FREE;
-		//do some other cleaning up
+  //do some other cleaning up
   //as per evict victim from CM
 
   //load new page into evicted slot
 
-		//update pt and CM
+  //update pt and CM
   coremap[coreMapIndex].state = CLEAN;
   coremap[coreMapIndex].as = curproc_getas();
-  coremap[coreMapIndex].vaddr = faultaddr; //align by 4kB?
+  coremap[coreMapIndex].vaddr = faultaddr; 
 
 
   if(segmentNum == TEXT_SEG) {
-    pgTable->text[vpn]->vaddr = faultaddr; //align by 4kB?
+    pgTable->text[vpn]->vaddr = faultaddr; 
     pgTable->text[vpn]->valid = 1;
     pgTable->text[vpn]->readOnly = 1;
   }
   else if(segmentNum == DATA_SEG) {
-    pgTable->data[vpn]->vaddr = faultaddr; //align by 4kB?
+    pgTable->data[vpn]->vaddr = faultaddr;
     pgTable->data[vpn]->valid = 1;
   }
   else if(segmentNum == STACK_SEG) {
@@ -213,8 +214,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
   else {
     panic("We shouldn't get here, there are only 3 segments.");
   }   
-	  
-	//kprintf("out of physical mem in loadPTE\n");
 
   //TODO:COMMENT OUT AFTER COMPLETION
 		return NULL;
@@ -356,21 +355,8 @@ return pgTable->data[vpn];
 			}
 
 		}
-
-		//Try writing to swap file
-		//if (swapinit == 1) {
-		//  if (TEXT_SEG) {
-		//    copyToSwap(pgTable->text[vpn]);
-		//  }
-		//  else if (DATA_SEG) {
-		//    copyToSwap(pgTable->data[vpn]);
-		//  }
-		//swapinit = 2;
-		//}
-
 	}
 
- //int dbflags = DB_A3;
 	//update info to page table
 	if (segmentNum == TEXT_SEG) {
 		//text-segment is readonly!
@@ -378,37 +364,26 @@ return pgTable->data[vpn];
 		pgTable->text[vpn]->paddr = paddr;
 		pgTable->text[vpn]->valid = 1;
 		pgTable->text[vpn]->readOnly = 1;
-
-  //Try writing to swap file 
-  //if (swapinit == 1) {
-  //    DEBUG(DB_A3, "First writing");
-  //    copyToSwap(pgTable->text[vpn]);
-  //    copyFromSwap(pgTable->text[vpn]);
-  //    copyToSwap(pgTable->text[vpn]);
-  //    swapinit = 2;
-  //    DEBUG(DB_A3, "Finished writing");
-  //}
-
 		return pgTable->text[vpn];
-	} else if (segmentNum == DATA_SEG) {
+	} 
+	else if (segmentNum == DATA_SEG) {
 		pgTable->data[vpn]->vaddr = faultaddr;
 		pgTable->data[vpn]->paddr = paddr;
 		pgTable->data[vpn]->valid = 1;
 		pgTable->data[vpn]->readOnly = 0;
 		return pgTable->data[vpn];
-	} else if (segmentNum == STACK_SEG) {
+	}
+	else if (segmentNum == STACK_SEG) {
 		pgTable->stack[vpn]->vaddr = faultaddr;
 		pgTable->stack[vpn]->paddr = paddr;
 		pgTable->stack[vpn]->valid = 1;
 		pgTable->stack[vpn]->readOnly = 0;
 		return pgTable->stack[vpn];
-	} else {
+	} 
+	else {
 		//something wrong!
 		return NULL;
 	}
-
-	//something has gone wrong!
-	return NULL;
 }
 
 int destroyPT(struct pt * pgTable) {
@@ -463,36 +438,13 @@ void printPT(struct pt* pgTable) {
 
 }
 
-//We use a random page replacement algorithm, as it is actually faster than FIFO in practise.
-//it is also by far the simplest replacement algorithm to use as we needn't keep track of the order of pages
-//inserted into the page table like FIFO needs.
-//NOTE page replacement will  
-/*
- int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum) {
- if (segmentNum == TEXT_SEG) {
- return random() % pgTable->numTextPages;
- } else if (segmentNum == DATA_SEG) {
- return random() % pgTable->numDataPages;
- } else if (segmentNum == STACK_SEG) {
- return random() % DUMBVM_STACKPAGES;
- } else {
- //we shouldn't get here
- return -1;
- }
- }
- */
-
-
-
 paddr_t noPhysicalMemoryAction(struct pt * pgTable, vaddr_t faultaddr, 	unsigned short int segmentNum, vaddr_t segBegin, vaddr_t segEnd, int vpn){
-//void noPhysicalMemoryAction(){
   (void)pgTable;
   (void)faultaddr;
   (void)segmentNum;
   (void)segBegin;
   (void)segEnd;
-  (void)vpn;
-  
+  (void)vpn;  
   
   //Get Victim Index
   int victimIndex = getVictimIndex();

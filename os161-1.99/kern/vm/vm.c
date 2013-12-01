@@ -45,14 +45,12 @@ void vm_bootstrap(void) {
 	vmInitialized = false;
 	paddr_t p_first; //lowest physical address in RAM (bottom)
 	paddr_t p_last; //highest physical address in RAM (top)
-	//test
+
 	//region allocated for coremap
 	paddr_t cm_low;
 	paddr_t cm_high; //also the beginning of free memory i RAM
 
-	// int dbflags = DB_A3;
 	NUM_PAGES = -1;
-	//TODO maybe add check to see if we got a lock
 
 	ram_getsize(&p_first, &p_last);
 
@@ -69,17 +67,12 @@ void vm_bootstrap(void) {
 	 */
 
 	cm_low = p_first;
-	// DEBUG(DB_A3, "cm_low is %x\n", cm_low);
 	coremap = (struct page *) PADDR_TO_KVADDR(cm_low);
 	cm_high = p_first + NUM_PAGES * ( sizeof(struct page) + sizeof(struct addrspace));
 
 	cm_high = (cm_high & PAGE_FRAME) + PAGE_SIZE;
 
 	int firstFreePageIndex = cm_high / PAGE_SIZE;
-
-	// DEBUG(DB_A3, "cm_high is %x\n", cm_high);
-
-
 
 	/**
 	 * Initialize contents in coremap
@@ -90,11 +83,10 @@ void vm_bootstrap(void) {
 
 		coremap[a].as = NULL;
 		coremap[a].paddr = (paddr_t) a * PAGE_SIZE;
-		coremap[a].vpn = -1;
 		coremap[a].pagesAllocated = -1;
 		coremap[a].id = 0;
-		//mark pages between cm_high to top as FREE, else FIXED
-//		if (((unsigned int) a > (cm_high / PAGE_SIZE))) {
+
+		//mark pages between cm_high to last as FREE, else FIXED
 		if(a >= firstFreePageIndex) {
 			coremap[a].state = FREE;
 		} else {
@@ -165,7 +157,6 @@ paddr_t getppages(unsigned long npages, bool inKernel) {
 	return (paddr_t) NULL;
 #endif
 }
-//#endif
 
 /* Allocate/free some kernel-space virtual pages */
 vaddr_t alloc_kpages(int npages, bool inKernel) {
@@ -186,11 +177,6 @@ vaddr_t alloc_kpages(int npages, bool inKernel) {
 }
 
 void free_kpages(vaddr_t addr) {
-	/* nothing - leak the memory. */
-
-	/**
-	 * TODO: remember to invalidate in coremap AND owner thread's page table
-	 */
 
 	 paddr_t paddr = addr - MIPS_KSEG0;
 
@@ -250,7 +236,6 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	vaddr_t vbase_text, vtop_text, vbase_data, vtop_data, stackbase, stacktop;
 	paddr_t paddr;
-//	int dbflags = DB_A3;
 	int i;
 	int victim_index;
 	uint32_t ehi, elo;
@@ -298,16 +283,11 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 
 	/* Assert that the address space has been set up properly. */
 	KASSERT(as->as_vbase_text != 0);
-//	KASSERT(as->as_pbase1 != 0);
 	KASSERT(as->as_npages_text != 0);
 	KASSERT(as->as_vbase_data != 0);
-//	KASSERT(as->as_pbase2 != 0);
 	KASSERT(as->as_npages_data != 0);
-//	KASSERT(as->as_stackpbase != 0);
 	KASSERT((as->as_vbase_text & PAGE_FRAME) == as->as_vbase_text);
-//	KASSERT((as->as_pbase1 & PAGE_FRAME) == as->as_pbase1);
 	KASSERT((as->as_vbase_data & PAGE_FRAME) == as->as_vbase_data);
-//	KASSERT((as->as_pbase2 & PAGE_FRAME) == as->as_pbase2);
 	KASSERT((as->as_stackpbase & PAGE_FRAME) == as->as_stackpbase);
 
 	vbase_text = as->as_vbase_text;
@@ -318,8 +298,6 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	KASSERT(as->pgTable != NULL);
-//	DEBUG(DB_A3, "vm_fault: fault addr = %x, faulttype = %d\n", faultaddress,
-//			faulttype);
 
 	struct pte * entry;
 

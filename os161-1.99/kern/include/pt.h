@@ -18,7 +18,7 @@ struct pte {
 
 //page table struct
 struct pt {
-	unsigned int numTextPages;
+	unsigned int numTextPages; //we store the number of pages required for each segment as defined in the ELF file
 	unsigned int numDataPages;
 
 	//have three "mini" page tables for each segment for faster searching
@@ -39,24 +39,10 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t vaddr, unsigned short int segm
 
 int destroyPT(struct pt * pgTable);
 
-
 //print the page table to standard output
 void printPT(struct pt* pgTable);
 
 //Action for when there's not enough physical memory
 paddr_t noPhysicalMemoryAction(struct pt * pgTable, vaddr_t faultaddr, unsigned short int segmentNum, vaddr_t segBegin, vaddr_t segEnd, int vpn);
 
-//We use a random page replacement algorithm, as it is actually faster than FIFO in practise.
-//it is also by far the simplest replacement algorithm to use as we needn't keep track of the order of pages
-//inserted into the page table like FIFO needs.
-//int getVictimVPN(struct pt * pgTable, unsigned short int segmentNum);
-/* vaddr_t to paddr_t */
-
-/*
-
- replacePage?
-
- makePageAvail?
-
- */
 #endif
