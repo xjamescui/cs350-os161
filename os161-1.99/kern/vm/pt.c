@@ -144,7 +144,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct iovec iov;
 	struct uio u;
 	off_t uio_offset;
- vmstats_inc(VMSTAT_PAGE_FAULT_DISK);
+
 
 	if (faultaddr > MIPS_KSEG0) {
 		panic("We are given a kernel vaddr!!!\n");
@@ -199,23 +199,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
   coremap[coreMapIndex].as = curproc_getas();
   coremap[coreMapIndex].vaddr = faultaddr; 
 
-
-  if(segmentNum == TEXT_SEG) {
-    pgTable->text[vpn]->vaddr = faultaddr; 
-    pgTable->text[vpn]->valid = 1;
-    pgTable->text[vpn]->readOnly = 1;
-  }
-  else if(segmentNum == DATA_SEG) {
-    pgTable->data[vpn]->vaddr = faultaddr;
-    pgTable->data[vpn]->valid = 1;
-  }
-  else if(segmentNum == STACK_SEG) {
-  }
-  else {
-    panic("We shouldn't get here, there are only 3 segments.");
-  }   
-
-		//NOTE: the swapping
 	}
 
 	//load page based on swapfile or ELF file
@@ -237,6 +220,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
  lock_release(swap_lock);
  if (inSwap){
   vmstats_inc(VMSTAT_SWAP_FILE_READ);
+  vmstats_inc(VMSTAT_PAGE_FAULT_DISK);
   int coreMapIndex = paddr / PAGE_SIZE;
 	 result = copyToSwap(&coremap[coreMapIndex]);
   if (result == -1) {
@@ -321,6 +305,11 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		 *  Reading.....
 		 *
 		 */
+
+	 if(!zeroWholePage) {
+    vmstats_inc(VMSTAT_PAGE_FAULT_DISK);
+  }
+
 		result = VOP_READ(curproc->p_elf->v, &u);
 		if (result) {
 			panic("error on VOP_READ from elf\n");
