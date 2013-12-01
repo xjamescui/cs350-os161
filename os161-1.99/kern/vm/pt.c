@@ -222,22 +222,28 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
   vmstats_inc(VMSTAT_SWAP_FILE_READ);
   vmstats_inc(VMSTAT_PAGE_FAULT_DISK);
   int coreMapIndex = paddr / PAGE_SIZE;
-	 result = copyToSwap(&coremap[coreMapIndex]);
+	 result = copyFromSwap(&coremap[coreMapIndex]);
   if (result == -1) {
-    panic("copyToSwap failed...");
+    panic("copyFromSwap failed...");
     return NULL;
   }
 
   switch (segmentNum) {
   	case TEXT_SEG:
+   pgTable->text[vpn]->valid = 1;
+   pgTable->text[vpn]->paddr = paddr;
   return pgTable->text[vpn];
   		break;
   	case DATA_SEG:
+   pgTable->data[vpn]->valid = 1;
+   pgTable->data[vpn]->paddr = paddr;
   return pgTable->data[vpn];
   		break;
-  	case STACK_SEG:
+  	case STACK_SEG: //We don't care about stack pages
+    return NULL;
   		break;
   	default:
+    return NULL;
   		break;
   	}
   }
