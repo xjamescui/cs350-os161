@@ -1,3 +1,5 @@
+#ifndef _COREMAP_H_
+#define _COREMAP_H_
 #include <types.h>
 
 //alloc methods
@@ -44,3 +46,4 @@ struct page {
 
 struct lock * coremapLock;
 struct page * coremap;
+#endif

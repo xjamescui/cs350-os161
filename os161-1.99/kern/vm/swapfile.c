@@ -34,12 +34,12 @@ int initSF() {
 	return 0;
 }
 
-int copyToSwap(struct pte * entry) {
+int copyToSwap(struct page * entry) {
 	//copies from pt to swapfile
  KASSERT(entry != NULL); 
  lock_acquire(swap_lock);
  int dbflags = DB_A3; 
- struct addrspace *as = curproc_getas();
+ struct addrspace *as = entry->as;
  int entry_index = -1;
  
  DEBUG(DB_A3, "Writing to SWAP\n");
@@ -116,13 +116,14 @@ int copyToSwap(struct pte * entry) {
 	return 0;
 }
 
-int copyFromSwap(struct pte * entry) {
+int copyFromSwap(struct page * entry) {
 	//copies from swap file to pt
 lock_acquire(swap_lock);
 int dbflags = DB_A3;
- struct addrspace *as = curproc_getas();
+ struct addrspace *as = entry->as;
  int entry_index = -1;
-
+ 
+ DEBUG(DB_A3, "Reading from SWAP\n");
  //Find entry 
  for (int i = 0; i < swap_entries; i++) {
    if (sfeArray[i] != NULL) { //Non-empty entry

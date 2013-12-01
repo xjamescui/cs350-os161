@@ -84,7 +84,7 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 	if (!((textBegin <= addr && addr <= textEnd)
 			|| (dataBegin <= addr && addr <= dataEnd)
 			|| (stackBase <= addr && addr <= stackTop))) {
-		//kill process
+		//we should kill process
 		return NULL;
 	}
 
@@ -183,14 +183,86 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//need to find a victim in coremap to evict and
 		//invalidate the corresponding pte in page table of the process
 		//owning the page
+  DEBUG(DB_A3, "USING SWAPFILE OYEAA"); 
+  paddr = noPhysicalMemoryAction(pgTable, faultaddr,segmentNum, segBegin, segEnd, vpn);
+	
+  int coreMapIndex = paddr / PAGE_SIZE;
+	 coremap[coreMapIndex].state = FREE;
+		//do some other cleaning up
+  //as per evict victim from CM
 
-		kprintf("out of physical mem in loadPTE\n");
+  //load new page into evicted slot
+
+		//update pt and CM
+  coremap[coreMapIndex].state = CLEAN;
+  coremap[coreMapIndex].as = curproc_getas();
+  coremap[coreMapIndex].vaddr = faultaddr; //align by 4kB?
+
+
+  if(segmentNum == TEXT_SEG) {
+    pgTable->text[vpn]->vaddr = faultaddr; //align by 4kB?
+    pgTable->text[vpn]->valid = 1;
+    pgTable->text[vpn]->readOnly = 1;
+  }
+  else if(segmentNum == DATA_SEG) {
+    pgTable->data[vpn]->vaddr = faultaddr; //align by 4kB?
+    pgTable->data[vpn]->valid = 1;
+  }
+  else if(segmentNum == STACK_SEG) {
+  }
+  else {
+    panic("We shouldn't get here, there are only 3 segments.");
+  }   
+	  
+	//kprintf("out of physical mem in loadPTE\n");
+
+  //TODO:COMMENT OUT AFTER COMPLETION
 		return NULL;
 		//NOTE: the swapping
 	}
 
 	//load page based on swapfile or ELF file
 	KASSERT(faultaddr < segEnd);
+
+ bool inSwap = false;
+ //Check in Swap
+ lock_acquire(swap_lock);
+ struct addrspace *as = curproc_getas();
+ for (int i = 0; i < swap_entries; i++) {
+    if (sfeArray[i] != NULL) { //Non-empty entry
+      struct sfe *temp = sfeArray[i]; //?
+      if (temp->as == as && temp->vaddr == faultaddr) {
+        DEBUG(DB_A3, "Taking data from SWAP\n");
+        inSwap = true;
+        break;
+      }
+    }
+  } 
+ lock_release(swap_lock);
+ if (inSwap){
+  DEBUG(DB_A3, "LOADING FROM SWAPFILE OYEAA");
+  int coreMapIndex = paddr / PAGE_SIZE;
+	 result = copyToSwap(&coremap[coreMapIndex]);
+  if (result == -1) {
+    panic("copyToSwap failed...");
+    return NULL;
+  }
+
+switch (segmentNum) {
+	case TEXT_SEG:
+return pgTable->text[vpn];
+		break;
+	case DATA_SEG:
+return pgTable->data[vpn];
+		break;
+	case STACK_SEG:
+		break;
+	default:
+		break;
+	}
+ }
+
+ //If not in Swap, load from elf
 	switch (segmentNum) {
 	case TEXT_SEG:
 		uio_offset = vpn * PAGE_SIZE + textFileBegin;
@@ -298,6 +370,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	}
 
+ //int dbflags = DB_A3;
 	//update info to page table
 	if (segmentNum == TEXT_SEG) {
 		//text-segment is readonly!
@@ -305,6 +378,17 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		pgTable->text[vpn]->paddr = paddr;
 		pgTable->text[vpn]->valid = 1;
 		pgTable->text[vpn]->readOnly = 1;
+
+  //Try writing to swap file 
+  //if (swapinit == 1) {
+  //    DEBUG(DB_A3, "First writing");
+  //    copyToSwap(pgTable->text[vpn]);
+  //    copyFromSwap(pgTable->text[vpn]);
+  //    copyToSwap(pgTable->text[vpn]);
+  //    swapinit = 2;
+  //    DEBUG(DB_A3, "Finished writing");
+  //}
+
 		return pgTable->text[vpn];
 	} else if (segmentNum == DATA_SEG) {
 		pgTable->data[vpn]->vaddr = faultaddr;
@@ -397,3 +481,55 @@ void printPT(struct pt* pgTable) {
  }
  }
  */
+
+
+
+paddr_t noPhysicalMemoryAction(struct pt * pgTable, vaddr_t faultaddr, 	unsigned short int segmentNum, vaddr_t segBegin, vaddr_t segEnd, int vpn){
+//void noPhysicalMemoryAction(){
+  (void)pgTable;
+  (void)faultaddr;
+  (void)segmentNum;
+  (void)segBegin;
+  (void)segEnd;
+  (void)vpn;
+  
+  
+  //Get Victim Index
+  int victimIndex = getVictimIndex();
+  
+  //CLEAN or DIRTY? Cannot be FREE OR FIXED.
+  lock_acquire(coremapLock);
+  struct page *victim = &coremap[victimIndex];
+  //DIRTY
+  if (victim->state == 3) {
+    copyToSwap(victim);
+  }
+  //DO NOTHING IF CLEAN. We can just replace the page w/o consequence.
+  //Invalidate coremap, PT. TLB(?)
+  vaddr_t victimVaddr = victim->vaddr;
+  paddr_t victimPaddr = victim->paddr;
+   
+  lock_release(coremapLock);
+
+//SET COREMAP TO CLEAN? Does it have significance.
+ 
+//Set the pte valid bit = 0
+  int victimVPN = 0;
+switch (segmentNum) {
+	case TEXT_SEG:
+  victimVPN = ((victimVaddr - victim->as->as_vbase_text) & PAGE_FRAME) / PAGE_SIZE; 
+	 victim->as->pgTable->text[vpn]->valid = 0;	
+		break;
+	case DATA_SEG:
+  victimVPN = ((victimVaddr - victim->as->as_vbase_data) & PAGE_FRAME) / PAGE_SIZE; 
+	 victim->as->pgTable->data[vpn]->valid = 0;	
+		break;
+	case STACK_SEG:
+  //Should anything be done for stack?
+		break;
+	default:
+		break;
+	}
+
+ return victimPaddr;
+}

@@ -3,7 +3,7 @@
 
 #include <types.h>
 #include <pt.h>
-
+#include <coremap.h>
 #define FILESIZE 9 * 1024 * 1024
 
 //short for swap file entry
@@ -22,7 +22,7 @@ volatile int swapinit;
 
 int initSF(void);
 
-int copyToSwap(struct pte * entry);
+int copyToSwap(struct page * entry);
 
-int copyFromSwap(struct pte * entry);
+int copyFromSwap(struct page * entry);
 #endif

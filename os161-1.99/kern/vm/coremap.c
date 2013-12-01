@@ -110,7 +110,7 @@ int getVictimIndex(void) {
 	lock_acquire(coremapLock);
 	unsigned int min = 0xFFFFFFFF;
 	int indexOfMin;
-
+ //Is there any pages that we shouldn't use? Such as kernel pages.
 	for (int a = 0; a < NUM_PAGES; a++) {
 		if (coremap[a].state == HOGGED) {
 			continue;
