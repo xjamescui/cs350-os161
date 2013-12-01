@@ -30,13 +30,9 @@ void initPT(struct pt * pgTable, int numTextPages, int numDataPages) {
 	pgTable->data = kmalloc(numDataPages * sizeof(struct pte*));
 	pgTable->stack = kmalloc(DUMBVM_STACKPAGES * sizeof(struct pte*));
 
-	//should we have one for the stack? what's going on here?
-	//pageTable->text = (struct pte *) kmalloc (12 * sizeof(struct pte));
-
 	//for every page that it needs, create a pte and init appropriate fields
 
 	for (int a = 0; a < numTextPages; a++) {
-		//load vaddr part only
 		pgTable->text[a] = kmalloc(sizeof(struct pte));
 		pgTable->text[a]->valid = false;
 		pgTable->text[a]->readOnly = false;
@@ -103,8 +99,6 @@ struct pte * getPTE(struct pt* pgTable, vaddr_t addr, int* inText) {
 		} else {
 			//page fault
 			//get from swapfile or elf file
-			DEBUG(DB_A3, "page fault: addr is in text segment, vpn =%d \n",
-					vpn);
 			return loadPTE(pgTable, addr, TEXT_SEG, textBegin, textEnd);
 		}
 	}
@@ -147,9 +141,6 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	struct uio u;
 	off_t uio_offset;
 
-//	kprintf("Trying to load vaddr %x in segment %d with range %x to %x\n",
-//			faultaddr, segmentNum, segBegin, segEnd);
-
 	if (faultaddr > MIPS_KSEG0) {
 		panic("We are given a kernel vaddr!!!\n");
 	}
@@ -161,7 +152,8 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	uint32_t dataFileBegin = curproc->p_elf->elf_data_offset;
 
 	int fileSize = (segmentNum == TEXT_SEG) ?
-	curproc->p_elf->elf_text_filesz : curproc->p_elf->elf_data_filesz;
+	curproc->p_elf->elf_text_filesz :
+												curproc->p_elf->elf_data_filesz;
 
 	/*
 	 Page fault
@@ -181,7 +173,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 	//getting a physical page to write to
 	paddr_t paddr;
-	long allocPageResult = getppages(1);
+	long allocPageResult = getppages(1, false);
 	if (allocPageResult > 0) {
 		paddr = (paddr_t) allocPageResult;
 
@@ -192,7 +184,7 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		//invalidate the corresponding pte in page table of the process
 		//owning the page
 
-		kprintf("error in loadPTE\n");
+		kprintf("out of physical mem in loadPTE\n");
 		return NULL;
 		//NOTE: the swapping
 	}
@@ -222,15 +214,16 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 	u.uio_rw = UIO_READ;
 	u.uio_space = NULL;
 	u.uio_segflg = UIO_SYSSPACE;
+	//set up uio_resid later; we need to look at a few cases
 
 	if (segmentNum == STACK_SEG) {
+		//if we are dealing a stack page, simply load zeroes into it
 		u.uio_resid = PAGE_SIZE;
 		if (uiomovezeros(PAGE_SIZE, &u)) {
 			panic("error while zeroing for a stack page\n");
 		}
 	} else {
-		//READ from ELF if we are not dealing with data or text segments (ELF does not
-		//have a stack)
+		//READ from ELF if we are dealing with data or text segments
 
 		//set up flags to see if zeroing is needed
 		bool letsZero = PAGE_SIZE * (vpn + 1) >= fileSize; //there are unused spaces in the frame so we need to zero these spaces
@@ -241,19 +234,25 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 		if (letsZero) {
 
 			if (zeroWholePage) {
+				//prepare: zero out the whole page
+				vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
 				u.uio_resid = 0; //don't read anything but zero the page later
 			} else {
+				//prepare: only zero out the part of the page that is not used by the actual data contents
 				u.uio_resid = fileSize - vpn * PAGE_SIZE;
 			}
 		} else {
-			//read a whole page
+			//read a whole page, do not zero out anything
 			u.uio_resid = PAGE_SIZE;
 		}
 
 		//stat tracking: reading from the ELF file
 		vmstats_inc(VMSTAT_ELF_FILE_READ);
 
-		//Reading...
+		/**
+		 *  Reading.....
+		 *
+		 */
 		result = VOP_READ(curproc->p_elf->v, &u);
 		if (result) {
 			panic("error on VOP_READ from elf\n");
@@ -262,12 +261,14 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 		if (u.uio_resid != 0) {
 			/* short read; problem with executable? */
-			panic("loadPTE: ELF: short read on segment - file truncated?\n");
+			kprintf("loadPTE: ELF: short read on segment - file truncated?\n");
 			return NULL;
 		}
- 
 
-		//filling zeroes if needed
+		/**
+		 * Done reading info into page, now see if we need to read in zeroes
+		 */
+
 		if (letsZero) {
 			if (zeroWholePage) {
 				zeroAmt = PAGE_SIZE;
@@ -284,16 +285,16 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 
 		}
 
-  //Try writing to swap file 
-  //if (swapinit == 1) {
-  //  if (TEXT_SEG) {
-  //    copyToSwap(pgTable->text[vpn]);
-  //  }
-  //  else if (DATA_SEG) {
-  //    copyToSwap(pgTable->data[vpn]);
-  //  }
-  //swapinit = 2;
-  //}
+		//Try writing to swap file
+		//if (swapinit == 1) {
+		//  if (TEXT_SEG) {
+		//    copyToSwap(pgTable->text[vpn]);
+		//  }
+		//  else if (DATA_SEG) {
+		//    copyToSwap(pgTable->data[vpn]);
+		//  }
+		//swapinit = 2;
+		//}
 
 	}
 
@@ -329,25 +330,28 @@ struct pte * loadPTE(struct pt * pgTable, vaddr_t faultaddr,
 int destroyPT(struct pt * pgTable) {
 	for (unsigned int a = 0; a < pgTable->numTextPages; a++) {
 		if (pgTable->text[a]->paddr != 0) {
-			free_page(pgTable->text[a]->paddr);
+			free_page(pgTable->text[a]->paddr, false);
 		}
 	}
 
 	for (unsigned int a = 0; a < pgTable->numDataPages; a++) {
 		if (pgTable->data[a]->paddr != 0) {
-			free_page(pgTable->data[a]->paddr);
+			free_page(pgTable->data[a]->paddr, false);
 		}
 	}
 
 	for (unsigned int a = 0; a < DUMBVM_STACKPAGES; a++) {
 		if (pgTable->stack[a]->paddr != 0) {
-			free_page(pgTable->stack[a]->paddr);
+			free_page(pgTable->stack[a]->paddr, false);
 		}
 	}
 
 	return 0;
 }
 
+/**
+ * print the page table to standard output
+ */
 void printPT(struct pt* pgTable) {
 	(void) pgTable;
 	kprintf("----Printing Page Table---------\n");

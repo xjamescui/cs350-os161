@@ -63,7 +63,7 @@ struct semaphore *RaceConditionSem; //to be used in menu.c
 #if OPT_A3
 
 /* keep track of the ELF file loaded by load_elf */
-struct elf{
+struct elf {
 	char * elf_name;
 	struct vnode* v;
 	uint32_t elf_text_offset;
@@ -93,13 +93,17 @@ struct proc {
 
 	/* VM */
 	struct addrspace *p_addrspace; /* virtual address space */
+#if OPT_A3
 	struct pt* p_page_table;
+#endif
 
 	/* VFS */
 	struct vnode *p_cwd; /* current working directory */
 
+#if OPT_A3
 	/* ELF */
 	struct elf* p_elf;
+#endif
 /* add more material here as needed */
 };
 

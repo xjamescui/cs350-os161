@@ -62,7 +62,6 @@ int runprogram2(char *progname, unsigned long nargs, char **args,
 	(void) args;
 	int dbflags =DB_A3;
 
-
 	/* Open the file. */
 	result = vfs_open(progname, O_RDONLY, 0, &v);
 	if (result) {
