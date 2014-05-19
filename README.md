@@ -1,8 +1,6 @@
 cs350-os161
 ===========
 
-my operating system
+Completed Operating System OS161 for CS350
 
-me
-Dongwei
-Davis
+Developers:James, Dongwei, Davis
